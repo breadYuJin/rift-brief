@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/schedule/", label: "리그 일정" },
   { href: "/upcoming/", label: "예정 경기" },
   { href: "/teams/", label: "팀 전적" },
+  { href: "/draft/", label: "밴픽 예측" },
   { href: "/rules/", label: "대회 규칙" },
   { href: "/terms/", label: "밴픽·용어" },
   { href: "/about/", label: "만드는 방식" },

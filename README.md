@@ -1,6 +1,8 @@
 # 협곡 브리핑
 
-LoL e스포츠 경기 결과를 세 줄로 요약해 보여 주는 사이트입니다. 역할이 나뉜 에이전트들이 경기 데이터를 모으고, 분석하고, 요약을 쓰고, 사실 여부를 다시 확인합니다. 서버 없이 GitHub Actions와 GitHub Pages만으로 돌아갑니다.
+LoL e스포츠 경기 결과를 세 줄로 요약하고, 세트별 밴픽·교전·선수 기록과 밴픽 예측을 함께 보여 주는 사이트입니다. 역할이 나뉜 에이전트들이 자료를 모으고, 분석하고, 요약을 쓰고, 사실 여부를 다시 확인합니다. 서버 없이 GitHub Actions와 GitHub Pages만으로 돌아갑니다.
+
+지금 상태와 남은 일, 모델 검증 수치는 [BACKLOG.md](BACKLOG.md)에 있습니다.
 
 ## 화면 구성
 
@@ -12,19 +14,28 @@ LoL e스포츠 경기 결과를 세 줄로 요약해 보여 주는 사이트입�
 | 팀 전적 | 스테이지별 승패, 세트 득실, 최근 5경기, 연승·연패 |
 | 대회 규칙 | 대회별 진행 순서와 진출 조건 (LCK, MSI, 월즈, 스위스 스테이지) |
 | 밴픽·용어 | 밴픽 순서와 피어리스·첫 번째 선택권, 용어 설명 |
-| 경기 상세 | 요약, 근거 데이터, 브리핑이 만들어진 과정 |
+| 경기 상세 | 요약, 세트별 밴픽·승률·기록·골드 흐름·킬 위치·정글 동선·선수 맞대결, 밴픽 예상과 실제, 경기 전 AI 모의 밴픽 |
+| 밴픽 예측 | 예측 적중률, 다가오는 경기의 예상 밴픽, AI 모의 밴픽, 지난 시리즈별 적중 |
 
 ## 구조
 
 ```
-GitHub Actions (매시 17분)
-  └─ python -m pipeline.run
-       ├─ 리그 집계: 현재 시즌 일정, 스테이지별 팀 전적, 진행 중 경기
-       ├─ 브리핑 그래프: 수집 → 분석 → 작성 → 검증 ─ 통과 → 편집 → 저장
-       │                              ↑        └ 반려 → 재작성 (최대 2회, 넘으면 템플릿)
-       └─ 프리뷰 그래프: 수집 → (A측 패널 ∥ B측 패널) → 사회자 → 편집 → 저장
-            │
-            └─ data/*.json 커밋 → Next.js 정적 빌드 → GitHub Pages
+GitHub Actions
+  ├─ archive (매일 03:23 KST)
+  │    └─ python -m pipeline.collect      자료 수집: 경기·밴픽·선수 기록·타임라인, 챔피언 이름표, (키가 있으면) 공식 채널 영상
+  └─ pipeline (매시 17분) / archive 뒤
+       └─ python -m pipeline.run
+            ├─ 리그 집계: 시즌 일정, 스테이지별 팀 전적, 대진표
+            ├─ 브리핑 그래프: 수집 → 분석 → 작성 → 검증 ─ 통과 → 편집 → 저장
+            │                              ↑        └ 반려 → 재작성 (최대 2회, 넘으면 템플릿)
+            ├─ 프리뷰 그래프: 수집 → (A측 패널 ∥ B측 패널) → 사회자 → 편집 → 저장
+            └─ 분석(pipeline/analysis.py)
+                 ├─ 밴픽 예측: 세트 직전 기록으로 예상 → 실제와 비교 (세트마다 갱신)
+                 ├─ 승률: 밴픽 전/후 (Elo + 진영 + 조합), 전진 검증
+                 ├─ 경기 후 분석: 교전, 오브젝트, 골드 흐름, 정글 동선, 선수 맞대결
+                 └─ 모의 밴픽 그래프: 팀 에이전트 ⇄ 팀 에이전트 (20수) → 해설
+                      │
+                      └─ data/ 커밋 → Next.js 정적 빌드 → GitHub Pages
 ```
 
 | 에이전트 | 하는 일 | 구현 |
@@ -36,6 +47,8 @@ GitHub Actions (매시 17분)
 | 편집 | 결승·플레이오프 여부, 순위, 경기 특징으로 주요 경기 점수 부여 | 규칙 |
 | 패널 A/B | 예정 경기에서 각 팀 입장의 근거 제시 (병렬 실행) | LLM (실패 시 템플릿) |
 | 사회자 | 양측 주장을 중립적인 관전 포인트로 정리 | LLM (실패 시 템플릿) |
+| 팀 에이전트 ×2 | 모의 밴픽에서 한 팀씩 맡아, 예측 모델이 낸 후보 중 하나를 골라 번갈아 둠 | LLM (없으면 1순위 후보) |
+| 해설 | 끝난 모의 밴픽의 관전 포인트 정리 | LLM (없으면 템플릿) |
 
 LLM이 쓴 문장은 코드가 먼저 걸러 냅니다. 데이터에 없는 숫자가 나오거나 패배 팀을 승자로 적으면 작성 단계로 되돌아가고, 한도를 넘으면 규칙으로 만든 문장으로 바꿉니다. LLM 키가 없거나 호출이 실패해도 사이트는 템플릿 문장으로 계속 갱신됩니다.
 
@@ -44,7 +57,9 @@ LLM이 쓴 문장은 코드가 먼저 걸러 냅니다. 데이터에 없는 숫�
 - 파이프라인: Python 3.12, LangGraph, LangChain(`init_chat_model`), Pydantic
 - 사이트: Next.js(App Router, 정적 export), TypeScript
 - 운영: GitHub Actions(예약 실행·배포), GitHub Pages
-- 데이터: PandaScore API 무료 플랜(일정·결과·팀)
+- 모델: 감쇠 빈도 기반 밴픽 예측, Elo + 로지스틱 회귀 승률 (외부 ML 라이브러리 없이 직접 구현, 시간순 검증)
+- LLM: `LLM_MODEL=제공사:모델` 하나로 Anthropic / Google / OpenAI / Ollama 전환
+- 데이터: Leaguepedia 공개 API(경기·밴픽·선수 기록·타임라인), Riot Data Dragon(챔피언 이름), PandaScore API(실시간 일정, 선택)
 
 ## 데이터 모드
 
@@ -53,10 +68,10 @@ LLM이 쓴 문장은 코드가 먼저 걸러 냅니다. 데이터에 없는 숫�
 | 모드 | 조건 | 데이터 |
 |---|---|---|
 | live | `PANDASCORE_TOKEN` 이 있음 | PandaScore API 로 매시 갱신 |
-| archive | 토큰이 없고 `data/archive/*.json` 이 있음 | 미리 받아 둔 시즌 기록 (갱신 없음) |
+| archive | 토큰이 없고 `data/archive/*.json` 이 있음 | Leaguepedia 시즌 기록, 매일 새벽 자동 갱신 |
 | sample | 둘 다 없음 | 가상 팀 샘플 |
 
-시즌 기록은 `archive` 워크플로를 수동 실행하면 Leaguepedia 공개 API 에서 받아 옵니다 (LCK, 퍼스트 스탠드, MSI, 월즈). 원본 행은 `data/raw/` 에 남기 때문에, 스테이지 이름 같은 정리 규칙을 고친 뒤에는 `python -m pipeline.leaguepedia --year 2026 --offline` 으로 네트워크 없이 다시 정리할 수 있습니다. Leaguepedia 의 내용은 CC BY-SA 이므로 사이트 꼬리말에 출처를 표기합니다.
+시즌 기록은 `archive` 워크플로가 매일 Leaguepedia 공개 API 에서 받아 옵니다 (LCK, 퍼스트 스탠드, MSI, 월즈). 수동 실행도 됩니다. 수집원은 `pipeline/collect.py` 에 등록하고, 수집 결과는 `data/collect.json` 에 남습니다. 원본 행은 `data/raw/` 에 남기 때문에, 스테이지 이름 같은 정리 규칙을 고친 뒤에는 `python -m pipeline.leaguepedia --year 2026 --offline` 으로 네트워크 없이 다시 정리할 수 있습니다. Leaguepedia 의 내용은 CC BY-SA 이므로 사이트 꼬리말에 출처를 표기합니다.
 
 ## 로컬에서 실행
 
@@ -88,6 +103,10 @@ npm run dev                 # http://localhost:3000
    | Secret | `PANDASCORE_TOKEN` | PandaScore 대시보드의 액세스 토큰 |
    | Secret | `ANTHROPIC_API_KEY` / `GOOGLE_API_KEY` / `OPENAI_API_KEY` | 쓰는 제공사 하나만 |
    | Variable | `LLM_MODEL` | `제공사:모델명` (예: `anthropic:claude-haiku-5-5`) |
+   | Variable (선택) | `OLLAMA_BASE_URL` | `LLM_MODEL=ollama:<모델>` 일 때 Ollama 서버 주소 |
+   | Secret (선택) | `YOUTUBE_API_KEY` | 공식 채널 영상 목록 수집 (명장면 링크용) |
+   | Variable (선택) | `HIGHLIGHT_LINKS`, `HIGHLIGHT_OFFSET_SEC` | 명장면 링크 노출(`1`)과 중계 지연 보정(초). 켜는 순서는 BACKLOG.md |
+   | Secret (선택) | `GRID_API_KEY` | 실시간 밴픽 (연결부 구현 전) |
    | Variable (선택) | `LEAGUES` | 리그 이름, 쉼표 구분 |
    | Variable (선택) | `PANDASCORE_LEAGUE_IDS` | 리그 ID를 직접 지정할 때 |
 
@@ -100,12 +119,22 @@ npm run dev                 # http://localhost:3000
 
 ```
 pipeline/            멀티에이전트 파이프라인
-  agents/            에이전트 노드와 프롬프트
+  agents/            에이전트 노드와 프롬프트 (brief, preview, mock_draft)
   graphs.py          LangGraph 그래프 정의
   facts.py           규칙 기반 팩트 도출과 검증 도구
   leagues.py         리그 일정·팀 전적 집계, 주요 경기 점수
   pandascore.py      API 클라이언트
-  leaguepedia.py     시즌 기록 수집·정리 (archive 워크플로에서 실행)
+  collect.py         자동 수집 진입점 (수집원 등록, 상태 기록)
+  leaguepedia.py     시즌 기록·밴픽·선수 기록·타임라인 수집과 정리
+  champions.py       챔피언 한국어 이름표
+  youtube.py         공식 채널 영상 목록과 방송 시각
+  gamedata.py        세트 기록 모델 (밴픽 순서, 진영, 오브젝트, 선수 기록)
+  draft_model.py     밴픽 예측과 시간순 검증
+  win_model.py       밴픽 전/후 승률과 전진 검증
+  insights.py        교전, 오브젝트, 골드 흐름, 정글 동선, 선수 맞대결
+  highlights.py      킬 장면의 영상 위치 계산
+  live.py            실시간 밴픽 추적 뼈대 (수동 피드, GRID 자리)
+  analysis.py        위 모듈을 묶어 사이트용 파일 생성
   archive.py         받아 둔 시즌 기록을 읽는 데이터 소스
   sample.py          키 없이 돌릴 때 쓰는 가상 팀 데이터
   store.py           data/*.json 저장
@@ -124,5 +153,6 @@ web/                 Next.js 사이트
 - 진행 중인 경기 표시는 마지막 실행 시점 기준입니다. 정적 사이트라 실시간으로 바뀌지 않습니다.
 - 팀 전적표는 승수와 세트 득실만으로 정렬합니다. 상대 전적·타이브레이커는 반영하지 않아 공식 순위와 다를 수 있습니다.
 - 대회 규칙과 밴픽·용어는 2026 시즌 기준으로 직접 정리한 요약입니다. 새 시즌 규정이 나오면 손으로 갱신해야 합니다.
-- 무료 플랜 데이터에는 챔피언·킬·선수 기록이 없습니다. 요약도 세트 스코어와 전적 수준에서만 씁니다.
-- PandaScore 약관과 Riot Games의 팬 콘텐츠 정책은 공개 운영 전에 직접 확인하세요. 팀 로고는 쓰지 않고 약칭만 표시합니다. 베팅·배당 관련 내용은 다루지 않습니다.
+- 밴픽 예측과 승률은 재미로 보는 참고용입니다. 올해 기록으로 잰 적중률은 BACKLOG.md 에 있고, 픽 예측과 조합 효과는 약합니다.
+- 세트 상세·예측은 Leaguepedia 기록이 있는 archive 모드에서만 만들어집니다. live 모드(PandaScore 무료 플랜)에는 챔피언·킬·선수 기록이 없습니다.
+- PandaScore 약관과 Riot Games의 팬 콘텐츠 정책은 공개 운영 전에 직접 확인하세요. 팀 로고와 챔피언 이미지는 쓰지 않고 이름만 표시합니다. 베팅·배당 관련 내용은 다루지 않습니다.

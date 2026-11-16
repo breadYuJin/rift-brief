@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {meta.source === "archive" && (
           <p className="notice notice--quiet" role="note">
             <span className="wrap">
-              미리 받아 둔 시즌 기록입니다 ({meta.source_note}). 새 경기는 자동으로 반영되지 않습니다.
+              경기 기록은 하루 한 번 새벽에 자동으로 갱신됩니다 ({meta.source_note}).
             </span>
           </p>
         )}
@@ -67,8 +67,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               )}
             </p>
             <p>
-              요약은 자동으로 작성되어 틀릴 수 있습니다. 이 사이트는 팬이 만든 비공식 사이트이며 Riot Games와
-              관련이 없습니다.
+              요약과 예측은 자동으로 만들어져 틀릴 수 있습니다. 예측은 재미로 보는 참고용이며 베팅 용도가
+              아닙니다. 이 사이트는 팬이 만든 비공식 사이트이며 Riot Games와 관련이 없습니다.
             </p>
             {REPO_URL && (
               <p>

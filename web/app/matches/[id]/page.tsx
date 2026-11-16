@@ -3,7 +3,11 @@ import Link from "next/link";
 import { Badges } from "@/components/MatchCard";
 import { Scoreboard } from "@/components/Scoreboard";
 import { SetStrip } from "@/components/SetStrip";
-import { getResults } from "@/lib/data";
+import { MockPlayer } from "@/components/sets/MockPlayer";
+import { SetExplorer } from "@/components/sets/SetExplorer";
+import { championName, getMatchSets, getPlayers, getResults } from "@/lib/data";
+import { toMockView, toSetViews } from "@/lib/sets";
+import type { PlayerAverage } from "@/lib/types";
 import { formatDay, formatTime } from "@/lib/format";
 import { stageLabel } from "@/lib/select";
 
@@ -34,6 +38,17 @@ export default async function MatchPage({ params }: Props) {
     );
   }
   const { match } = brief;
+  const data = getMatchSets(match.id);
+  const sets = data ? toSetViews(data, match, championName) : [];
+  const mock = data?.mock ? toMockView(data.mock, match.team_a, match.team_b, championName) : null;
+  const players = getPlayers();
+  const season = (teamId: number) => new Map((players[String(teamId)] ?? []).map((p) => [p.player, p]));
+  const seasonA = season(match.team_a.id);
+  const seasonB = season(match.team_b.id);
+  // 이 경기에 실제로 나온 선수끼리 시즌 평균을 맞세운다.
+  const seasonRows = (sets[0]?.matchups ?? [])
+    .map((m) => ({ role: m.role, a: seasonA.get(m.a.player), b: seasonB.get(m.b.player) }))
+    .filter((r): r is { role: string; a: PlayerAverage; b: PlayerAverage } => Boolean(r.a && r.b));
   return (
     <article className="detail">
       <div className="card card--lead">
@@ -56,18 +71,80 @@ export default async function MatchPage({ params }: Props) {
         </ul>
       </div>
 
-      <section className="block">
-        <h2>근거로 쓴 데이터</h2>
+      {sets.length > 0 && (
+        <section className="block" id="sets">
+          <h2>세트별 기록</h2>
+          <SetExplorer sets={sets} />
+        </section>
+      )}
+
+      {seasonRows.length > 0 && (
+        <section className="block">
+          <h2>시즌 평균 맞대결</h2>
+          <p className="block__hint">이 경기에 나온 선수들의 2026 시즌 전체 평균입니다. 더 높은 쪽이 밝게 보입니다.</p>
+          <div className="table-wrap">
+            <table className="table season">
+              <thead>
+                <tr>
+                  <th scope="col">{match.team_a.acronym}</th>
+                  <th scope="col" className="num">KDA</th>
+                  <th scope="col" className="num">분당 CS</th>
+                  <th scope="col" className="num">분당 피해</th>
+                  <th scope="col" className="season__role">포지션</th>
+                  <th scope="col" className="num">분당 피해</th>
+                  <th scope="col" className="num">분당 CS</th>
+                  <th scope="col" className="num">KDA</th>
+                  <th scope="col" className="season__b">{match.team_b.acronym}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {seasonRows.map(({ role, a, b }) => {
+                  const cell = (mine: number, other: number, text: string) => (
+                    <td className={`num${mine > other ? " is-more" : ""}`}>{text}</td>
+                  );
+                  return (
+                    <tr key={role}>
+                      <th scope="row" className="season__a">{a.player}</th>
+                      {cell(a.kda, b.kda, a.kda.toFixed(1))}
+                      {cell(a.cs_min, b.cs_min, a.cs_min.toFixed(1))}
+                      {cell(a.dpm, b.dpm, String(a.dpm))}
+                      <td className="season__role">{role}</td>
+                      {cell(b.dpm, a.dpm, String(b.dpm))}
+                      {cell(b.cs_min, a.cs_min, b.cs_min.toFixed(1))}
+                      {cell(b.kda, a.kda, b.kda.toFixed(1))}
+                      <th scope="row" className="season__b">{b.player}</th>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {mock && (
+        <section className="block">
+          <h2>경기 전 AI 모의 밴픽</h2>
+          <p className="block__hint">
+            이 경기 전까지의 기록만 보고 두 에이전트가 번갈아 둔 가상의 1세트 밴픽입니다. 위의 실제 밴픽과 비교해
+            보세요.
+          </p>
+          <MockPlayer mock={mock} />
+        </section>
+      )}
+
+      <details className="fold">
+        <summary>근거로 쓴 데이터 {brief.facts.length}개</summary>
         <p className="block__hint">요약 문장은 아래 항목에 있는 내용과 숫자만 쓰도록 검증됩니다.</p>
         <ul className="facts">
           {brief.facts.map((f, i) => (
             <li key={i}>{f}</li>
           ))}
         </ul>
-      </section>
+      </details>
 
-      <section className="block">
-        <h2>이 브리핑이 만들어진 과정</h2>
+      <details className="fold">
+        <summary>이 브리핑이 만들어진 과정</summary>
         <p className="block__hint">
           {brief.generated_by === "llm"
             ? "언어 모델이 작성했고, 검증 단계를 통과했습니다."
@@ -81,7 +158,7 @@ export default async function MatchPage({ params }: Props) {
             </li>
           ))}
         </ol>
-      </section>
+      </details>
 
       <p>
         <Link href="/">최근 경기 결과로 돌아가기</Link>

@@ -59,6 +59,15 @@ def save(data_dir: Path, table: dict[str, Any]) -> None:
         path.write_text(text, encoding="utf-8")
 
 
+def namer(data_dir: Path) -> Callable[[str], str]:
+    """기록의 영어 이름을 한국어 이름으로 바꾸는 함수. 이름표가 없으면 이름을 그대로 돌려준다."""
+    try:
+        table = json.loads((data_dir / "champions.json").read_text(encoding="utf-8"))["champions"]
+    except (OSError, ValueError, KeyError):
+        return str
+    return lambda english: table.get(key(english), {}).get("ko", english)
+
+
 def main() -> int:
     try:
         table = fetch()

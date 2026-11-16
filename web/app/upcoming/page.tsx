@@ -13,7 +13,7 @@ export default function UpcomingPage() {
     <>
       <h1 className="page-title">예정 경기</h1>
       <p className="page-lede">
-        두 패널이 각 팀의 입장에서 근거를 내고, 사회자가 관전 포인트로 정리합니다. 승부 예측은 하지 않습니다.
+        두 패널이 각 팀의 입장에서 근거를 내고, 사회자가 관전 포인트로 정리합니다. 예상 밴픽은 밴픽 예측에서 볼 수 있습니다.
       </p>
       {previews.length === 0 && (
         <p className="empty">지금은 대진이 확정된 예정 경기가 없습니다. 일정이 잡히면 여기에 올라옵니다.</p>

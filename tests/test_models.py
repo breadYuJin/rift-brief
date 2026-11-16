@@ -246,6 +246,20 @@ def test_mock_draft_with_llm_and_fearless():
     assert any(m["reason"] == "두 번째 후보" for m in out["moves"])
 
 
+def test_mock_draft_shows_korean_names_to_agents():
+    seen: list[str] = []
+
+    class Reader(PickSecond):
+        def structured(self, system, user, schema):
+            seen.append(user)
+            return super().structured(system, user, schema)
+
+    out = run_mock_draft(trained(), Reader(), T1, T2, (START + timedelta(days=30)).isoformat(), name=lambda c: f"한글{c}")
+    assert "한글" in seen[0].split("후보:")[1]
+    # 에이전트가 보여 준 이름으로 답해도 기록에는 원래 이름으로 남는다.
+    assert out["by"] == "llm" and not any(m["champion"].startswith("한글") for m in out["moves"])
+
+
 def test_mock_draft_rejects_choice_outside_candidates():
     class Rogue:
         name = "rogue"

@@ -9,7 +9,7 @@
 from __future__ import annotations
 
 import operator
-from typing import Annotated, Any, TypedDict
+from typing import Annotated, Any, Callable, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
@@ -64,8 +64,12 @@ def build_mock_draft_graph(
     when: str,
     unavailable: set[str],
     series_bans: dict[int, set[str]] | None = None,
+    name: Callable[[str], str] = str,
 ):
-    """first 가 먼저 밴픽하는 팀. unavailable 은 피어리스로 이미 소진된 챔피언."""
+    """first 가 먼저 밴픽하는 팀. unavailable 은 피어리스로 이미 소진된 챔피언.
+
+    name 은 기록의 챔피언 이름을 에이전트에게 보여 줄 이름(한국어)으로 바꾸는 함수다.
+    """
     series_bans = series_bans or {}
     teams = {"F": first, "S": second}
 
@@ -104,17 +108,17 @@ def build_mock_draft_graph(
         used_llm = False
         if llm:
             board = "\n".join(
-                f"- {'금지' if m.kind == 'ban' else '선택'} {first.name if m.team_id == first.id else second.name}: {m.champion}"
+                f"- {'금지' if m.kind == 'ban' else '선택'} {first.name if m.team_id == first.id else second.name}: {name(m.champion)}"
                 for m in moves
             ) or "- 아직 없음"
-            listing = "\n".join(f"- {c} ({r or '금지 후보'}): {why}" for c, r, why in options)
+            listing = "\n".join(f"- {name(c)} ({r or '금지 후보'}): {why}" for c, r, why in options)
             user = (
                 f"맡은 팀: {team.name} / 상대: {opp.name}\n지금 차례: {'금지' if kind == 'ban' else '선택'}\n\n"
                 f"현재까지의 밴픽:\n{board}\n\n후보:\n{listing}"
             )
             try:
                 choice = llm.structured(TEAM_AGENT, user, Choice)
-                picked = next((o for o in options if o[0] == choice.champion), None)
+                picked = next((o for o in options if choice.champion.strip() in (o[0], name(o[0]))), None)
                 if picked:
                     champion, role, reason = picked[0], picked[1], choice.reason
                     used_llm = True
@@ -132,7 +136,7 @@ def build_mock_draft_graph(
         moves = state["moves"]
 
         def comp(team: Team) -> str:
-            return ", ".join(f"{m.role} {m.champion}" for m in moves if m.kind == "pick" and m.team_id == team.id)
+            return ", ".join(f"{m.role} {name(m.champion)}" for m in moves if m.kind == "pick" and m.team_id == team.id)
 
         if llm:
             try:
@@ -159,8 +163,9 @@ def run_mock_draft(
     when: str,
     unavailable: set[str] | None = None,
     series_bans: dict[int, set[str]] | None = None,
+    name: Callable[[str], str] = str,
 ) -> dict[str, Any]:
-    graph = build_mock_draft_graph(model, llm, first, second, when, set(unavailable or ()), series_bans)
+    graph = build_mock_draft_graph(model, llm, first, second, when, set(unavailable or ()), series_bans, name)
     out = graph.invoke({"moves": []}, config={"recursion_limit": 80})
     return {
         "first_id": first.id,

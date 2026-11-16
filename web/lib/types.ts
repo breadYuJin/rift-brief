@@ -169,8 +169,12 @@ export interface SetSummary {
 
 export interface ForecastRow {
   champion: string;
+  /** 이 순위의 예상이 지난 검증에서 맞은 비율 */
   p: number;
+  /** 그 팀이 실제로 그렇게 했다 */
   hit?: boolean;
+  /** 어느 쪽이든 그 세트 밴픽에 등장했다 */
+  seen?: boolean;
 }
 
 export interface TeamForecast {
@@ -222,6 +226,10 @@ export interface MatchSets {
 
 export interface DraftScores {
   sets: number;
+  pick_appear_5?: number;
+  ban_appear_5?: number;
+  pick_hits_10?: number;
+  ban_hits_10?: number;
   pick_recall_5: number;
   pick_recall_10: number;
   ban_recall_5: number;
@@ -249,7 +257,8 @@ export interface Models {
     coef: number[];
     features: string[];
   };
-  counts: { sets: number; drafted: number; timelines: number; timelines_verified: number; series: number };
+  counts: { sets: number; drafted: number; timelines: number; timelines_verified: number; series: number; clip_sets?: number };
+  clips?: boolean;
   mock_by: "llm" | "policy";
 }
 

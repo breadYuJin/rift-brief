@@ -16,7 +16,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from . import highlights, insights, youtube
+from . import champions, highlights, insights, youtube
 from .agents.mock_draft import run_mock_draft
 from .draft_model import TOP_N, DraftModel, SetForecast, appear_rate, evaluate, meta_only, rank_hit_rates, recall, replay, tune
 from .gamedata import ROLES, SetRecord, load_sets, load_timelines
@@ -95,7 +95,10 @@ def build(
     upcoming = upcoming or []
     videos = youtube.load_videos(data_dir)
     clips_on = highlights.enabled() and bool(videos)
-    fingerprint = _fingerprint(sets, timelines, llm, upcoming, f"{len(videos)}:{clips_on}:{highlights.offset_sec()}")
+    name = champions.namer(data_dir)
+    fingerprint = _fingerprint(
+        sets, timelines, llm, upcoming, f"{len(videos)}:{clips_on}:{highlights.offset_sec()}:{name('Wukong')}"
+    )
     try:
         if json.loads((data_dir / "models.json").read_text(encoding="utf-8")).get("input") == fingerprint:
             print("[분석] 입력이 그대로라 건너뜀")
@@ -125,7 +128,7 @@ def build(
             return
         first, second = s.team(s.first_pick_id), s.other(s.first_pick_id)
         use = llm if s.match_id in llm_targets else None
-        mocks[s.match_id] = run_mock_draft(model, use, first, second, s.start)
+        mocks[s.match_id] = run_mock_draft(model, use, first, second, s.start, name=name)
 
     forecasts, draft_model = replay(sets, weights, before_set=before_set)
     order = {s.game_id: i for i, s in enumerate(drafted)}
@@ -273,7 +276,7 @@ def build(
                     for t, o in ((a, b), (b, a))
                     for p in [draft_model.predict(t.id, o.id, when)]
                 },
-                "mock": run_mock_draft(draft_model, llm, a, b, when),
+                "mock": run_mock_draft(draft_model, llm, a, b, when, name=name),
                 "win_before": round(before, 3),
             }
         )

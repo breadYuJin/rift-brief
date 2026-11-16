@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { Brief, League, Meta, Preview } from "./types";
+import type { Brief, ChampionTable, DraftIndex, League, MatchSets, Meta, Models, PlayerAverage, Preview } from "./types";
 
 // 파이프라인이 레포 루트의 data/ 에 커밋한 JSON 을 빌드 시점에 읽는다.
 const DATA_DIR = path.join(process.cwd(), "..", "data");
@@ -19,7 +19,6 @@ export const getLeagues = () => read<League[]>("leagues.json", []);
 export const getMeta = () => read<Meta>("meta.json", { updated_at: null, sample: false, llm: "template" });
 
 // ---- 세트 상세·예측 ----
-import type { ChampionTable, DraftIndex, MatchSets, Models, PlayerAverage } from "./types";
 
 export const getMatchSets = (matchId: number | string) => read<MatchSets | null>(`sets/${matchId}.json`, null);
 export const getModels = () => read<Models | null>("models.json", null);
@@ -34,3 +33,13 @@ export function championName(english: string): string {
   const key = english.toLowerCase().replace(/[^a-z0-9]/g, "");
   return championTable?.champions[key]?.ko ?? english;
 }
+
+export interface CollectEntry {
+  what: string;
+  needs: string;
+  state: "수집됨" | "키 없음" | "준비 중" | "실패";
+  note: string;
+  at?: string;
+}
+
+export const getCollectStatus = () => read<Record<string, CollectEntry>>("collect.json", {});
