@@ -1,0 +1,590 @@
+/* 협곡 브리핑
+   색: 남색 바탕 위에 왼쪽 팀(하늘색)과 오른쪽 팀(주황색) 두 색만 데이터 표시에 쓴다.
+   글꼴: 제목·스코어는 Black Han Sans, 본문은 IBM Plex Sans KR. */
+
+:root {
+  --ink: #12213a;
+  --panel: #1a2e4d;
+  --line: #2c446b;
+  --text: #eef3fa;
+  --muted: #9db0cc;
+  --side-a: #62c2f0;
+  --side-b: #f5a552;
+
+  --font-display: "Black Han Sans", "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+
+  --step--1: 0.8125rem;
+  --step-0: 1rem;
+  --step-1: 1.25rem;
+  --step-2: 1.75rem;
+  --step-3: 3rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--side-a);
+}
+
+:focus-visible {
+  outline: 2px solid var(--side-b);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+abbr[title] {
+  text-decoration: none;
+}
+
+.wrap {
+  display: block;
+  width: min(100% - 2.5rem, 44rem);
+  margin-inline: auto;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--text);
+  color: var(--ink);
+}
+
+.skip:focus {
+  top: 1rem;
+}
+
+/* ---- 머리말 ---- */
+
+.site-header {
+  padding-top: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.site-header__name {
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  line-height: 1.1;
+  text-decoration: none;
+}
+
+.site-header__tagline {
+  color: var(--muted);
+  font-size: var(--step--1);
+  margin-top: 0.25rem;
+}
+
+.nav {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.nav__link {
+  padding: 0.6rem 0;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+
+.nav__link:hover {
+  color: var(--text);
+}
+
+.nav__link[aria-current="page"] {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom-color: var(--side-a);
+}
+
+.notice {
+  background: var(--side-b);
+  color: var(--ink);
+  font-size: var(--step--1);
+  font-weight: 500;
+  padding: 0.5rem 0;
+}
+
+main {
+  padding-block: 2rem 4rem;
+}
+
+/* ---- 스코어 표시 ---- */
+
+.score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.score--lg {
+  font-size: clamp(2.25rem, 9vw, var(--step-3));
+}
+
+.score__team--a {
+  color: var(--side-a);
+}
+
+.score__team--b {
+  color: var(--side-b);
+}
+
+.score__nums {
+  display: inline-flex;
+  gap: 0.2em;
+}
+
+.score__colon,
+.score__vs {
+  color: var(--muted);
+}
+
+.score__vs {
+  font-family: var(--font-body);
+  font-size: 0.5em;
+  font-weight: 500;
+}
+
+.score .is-loser {
+  opacity: 0.45;
+}
+
+/* ---- 시리즈 흐름 띠 ---- */
+
+.sets {
+  display: flex;
+  gap: 3px;
+  margin-top: 0.6rem;
+}
+
+.sets__set {
+  flex-basis: 0;
+  min-width: 0;
+  height: 0.5rem;
+  border-radius: 2px;
+}
+
+.sets__set--a {
+  background: var(--side-a);
+}
+
+.sets__set--b {
+  background: var(--side-b);
+}
+
+.sets--detailed {
+  margin-top: 1rem;
+}
+
+.sets--detailed .sets__set {
+  height: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  color: var(--ink);
+  font-size: var(--step--1);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.sets__min {
+  font-weight: 400;
+}
+
+/* ---- 가장 최근 경기 ---- */
+
+.lead,
+.detail,
+.preview {
+  padding-bottom: 2rem;
+}
+
+.lead__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  color: var(--muted);
+  font-size: var(--step--1);
+  margin-bottom: 0.75rem;
+}
+
+.lead__headline {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--step-2);
+  line-height: 1.25;
+  margin-top: 1.5rem;
+}
+
+.lead__headline a,
+.row__headline a {
+  text-decoration: none;
+}
+
+.summary {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.summary li {
+  padding-left: 1rem;
+  position: relative;
+}
+
+.summary li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 0.4rem;
+  height: 2px;
+  background: var(--muted);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+}
+
+.tags li {
+  font-size: var(--step--1);
+  padding: 0.1rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+}
+
+/* ---- 팀 필터 ---- */
+
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 2rem;
+}
+
+.filter__chip {
+  font: inherit;
+  font-size: var(--step--1);
+  font-weight: 500;
+  padding: 0.35rem 0.8rem;
+  min-height: 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.filter__chip:hover {
+  color: var(--text);
+  border-color: var(--muted);
+}
+
+.filter__chip[aria-pressed="true"] {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--ink);
+}
+
+/* ---- 날짜별 목록 ---- */
+
+.day {
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.day__title {
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 1.5rem;
+  padding: 1.25rem 0 1.75rem;
+}
+
+.row + .row {
+  border-top: 1px dashed var(--line);
+}
+
+.row__meta {
+  margin-top: 0.6rem;
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.row__headline {
+  font-size: var(--step-1);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.row .summary {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 34rem) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+}
+
+/* ---- 경기 상세 ---- */
+
+.block {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.block h2,
+.prose h2,
+.debate h3,
+.watch h3 {
+  font-size: var(--step-0);
+  font-weight: 600;
+}
+
+.block__hint {
+  color: var(--muted);
+  font-size: var(--step--1);
+  margin-top: 0.15rem;
+}
+
+.facts {
+  margin-top: 0.9rem;
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.trace {
+  margin-top: 1rem;
+  counter-reset: step;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.trace li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 1.75rem 5.5rem 1fr;
+  align-items: baseline;
+  font-size: 0.9375rem;
+}
+
+.trace li::before {
+  content: counter(step);
+  font-family: var(--font-display);
+  color: var(--muted);
+}
+
+.trace__agent {
+  font-weight: 600;
+}
+
+.trace__note {
+  color: var(--muted);
+}
+
+.trace--steps li {
+  font-size: var(--step-0);
+}
+
+.trace--steps .trace__note {
+  color: var(--text);
+}
+
+.detail > p:last-child {
+  margin-top: 2.5rem;
+}
+
+/* ---- 예정 경기 ---- */
+
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--step-2);
+  line-height: 1.2;
+}
+
+.page-lede {
+  color: var(--muted);
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
+  max-width: 36rem;
+}
+
+.preview {
+  padding-top: 1.25rem;
+}
+
+.preview + .preview {
+  border-top: 1px dashed var(--line);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.stats dt {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.stats dd {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.debate {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.debate__side {
+  padding-left: 0.9rem;
+  border-left: 3px solid;
+}
+
+.debate__side--a {
+  border-color: var(--side-a);
+}
+
+.debate__side--b {
+  border-color: var(--side-b);
+}
+
+.debate ul,
+.watch ul {
+  margin-top: 0.4rem;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+.watch {
+  margin-top: 1.5rem;
+  padding: 1rem 1.1rem;
+  background: var(--panel);
+  border-radius: 4px;
+}
+
+.watch ul {
+  color: var(--text);
+}
+
+@media (max-width: 34rem) {
+  .debate,
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- 설명 페이지 ---- */
+
+.prose h2 {
+  margin-top: 2.25rem;
+}
+
+.prose p:not(.page-lede) {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  max-width: 38rem;
+}
+
+.empty {
+  padding: 2rem 0;
+  color: var(--muted);
+}
+
+/* ---- 꼬리말 ---- */
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding-block: 1.5rem 3rem;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.site-footer p + p {
+  margin-top: 0.35rem;
+}

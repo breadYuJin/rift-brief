@@ -1,0 +1,8 @@
+langgraph>=1.0,<2
+langchain>=1.0,<2
+pydantic>=2.7,<3
+requests>=2.31,<3
+# LLM 제공사 패키지: 쓰는 것만 남겨도 된다.
+langchain-google-genai
+langchain-anthropic
+langchain-openai

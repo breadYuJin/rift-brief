@@ -1,0 +1,67 @@
+name: deploy
+
+# Next.js 를 정적 파일로 빌드해 GitHub Pages 에 올린다.
+# 사전 설정: 저장소 Settings → Pages → Source 를 "GitHub Actions" 로 지정.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "data/**"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # 파이프라인이 방금 올린 커밋까지 포함하도록 브랜치의 최신 커밋을 받는다.
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: 사이트 빌드
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          # 프로젝트 사이트는 /<레포명> 아래에서 서빙된다.
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          # 공개 저장소일 때만 꼬리말에 소스 링크를 넣는다.
+          NEXT_PUBLIC_REPO_URL: ${{ github.event.repository.private == false && format('{0}/{1}', github.server_url, github.repository) || '' }}
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
