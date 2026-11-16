@@ -387,10 +387,14 @@ def compact_timeline(timeline: dict[str, Any]) -> dict[str, Any]:
     buildings: list[list[Any]] = []
     gold: list[list[int]] = []
     positions: list[list[list[int]]] = []
+    anchors: list[list[int]] = []
     for frame in frames:
         for e in frame.get("events") or []:
             t = int(e.get("timestamp") or 0) // 1000
             kind = e.get("type")
+            if e.get("realTimestamp"):
+                # 실제 시각이 찍힌 이벤트(경기 시작·종료 등). 경기 내 시각을 방송 영상 위치로 옮길 때 기준점으로 쓴다.
+                anchors.append([t, int(e["realTimestamp"]) // 1000])
             if kind == "CHAMPION_KILL":
                 pos = e.get("position") or {}
                 kills.append([t, e.get("killerId") or 0, e.get("victimId") or 0, e.get("assistingParticipantIds") or [], pos.get("x"), pos.get("y")])
@@ -410,15 +414,21 @@ def compact_timeline(timeline: dict[str, Any]) -> dict[str, Any]:
                 [int(((pf.get(str(i)) or {}).get("position") or {}).get("x") or 0), int(((pf.get(str(i)) or {}).get("position") or {}).get("y") or 0)]
                 for i in range(1, 11)
             ])
-    return {"kills": kills, "monsters": monsters, "buildings": buildings, "gold": gold, "pos": positions}
+    return {"kills": kills, "monsters": monsters, "buildings": buildings, "gold": gold, "pos": positions, "anchors": anchors}
 
 
 def fetch_timelines(raw: dict[str, Any], existing: dict[str, Any], cargo: Any, limit: int) -> dict[str, Any]:
     """아직 없는 세트의 타임라인을 최근 세트부터 limit 개까지 받아 압축해 더한다."""
     games = [g for league in raw["leagues"].values() for g in league.get("games") or [] if g.get("Rpg")]
     games.sort(key=lambda g: g.get("Start") or "", reverse=True)
-    todo = [g for g in games if g["Rpg"] not in existing][:limit]
-    print(f"[leaguepedia] 타임라인: 전체 {len(games)}세트 중 보유 {len(existing)}, 이번에 받을 것 {len(todo)}")
+    # 없는 세트를 먼저 받고, 남는 몫으로 예전 형식(실제 시각 기준점이 없는 것)을 새로 받는다.
+    missing = [g for g in games if g["Rpg"] not in existing]
+    outdated = [g for g in games if isinstance(existing.get(g["Rpg"]), dict) and "anchors" not in existing[g["Rpg"]]]
+    todo = (missing + outdated)[:limit]
+    print(
+        f"[leaguepedia] 타임라인: 전체 {len(games)}세트 중 보유 {len(existing)}, "
+        f"없는 것 {len(missing)}, 다시 받을 것 {len(outdated)}, 이번에 받을 것 {len(todo)}"
+    )
     added = 0
     for g in todo:
         try:
@@ -431,7 +441,8 @@ def fetch_timelines(raw: dict[str, Any], existing: dict[str, Any], cargo: Any, l
         except (RuntimeError, ValueError) as exc:
             print(f"[leaguepedia] 타임라인 중단: {exc}")
             break
-    print(f"[leaguepedia] 타임라인 {added}건 추가")
+    anchored = sum(1 for v in existing.values() if v and v.get("anchors"))
+    print(f"[leaguepedia] 타임라인 {added}건 추가 (실제 시각 기준점이 있는 것 {anchored}건)")
     return existing
 
 
@@ -486,13 +497,13 @@ def collect(year: int, cargo: Any) -> dict[str, Any]:
     return build(fetch_raw(year, cargo))
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--year", type=int, default=datetime.now(timezone.utc).year)
     parser.add_argument("--offline", action="store_true", help="받아 둔 원본으로 다시 정리만 한다")
-    parser.add_argument("--timeline-limit", type=int, default=int(os.getenv("TIMELINE_LIMIT", "150")),
+    parser.add_argument("--timeline-limit", type=int, default=int(os.getenv("TIMELINE_LIMIT", "300")),
                         help="한 번에 받을 타임라인 수 (0 이면 받지 않는다)")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     raw_path = ROOT / "data" / "raw" / f"leaguepedia-{args.year}.json"
     if args.offline:

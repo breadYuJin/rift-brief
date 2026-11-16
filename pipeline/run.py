@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import sys
 
+from . import analysis
 from .archive import ArchiveSource
 from .config import Settings
 from .facts import form_text
+from .gamedata import load_sets, load_timelines
 from .graphs import build_brief_graph, build_preview_graph
 from .leagues import build_league, make_ranker
 from .llm import get_llm
@@ -78,12 +80,22 @@ def main() -> int:
         : settings.upcoming_limit
     ]
 
-    if mode == "archive":
-        # 시즌 기록을 다시 정리하면 팀 이름·스테이지가 바뀔 수 있다. 경기 내용이 그대로인 브리핑만 재사용한다.
-        current = {m.id: m for m in every}
-        results = {i: r for i, r in results.items() if current.get(i) == r.match}
+    # 세트 상세 기록(밴픽·오브젝트·타임라인)은 수집해 둔 원본이 있을 때만 쓴다.
+    sets = load_sets(settings.data_dir) if mode != "sample" else []
+    timelines = load_timelines(settings.data_dir) if sets else {}
+    extra = analysis.extra_facts(sets, timelines) if mode == "archive" else {}
 
-    brief_graph = build_brief_graph(llm, source, settings.max_rewrites, ranker)
+    if mode == "archive":
+        # 시즌 기록을 다시 정리하면 팀 이름·스테이지가 바뀔 수 있다. 경기 내용이 그대로이고
+        # 세트 기록도 이미 반영된 브리핑만 재사용한다.
+        current = {m.id: m for m in every}
+        results = {
+            i: r
+            for i, r in results.items()
+            if current.get(i) == r.match and all(f in r.facts for f in extra.get(i, []))
+        }
+
+    brief_graph = build_brief_graph(llm, source, settings.max_rewrites, ranker, extra)
     new_briefs = 0
     for match in past:
         if match.id in results:
@@ -154,6 +166,12 @@ def main() -> int:
         archive_size=archive_size,
     )
     print(f"[run] 새 브리핑 {new_briefs}건, 새 프리뷰 {new_previews}건, 데이터 변경: {'있음' if changed else '없음'}")
+
+    if sets:
+        try:
+            analysis.build(settings.data_dir, llm, upcoming if mode == "archive" else [], sets=sets, timelines=timelines)
+        except Exception as exc:  # 분석이 실패해도 브리핑은 이미 저장됐다.
+            print(f"[분석] 실패: {exc}")
     return 0
 
 

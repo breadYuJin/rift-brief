@@ -17,3 +17,20 @@ export const getResults = () => read<Brief[]>("results.json", []);
 export const getPreviews = () => read<Preview[]>("previews.json", []);
 export const getLeagues = () => read<League[]>("leagues.json", []);
 export const getMeta = () => read<Meta>("meta.json", { updated_at: null, sample: false, llm: "template" });
+
+// ---- 세트 상세·예측 ----
+import type { ChampionTable, DraftIndex, MatchSets, Models, PlayerAverage } from "./types";
+
+export const getMatchSets = (matchId: number | string) => read<MatchSets | null>(`sets/${matchId}.json`, null);
+export const getModels = () => read<Models | null>("models.json", null);
+export const getDraftIndex = () => read<DraftIndex>("draft.json", { recent: [], upcoming: [] });
+export const getPlayers = () => read<Record<string, PlayerAverage[]>>("players.json", {});
+
+let championTable: ChampionTable | null | undefined;
+
+/** 기록에 적힌 영어 챔피언 이름을 한국어 이름으로 바꾼다. 이름표가 없거나 모르는 이름이면 그대로 돌려준다. */
+export function championName(english: string): string {
+  if (championTable === undefined) championTable = read<ChampionTable | null>("champions.json", null);
+  const key = english.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return championTable?.champions[key]?.ko ?? english;
+}

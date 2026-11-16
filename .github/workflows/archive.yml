@@ -1,7 +1,8 @@
 name: archive
 
-# Leaguepedia 공개 API 에서 올해의 경기 기록을 받아 data/ 에 저장하고 사이트에 반영한다.
-# 매일 새벽(한국 시간 03:23)에 자동으로 돌아 전날 경기의 밴픽·세트 상세·선수 기록·타임라인을 채운다.
+# 사이트 갱신에 필요한 자료를 모두 받아(pipeline/collect.py) data/ 에 저장하고 사이트에 반영한다.
+# 매일 새벽(한국 시간 03:23)에 자동으로 돌아 전날 경기의 밴픽·세트 상세·선수 기록·타임라인,
+# 챔피언 이름표, (키가 있으면) 공식 채널 영상 목록을 채운다.
 # 수동 실행도 되고, 이 파일이 바뀌어도 돈다.
 on:
   schedule:
@@ -13,7 +14,7 @@ on:
         default: ""
       timeline_limit:
         description: 이번에 받을 타임라인 수 (세트당 약 5초)
-        default: "150"
+        default: "300"
   push:
     branches: [main]
     paths:
@@ -40,15 +41,26 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - run: pip install langgraph langchain pydantic requests
+      - run: pip install -r requirements.txt
 
-      - name: 시즌 기록 수집
-        run: python -m pipeline.leaguepedia ${{ inputs.year && format('--year {0}', inputs.year) || '' }} --timeline-limit "${{ inputs.timeline_limit || '150' }}"
+      - name: 자료 수집
+        run: python -m pipeline.collect ${{ inputs.year && format('--year {0}', inputs.year) || '' }}
+        env:
+          TIMELINE_LIMIT: ${{ inputs.timeline_limit || '300' }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          GRID_API_KEY: ${{ secrets.GRID_API_KEY }}
 
-      - name: 브리핑·전적 생성
+      - name: 브리핑·전적·분석 생성
         run: python -m pipeline.run
         env:
           PANDASCORE_TOKEN: ${{ secrets.PANDASCORE_TOKEN }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL }}
+          HIGHLIGHT_LINKS: ${{ vars.HIGHLIGHT_LINKS }}
+          HIGHLIGHT_OFFSET_SEC: ${{ vars.HIGHLIGHT_OFFSET_SEC }}
 
       - name: 바뀐 데이터 커밋
         id: commit

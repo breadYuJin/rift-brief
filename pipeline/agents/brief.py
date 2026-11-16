@@ -98,11 +98,19 @@ def no_ranks(match: Match) -> tuple[int | None, int | None, int]:
     return None, None, 0
 
 
-def make_nodes(llm: LLM | None, source: Source, max_rewrites: int, ranker: Ranker = no_ranks):
+def make_nodes(
+    llm: LLM | None,
+    source: Source,
+    max_rewrites: int,
+    ranker: Ranker = no_ranks,
+    extra_facts: dict[int, list[str]] | None = None,
+):
     def collect(state: BriefState) -> BriefState:
         match = state["match"]
         ctx = build_context(match, source)
         facts, tags = F.result_facts(match, ctx)
+        # 세트별 킬·오브젝트·교전 기록이 있으면 근거에 덧붙인다(경기 후 분석의 재료).
+        facts = facts + (extra_facts or {}).get(match.id, [])
         note = f"최근 전적 {len(ctx.form_a.recent)}+{len(ctx.form_b.recent)}경기, 팩트 {len(facts)}개 정리"
         return {"context": ctx, "facts": facts, "tags": tags, "attempts": 0, "trace": _step("수집", note)}
 

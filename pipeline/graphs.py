@@ -24,9 +24,15 @@ from .llm import LLM
 
 
 def build_brief_graph(
-    llm: LLM | None, source: brief.Source, max_rewrites: int = 2, ranker: Ranker = brief.no_ranks
+    llm: LLM | None,
+    source: brief.Source,
+    max_rewrites: int = 2,
+    ranker: Ranker = brief.no_ranks,
+    extra_facts: dict[int, list[str]] | None = None,
 ):
-    collect, analyze, write, verify, fallback, edit, route = brief.make_nodes(llm, source, max_rewrites, ranker)
+    collect, analyze, write, verify, fallback, edit, route = brief.make_nodes(
+        llm, source, max_rewrites, ranker, extra_facts
+    )
     g = StateGraph(brief.BriefState)
     g.add_node("collect", collect)
     g.add_node("analyze", analyze)

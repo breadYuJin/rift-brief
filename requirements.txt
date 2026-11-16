@@ -6,3 +6,4 @@ requests>=2.31,<3
 langchain-google-genai
 langchain-anthropic
 langchain-openai
+langchain-ollama
