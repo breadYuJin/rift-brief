@@ -4,8 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  { href: "/", label: "경기 결과" },
+  { href: "/", label: "홈" },
+  { href: "/schedule/", label: "리그 일정" },
   { href: "/upcoming/", label: "예정 경기" },
+  { href: "/teams/", label: "팀 전적" },
+  { href: "/rules/", label: "리그 규칙" },
   { href: "/about/", label: "만드는 방식" },
 ];
 

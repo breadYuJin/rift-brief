@@ -5,6 +5,7 @@ import operator
 from typing import Annotated, Protocol, TypedDict
 
 from .. import facts as F
+from ..leagues import Ranker, importance
 from ..llm import LLM
 from ..pandascore import form_from_matches
 from ..schemas import Analysis, Context, Draft, Match, Review, TraceStep
@@ -25,6 +26,8 @@ class BriefState(TypedDict, total=False):
     review: Review
     attempts: int
     generated_by: str
+    importance: int
+    reasons: list[str]
     trace: Annotated[list[TraceStep], operator.add]
 
 
@@ -91,7 +94,11 @@ def template_draft(match: Match, facts: list[str], tags: list[str]) -> Draft:
 # ---- 노드 ----
 
 
-def make_nodes(llm: LLM | None, source: Source, max_rewrites: int):
+def no_ranks(match: Match) -> tuple[int | None, int | None, int]:
+    return None, None, 0
+
+
+def make_nodes(llm: LLM | None, source: Source, max_rewrites: int, ranker: Ranker = no_ranks):
     def collect(state: BriefState) -> BriefState:
         match = state["match"]
         ctx = build_context(match, source)
@@ -174,6 +181,11 @@ def make_nodes(llm: LLM | None, source: Source, max_rewrites: int):
             "trace": _step("검증", "재작성 한도 초과 → 템플릿 브리핑으로 교체"),
         }
 
+    def edit(state: BriefState) -> BriefState:
+        score, reasons = importance(state["match"], state["tags"], ranker(state["match"]))
+        note = f"주요 경기 점수 {score}" + (f" ({', '.join(reasons)})" if reasons else "")
+        return {"importance": score, "reasons": reasons, "trace": _step("편집", note)}
+
     def route(state: BriefState) -> str:
         if state["review"].ok:
             return "publish"
@@ -181,4 +193,4 @@ def make_nodes(llm: LLM | None, source: Source, max_rewrites: int):
             return "rewrite"
         return "fallback"
 
-    return collect, analyze, write, verify, fallback, route
+    return collect, analyze, write, verify, fallback, edit, route

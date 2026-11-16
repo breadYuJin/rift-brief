@@ -1,0 +1,608 @@
+[
+  {
+    "id": 1,
+    "name": "샘플 리그",
+    "serie": "시범 시즌",
+    "status": "진행 중",
+    "stages": [
+      {
+        "name": "정규 시즌",
+        "standings": [
+          {
+            "team": {
+              "id": 1,
+              "name": "샘플 타이거즈",
+              "acronym": "STG"
+            },
+            "wins": 5,
+            "losses": 0,
+            "set_wins": 11,
+            "set_losses": 4,
+            "recent": [
+              true,
+              true,
+              true,
+              true,
+              true
+            ],
+            "streak": 5
+          },
+          {
+            "team": {
+              "id": 3,
+              "name": "목업 유나이티드",
+              "acronym": "MKU"
+            },
+            "wins": 4,
+            "losses": 1,
+            "set_wins": 8,
+            "set_losses": 3,
+            "recent": [
+              true,
+              false,
+              true,
+              true,
+              true
+            ],
+            "streak": 1
+          },
+          {
+            "team": {
+              "id": 2,
+              "name": "데모 드래곤즈",
+              "acronym": "DDR"
+            },
+            "wins": 1,
+            "losses": 4,
+            "set_wins": 5,
+            "set_losses": 9,
+            "recent": [
+              false,
+              true,
+              false,
+              false,
+              false
+            ],
+            "streak": -1
+          },
+          {
+            "team": {
+              "id": 4,
+              "name": "테스트 피닉스",
+              "acronym": "TPX"
+            },
+            "wins": 0,
+            "losses": 5,
+            "set_wins": 3,
+            "set_losses": 11,
+            "recent": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "streak": -5
+          }
+        ]
+      }
+    ],
+    "matches": [
+      {
+        "id": 9009,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "finished",
+        "begin_at": "2026-11-07T05:00:00+00:00",
+        "end_at": "2026-11-07T07:00:00+00:00",
+        "team_a": {
+          "id": 4,
+          "name": "테스트 피닉스",
+          "acronym": "TPX"
+        },
+        "team_b": {
+          "id": 3,
+          "name": "목업 유나이티드",
+          "acronym": "MKU"
+        },
+        "score_a": 0,
+        "score_b": 2,
+        "winner_id": 3,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 3,
+            "length_min": 26
+          },
+          {
+            "position": 2,
+            "winner_id": 3,
+            "length_min": 34
+          }
+        ]
+      },
+      {
+        "id": 9008,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "finished",
+        "begin_at": "2026-11-08T07:00:00+00:00",
+        "end_at": "2026-11-08T09:00:00+00:00",
+        "team_a": {
+          "id": 1,
+          "name": "샘플 타이거즈",
+          "acronym": "STG"
+        },
+        "team_b": {
+          "id": 2,
+          "name": "데모 드래곤즈",
+          "acronym": "DDR"
+        },
+        "score_a": 2,
+        "score_b": 1,
+        "winner_id": 1,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 1,
+            "length_min": 33
+          },
+          {
+            "position": 2,
+            "winner_id": 2,
+            "length_min": 30
+          },
+          {
+            "position": 3,
+            "winner_id": 1,
+            "length_min": 29
+          }
+        ]
+      },
+      {
+        "id": 9007,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "finished",
+        "begin_at": "2026-11-09T05:00:00+00:00",
+        "end_at": "2026-11-09T07:00:00+00:00",
+        "team_a": {
+          "id": 3,
+          "name": "목업 유나이티드",
+          "acronym": "MKU"
+        },
+        "team_b": {
+          "id": 2,
+          "name": "데모 드래곤즈",
+          "acronym": "DDR"
+        },
+        "score_a": 2,
+        "score_b": 1,
+        "winner_id": 3,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 3,
+            "length_min": 35
+          },
+          {
+            "position": 2,
+            "winner_id": 2,
+            "length_min": 31
+          },
+          {
+            "position": 3,
+            "winner_id": 3,
+            "length_min": 37
+          }
+        ]
+      },
+      {
+        "id": 9006,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "finished",
+        "begin_at": "2026-11-10T07:00:00+00:00",
+        "end_at": "2026-11-10T09:00:00+00:00",
+        "team_a": {
+          "id": 1,
+          "name": "샘플 타이거즈",
+          "acronym": "STG"
+        },
+        "team_b": {
+          "id": 4,
+          "name": "테스트 피닉스",
+          "acronym": "TPX"
+        },
+        "score_a": 2,
+        "score_b": 0,
+        "winner_id": 1,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 1,
+            "length_min": 28
+          },
+          {
+            "position": 2,
+            "winner_id": 1,
+            "length_min": 30
+          }
+        ]
+      },
+      {
+        "id": 9005,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "finished",
+        "begin_at": "2026-11-11T05:00:00+00:00",
+        "end_at": "2026-11-11T07:00:00+00:00",
+        "team_a": {
+          "id": 2,
+          "name": "데모 드래곤즈",
+          "acronym": "DDR"
+        },
+        "team_b": {
+          "id": 3,
+          "name": "목업 유나이티드",
+          "acronym": "MKU"
+        },
+        "score_a": 0,
+        "score_b": 2,
+        "winner_id": 3,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 3,
+            "length_min": 32
+          },
+          {
+            "position": 2,
+            "winner_id": 3,
+            "length_min": 26
+          }
+        ]
+      },
+      {
+        "id": 9004,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 5,
+        "status": "finished",
+        "begin_at": "2026-11-12T07:00:00+00:00",
+        "end_at": "2026-11-12T09:00:00+00:00",
+        "team_a": {
+          "id": 4,
+          "name": "테스트 피닉스",
+          "acronym": "TPX"
+        },
+        "team_b": {
+          "id": 1,
+          "name": "샘플 타이거즈",
+          "acronym": "STG"
+        },
+        "score_a": 2,
+        "score_b": 3,
+        "winner_id": 1,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 4,
+            "length_min": 31
+          },
+          {
+            "position": 2,
+            "winner_id": 4,
+            "length_min": 36
+          },
+          {
+            "position": 3,
+            "winner_id": 1,
+            "length_min": 29
+          },
+          {
+            "position": 4,
+            "winner_id": 1,
+            "length_min": 33
+          },
+          {
+            "position": 5,
+            "winner_id": 1,
+            "length_min": 44
+          }
+        ]
+      },
+      {
+        "id": 9003,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "finished",
+        "begin_at": "2026-11-13T05:00:00+00:00",
+        "end_at": "2026-11-13T07:00:00+00:00",
+        "team_a": {
+          "id": 1,
+          "name": "샘플 타이거즈",
+          "acronym": "STG"
+        },
+        "team_b": {
+          "id": 3,
+          "name": "목업 유나이티드",
+          "acronym": "MKU"
+        },
+        "score_a": 2,
+        "score_b": 0,
+        "winner_id": 1,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 1,
+            "length_min": 25
+          },
+          {
+            "position": 2,
+            "winner_id": 1,
+            "length_min": 28
+          }
+        ]
+      },
+      {
+        "id": 9002,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "finished",
+        "begin_at": "2026-11-14T07:00:00+00:00",
+        "end_at": "2026-11-14T09:00:00+00:00",
+        "team_a": {
+          "id": 2,
+          "name": "데모 드래곤즈",
+          "acronym": "DDR"
+        },
+        "team_b": {
+          "id": 4,
+          "name": "테스트 피닉스",
+          "acronym": "TPX"
+        },
+        "score_a": 2,
+        "score_b": 1,
+        "winner_id": 2,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 2,
+            "length_min": 30
+          },
+          {
+            "position": 2,
+            "winner_id": 4,
+            "length_min": 38
+          },
+          {
+            "position": 3,
+            "winner_id": 2,
+            "length_min": 33
+          }
+        ]
+      },
+      {
+        "id": 9001,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "finished",
+        "begin_at": "2026-11-15T05:00:00+00:00",
+        "end_at": "2026-11-15T07:00:00+00:00",
+        "team_a": {
+          "id": 3,
+          "name": "목업 유나이티드",
+          "acronym": "MKU"
+        },
+        "team_b": {
+          "id": 4,
+          "name": "테스트 피닉스",
+          "acronym": "TPX"
+        },
+        "score_a": 2,
+        "score_b": 0,
+        "winner_id": 3,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 3,
+            "length_min": 27
+          },
+          {
+            "position": 2,
+            "winner_id": 3,
+            "length_min": 31
+          }
+        ]
+      },
+      {
+        "id": 9000,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "finished",
+        "begin_at": "2026-11-15T07:00:00+00:00",
+        "end_at": "2026-11-15T09:00:00+00:00",
+        "team_a": {
+          "id": 1,
+          "name": "샘플 타이거즈",
+          "acronym": "STG"
+        },
+        "team_b": {
+          "id": 2,
+          "name": "데모 드래곤즈",
+          "acronym": "DDR"
+        },
+        "score_a": 2,
+        "score_b": 1,
+        "winner_id": 1,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 2,
+            "length_min": 34
+          },
+          {
+            "position": 2,
+            "winner_id": 1,
+            "length_min": 29
+          },
+          {
+            "position": 3,
+            "winner_id": 1,
+            "length_min": 41
+          }
+        ]
+      },
+      {
+        "id": 9400,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "running",
+        "begin_at": "2026-11-16T09:00:00+00:00",
+        "end_at": null,
+        "team_a": {
+          "id": 1,
+          "name": "샘플 타이거즈",
+          "acronym": "STG"
+        },
+        "team_b": {
+          "id": 3,
+          "name": "목업 유나이티드",
+          "acronym": "MKU"
+        },
+        "score_a": 1,
+        "score_b": 0,
+        "winner_id": null,
+        "games": [
+          {
+            "position": 1,
+            "winner_id": 1,
+            "length_min": 31
+          }
+        ]
+      },
+      {
+        "id": 9500,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "not_started",
+        "begin_at": "2026-11-17T09:00:00+00:00",
+        "end_at": null,
+        "team_a": {
+          "id": 2,
+          "name": "데모 드래곤즈",
+          "acronym": "DDR"
+        },
+        "team_b": {
+          "id": 4,
+          "name": "테스트 피닉스",
+          "acronym": "TPX"
+        },
+        "score_a": 0,
+        "score_b": 0,
+        "winner_id": null,
+        "games": []
+      },
+      {
+        "id": 9501,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 정규 시즌",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "정규 시즌",
+        "best_of": 3,
+        "status": "not_started",
+        "begin_at": "2026-11-18T11:00:00+00:00",
+        "end_at": null,
+        "team_a": {
+          "id": 3,
+          "name": "목업 유나이티드",
+          "acronym": "MKU"
+        },
+        "team_b": {
+          "id": 4,
+          "name": "테스트 피닉스",
+          "acronym": "TPX"
+        },
+        "score_a": 0,
+        "score_b": 0,
+        "winner_id": null,
+        "games": []
+      },
+      {
+        "id": 9502,
+        "league": "샘플 리그",
+        "stage": "시범 시즌 플레이오프 결승",
+        "league_id": 1,
+        "serie_id": 10,
+        "tournament": "플레이오프 결승",
+        "best_of": 5,
+        "status": "not_started",
+        "begin_at": "2026-11-20T13:00:00+00:00",
+        "end_at": null,
+        "team_a": {
+          "id": 1,
+          "name": "샘플 타이거즈",
+          "acronym": "STG"
+        },
+        "team_b": {
+          "id": 3,
+          "name": "목업 유나이티드",
+          "acronym": "MKU"
+        },
+        "score_a": 0,
+        "score_b": 0,
+        "winner_id": null,
+        "games": []
+      }
+    ]
+  }
+]

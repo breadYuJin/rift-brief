@@ -39,6 +39,9 @@ def normalize_match(raw: dict[str, Any]) -> Match | None:
         id=raw["id"],
         league=(raw.get("league") or {}).get("name") or "LoL",
         stage=" ".join(p for p in (serie, tournament) if p),
+        league_id=(raw.get("league") or {}).get("id") or raw.get("league_id"),
+        serie_id=raw.get("serie_id") or (raw.get("serie") or {}).get("id"),
+        tournament=tournament,
         best_of=raw.get("number_of_games") or 1,
         status=raw.get("status") or "",
         begin_at=raw.get("begin_at") or raw.get("scheduled_at"),
@@ -69,6 +72,17 @@ def form_from_matches(team_id: int, matches: list[Match], before: str | None, si
     return TeamForm(team_id=team_id, recent=entries)
 
 
+def pick_current_serie(matches: list[Match]) -> int | None:
+    """아직 안 끝난 경기 중 가장 이른 것의 시리즈. 없으면 가장 최근에 끝난 경기의 시리즈."""
+    pending = [m for m in matches if m.status in ("running", "not_started") and m.begin_at]
+    if pending:
+        return min(pending, key=lambda m: m.begin_at or "").serie_id
+    finished = [m for m in matches if m.status == "finished"]
+    if finished:
+        return max(finished, key=lambda m: m.end_at or m.begin_at or "").serie_id
+    return None
+
+
 class PandaScoreClient:
     def __init__(self, token: str, session: requests.Session | None = None):
         self._session = session or requests.Session()
@@ -86,32 +100,41 @@ class PandaScoreClient:
         resp.raise_for_status()
         return []
 
-    def resolve_league_ids(self, names: list[str]) -> list[int]:
-        ids: list[int] = []
+    def league_name(self, league_id: int) -> str:
+        try:
+            return self._get(f"/leagues/{league_id}").get("name") or str(league_id)
+        except requests.RequestException:
+            return str(league_id)
+
+    def resolve_leagues(self, names: list[str]) -> list[tuple[int, str]]:
+        ids: list[tuple[int, str]] = []
         for name in names:
             found = self._get("/lol/leagues", {"search[name]": name, "page[size]": 20})
             exact = [l for l in found if (l.get("name") or "").lower() == name.lower()]
             pick = (exact or found or [None])[0]
             if pick:
-                ids.append(pick["id"])
+                ids.append((pick["id"], pick.get("name") or name))
                 print(f"[pandascore] 리그 '{name}' → {pick.get('name')} (id={pick['id']})")
             else:
                 print(f"[pandascore] 리그 '{name}' 를 찾지 못함")
         return ids
 
-    def _matches(self, path: str, league_ids: list[int], sort: str, limit: int) -> list[Match]:
-        raw = self._get(
-            path,
-            {"filter[league_id]": ",".join(map(str, league_ids)), "sort": sort, "page[size]": limit},
-        )
-        return [m for m in (normalize_match(r) for r in raw) if m]
-
-    def past_matches(self, league_ids: list[int], limit: int) -> list[Match]:
-        found = self._matches("/lol/matches/past", league_ids, "-end_at", limit)
-        return [m for m in found if m.status == "finished" and m.winner_id]
-
-    def upcoming_matches(self, league_ids: list[int], limit: int) -> list[Match]:
-        return self._matches("/lol/matches/upcoming", league_ids, "begin_at", limit)
+    def league_matches(self, league_id: int, max_pages: int = 3) -> list[Match]:
+        """리그의 경기를 최신순으로 받는다. 현재 시리즈가 다음 페이지로 이어지는 동안만 더 읽는다."""
+        found: list[Match] = []
+        current_serie: int | None = None
+        for page in range(1, max_pages + 1):
+            raw = self._get(
+                f"/leagues/{league_id}/matches",
+                {"sort": "-begin_at", "page[size]": 100, "page[number]": page},
+            )
+            found += [m for m in (normalize_match(r) for r in raw) if m]
+            if current_serie is None:
+                current_serie = pick_current_serie(found)
+            last_serie = raw[-1].get("serie_id") if raw else None
+            if len(raw) < 100 or last_serie != current_serie:
+                break
+        return found
 
     def team_matches(self, team_id: int) -> list[Match]:
         """팀의 최근 종료 경기. 실패해도 브리핑은 계속되도록 빈 목록을 돌려준다."""

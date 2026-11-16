@@ -4,12 +4,13 @@ from __future__ import annotations
 import sys
 
 from .config import Settings
-from .graphs import build_brief_graph, build_preview_graph
 from .facts import form_text
+from .graphs import build_brief_graph, build_preview_graph
+from .leagues import build_league, make_ranker
 from .llm import get_llm
 from .pandascore import PandaScoreClient
 from .sample import SampleSource
-from .schemas import BriefRecord, Match, PreviewRecord
+from .schemas import BriefRecord, LeagueFeed, Match, PreviewRecord
 from .store import Store
 
 
@@ -18,16 +19,18 @@ class LiveSource:
 
     def __init__(self, settings: Settings):
         self._client = PandaScoreClient(settings.pandascore_token)
-        self._settings = settings
-        self._league_ids = settings.league_ids or self._client.resolve_league_ids(settings.league_names)
-        if not self._league_ids:
+        if settings.league_ids:
+            self._leagues = [(i, self._client.league_name(i)) for i in settings.league_ids]
+        else:
+            self._leagues = self._client.resolve_leagues(settings.league_names)
+        if not self._leagues:
             raise RuntimeError("조회할 리그를 하나도 찾지 못했습니다. LEAGUES 또는 PANDASCORE_LEAGUE_IDS 를 확인하세요.")
 
-    def past_matches(self) -> list[Match]:
-        return self._client.past_matches(self._league_ids, self._settings.past_limit)
-
-    def upcoming_matches(self) -> list[Match]:
-        return self._client.upcoming_matches(self._league_ids, self._settings.upcoming_limit)
+    def leagues(self) -> list[LeagueFeed]:
+        return [
+            LeagueFeed(id=league_id, name=name, matches=self._client.league_matches(league_id))
+            for league_id, name in self._leagues
+        ]
 
     def team_matches(self, team_id: int) -> list[Match]:
         return self._client.team_matches(team_id)
@@ -49,22 +52,38 @@ def main() -> int:
     results = {r.match.id: r for r in store.load_results()} if keep_existing else {}
     old_previews = {p.match.id: p for p in store.load_previews()} if keep_existing else {}
 
-    past = source.past_matches()
-    upcoming = source.upcoming_matches()
+    feeds = source.leagues()
+    leagues = [build_league(feed) for feed in feeds]
+    ranker = make_ranker(leagues)
+    for league in leagues:
+        print(f"[리그] {league.name} {league.serie}: {league.status}, 경기 {len(league.matches)}건")
 
-    brief_graph = build_brief_graph(llm, source, settings.max_rewrites)
+    every = [m for feed in feeds for m in feed.matches]
+    past = sorted(
+        (m for m in every if m.status == "finished" and m.winner_id), key=lambda m: m.end_at or "", reverse=True
+    )[: settings.past_limit]
+    upcoming = sorted((m for m in every if m.status == "not_started" and m.begin_at), key=lambda m: m.begin_at or "")[
+        : settings.upcoming_limit
+    ]
+
+    brief_graph = build_brief_graph(llm, source, settings.max_rewrites, ranker)
     new_briefs = 0
     for match in past:
         if match.id in results:
             continue
         try:
             out = brief_graph.invoke({"match": match})
+            ctx = out["context"]
             results[match.id] = BriefRecord(
                 match=match,
+                recent_a=[e.won for e in ctx.form_a.recent],
+                recent_b=[e.won for e in ctx.form_b.recent],
                 headline=out["draft"].headline,
                 summary=out["draft"].summary,
                 tags=out["tags"],
                 facts=out["facts"],
+                importance=out["importance"],
+                reasons=out["reasons"],
                 generated_by=out["generated_by"],
                 trace=out["trace"],
             )
@@ -73,7 +92,7 @@ def main() -> int:
         except Exception as exc:
             print(f"[브리핑] 경기 {match.id} 처리 실패: {exc}")
 
-    preview_graph = build_preview_graph(llm, source)
+    preview_graph = build_preview_graph(llm, source, ranker)
     previews: list[PreviewRecord] = []
     new_previews = 0
     for match in upcoming:
@@ -87,12 +106,16 @@ def main() -> int:
             previews.append(
                 PreviewRecord(
                     match=match,
+                    recent_a=[e.won for e in ctx.form_a.recent],
+                    recent_b=[e.won for e in ctx.form_b.recent],
                     form_a=form_text(ctx.form_a),
                     form_b=form_text(ctx.form_b),
                     h2h=f"{ctx.h2h_a_wins}승 {ctx.h2h_b_wins}패" if ctx.h2h_a_wins or ctx.h2h_b_wins else "기록 없음",
                     case_a=out["case_a"],
                     case_b=out["case_b"],
                     watch_points=out["watch_points"],
+                    importance=out["importance"],
+                    reasons=out["reasons"],
                     generated_by=out["generated_by"],
                     trace=out["trace"],
                 )
@@ -105,6 +128,7 @@ def main() -> int:
     changed = store.save(
         list(results.values()),
         previews,
+        leagues,
         sample=settings.sample_mode,
         llm_name=llm.name if llm else "template",
         archive_size=settings.archive_size,

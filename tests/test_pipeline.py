@@ -4,7 +4,8 @@ from __future__ import annotations
 from pipeline import facts as F
 from pipeline.agents.brief import build_context
 from pipeline.graphs import build_brief_graph, build_preview_graph
-from pipeline.pandascore import normalize_match
+from pipeline.leagues import build_league, importance, make_ranker
+from pipeline.pandascore import normalize_match, pick_current_serie
 from pipeline.sample import SampleSource
 from pipeline.schemas import Analysis, Case, Draft, Review, WatchPoints
 
@@ -46,6 +47,7 @@ def test_normalize_match_from_pandascore_payload():
         "end_at": "2026-11-01T10:30:00Z",
         "winner_id": 10,
         "league": {"id": 293, "name": "LCK"},
+        "serie_id": 5001,
         "serie": {"full_name": "Summer 2026"},
         "tournament": {"name": "Playoffs"},
         "opponents": [
@@ -62,6 +64,7 @@ def test_normalize_match_from_pandascore_payload():
     m = normalize_match(raw)
     assert m and (m.score_a, m.score_b) == (2, 0)
     assert m.stage == "Summer 2026 Playoffs"
+    assert (m.league_id, m.serie_id, m.tournament) == (293, 5001, "Playoffs")
     assert m.team_b.acronym == "Beta"
     assert [g.position for g in m.games] == [1, 2] and m.games[0].length_min == 34
     assert normalize_match({**raw, "opponents": raw["opponents"][:1]}) is None  # 상대 미정
@@ -93,7 +96,7 @@ def test_check_draft_catches_unsupported_numbers_and_wrong_winner():
 def test_template_mode_runs_without_llm():
     out = build_brief_graph(None, SOURCE).invoke({"match": MATCH})
     assert out["generated_by"] == "template" and out["review"].ok
-    assert [s.agent for s in out["trace"]] == ["수집", "분석", "작성", "검증"]
+    assert [s.agent for s in out["trace"]] == ["수집", "분석", "작성", "검증", "편집"]
 
 
 def test_rejected_draft_is_rewritten_then_published():
@@ -151,3 +154,39 @@ def test_preview_rejects_panel_output_with_unsupported_numbers():
     )
     out = build_preview_graph(llm, SOURCE).invoke({"match": upcoming})
     assert all("87" not in p for p in out["case_a"] + out["case_b"])
+
+
+def test_league_record_has_standings_schedule_and_status():
+    league = build_league(SOURCE.leagues()[0])
+    assert league.status == "진행 중" and league.serie == "시범 시즌"
+    regular = next(s for s in league.stages if s.name == "정규 시즌")
+    top = regular.standings[0]
+    assert top.team.acronym == "STG" and (top.wins, top.losses) == (5, 0) and top.streak == 5
+    assert sum(r.wins for r in regular.standings) == sum(r.losses for r in regular.standings) == 10
+    assert [m.status for m in league.matches].count("running") == 1
+    assert league.matches == sorted(league.matches, key=lambda m: m.begin_at)
+
+
+def test_current_serie_prefers_pending_matches():
+    old = MATCH.model_copy(update={"serie_id": 1})
+    nxt = SOURCE.upcoming_matches()[0].model_copy(update={"serie_id": 2})
+    assert pick_current_serie([old, nxt]) == 2
+    assert pick_current_serie([old]) == 1
+
+
+def test_importance_scores_finals_and_top_clashes():
+    league = build_league(SOURCE.leagues()[0])
+    ranker = make_ranker([league])
+    final = next(m for m in SOURCE.upcoming_matches() if "결승" in m.tournament)
+    score, reasons = importance(final, [], ranker(final))
+    assert score >= 5 and reasons == ["결승"]
+    assert ranker(MATCH) == (1, 3, 4)  # STG 1위, DDR 3위, 4팀
+    plain = SOURCE.upcoming_matches()[1]
+    assert importance(plain, [], (3, 4, 10))[0] < score
+    assert "1·2위 맞대결" in importance(plain, [], (2, 1, 10))[1]
+
+
+def test_brief_graph_records_importance():
+    league = build_league(SOURCE.leagues()[0])
+    out = build_brief_graph(None, SOURCE, ranker=make_ranker([league])).invoke({"match": MATCH})
+    assert out["importance"] >= 1 and "풀세트" in out["reasons"]

@@ -24,6 +24,9 @@ class Match(BaseModel):
     id: int
     league: str
     stage: str
+    league_id: int | None = None
+    serie_id: int | None = None
+    tournament: str = ""
     best_of: int
     status: str
     begin_at: str | None = None
@@ -129,21 +132,66 @@ class TraceStep(BaseModel):
 
 class BriefRecord(BaseModel):
     match: Match
+    # 경기 전 최근 전적(최신순, True=승). 화면의 승/패 표시용.
+    recent_a: list[bool] = Field(default_factory=list)
+    recent_b: list[bool] = Field(default_factory=list)
     headline: str
     summary: list[str]
     tags: list[str]
     facts: list[str]
+    # 주요 경기 선정용 점수와 그 이유(편집 단계에서 채운다).
+    importance: int = 0
+    reasons: list[str] = Field(default_factory=list)
     generated_by: Literal["llm", "template"]
     trace: list[TraceStep]
 
 
 class PreviewRecord(BaseModel):
     match: Match
+    recent_a: list[bool] = Field(default_factory=list)
+    recent_b: list[bool] = Field(default_factory=list)
     form_a: str
     form_b: str
     h2h: str
     case_a: list[str]
     case_b: list[str]
     watch_points: list[str]
+    importance: int = 0
+    reasons: list[str] = Field(default_factory=list)
     generated_by: Literal["llm", "template"]
     trace: list[TraceStep]
+
+
+# ---- 리그 일정·전적 ----
+
+
+class LeagueFeed(BaseModel):
+    """데이터 소스가 돌려주는 리그 한 곳의 경기 묶음(종료·진행 중·예정 모두 포함)."""
+
+    id: int
+    name: str
+    matches: list[Match]
+
+
+class Standing(BaseModel):
+    team: Team
+    wins: int = 0
+    losses: int = 0
+    set_wins: int = 0
+    set_losses: int = 0
+    recent: list[bool] = Field(default_factory=list)  # 최신순, True=승
+    streak: int = 0  # 양수 연승, 음수 연패
+
+
+class StageRecord(BaseModel):
+    name: str
+    standings: list[Standing]
+
+
+class LeagueRecord(BaseModel):
+    id: int
+    name: str
+    serie: str
+    status: Literal["진행 중", "시작 전", "종료"]
+    stages: list[StageRecord]
+    matches: list[Match]

@@ -8,15 +8,22 @@ export function SetStrip({ match, detailed = false }: { match: Match; detailed?:
   if (match.games.length === 0) return null;
   return (
     <ol className={`sets${detailed ? " sets--detailed" : ""}`} aria-label="세트별 결과">
-      {match.games.map((g) => {
+      {match.games.map((g, i) => {
         const side = g.winner_id === match.team_a.id ? "a" : "b";
         const team = side === "a" ? match.team_a : match.team_b;
         const label = `${g.position}세트 ${team.acronym} 승${g.length_min ? `, ${g.length_min}분` : ""}`;
         return (
-          <li key={g.position} className={`sets__set sets__set--${side}`} style={{ flexGrow: g.length_min ?? 30 }} title={label}>
+          <li
+            key={g.position}
+            className={`sets__set sets__set--${side}`}
+            style={{ flexGrow: g.length_min ?? 30, animationDelay: `${i * 90}ms` }}
+            title={label}
+          >
             {detailed ? (
               <>
-                <span className="sets__who">{team.acronym}</span>
+                <span className="sets__who">
+                  {g.position}세트 {team.acronym}
+                </span>
                 {g.length_min && <span className="sets__min">{g.length_min}분</span>}
               </>
             ) : (

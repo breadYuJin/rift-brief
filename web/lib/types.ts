@@ -1,4 +1,4 @@
-// pipeline/schemas.py 의 BriefRecord / PreviewRecord 와 같은 모양이다.
+// pipeline/schemas.py 의 레코드와 같은 모양이다.
 export interface Team {
   id: number;
   name: string;
@@ -15,6 +15,9 @@ export interface Match {
   id: number;
   league: string;
   stage: string;
+  league_id: number | null;
+  serie_id: number | null;
+  tournament: string;
   best_of: number;
   status: string;
   begin_at: string | null;
@@ -34,24 +37,56 @@ export interface TraceStep {
 
 export interface Brief {
   match: Match;
+  recent_a?: boolean[];
+  recent_b?: boolean[];
   headline: string;
   summary: string[];
   tags: string[];
   facts: string[];
+  importance?: number;
+  reasons?: string[];
   generated_by: "llm" | "template";
   trace: TraceStep[];
 }
 
 export interface Preview {
   match: Match;
+  recent_a?: boolean[];
+  recent_b?: boolean[];
   form_a: string;
   form_b: string;
   h2h: string;
   case_a: string[];
   case_b: string[];
   watch_points: string[];
+  importance?: number;
+  reasons?: string[];
   generated_by: "llm" | "template";
   trace: TraceStep[];
+}
+
+export interface Standing {
+  team: Team;
+  wins: number;
+  losses: number;
+  set_wins: number;
+  set_losses: number;
+  recent: boolean[];
+  streak: number;
+}
+
+export interface Stage {
+  name: string;
+  standings: Standing[];
+}
+
+export interface League {
+  id: number;
+  name: string;
+  serie: string;
+  status: "진행 중" | "시작 전" | "종료";
+  stages: Stage[];
+  matches: Match[];
 }
 
 export interface Meta {

@@ -8,7 +8,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
-  description: `${SITE_TAGLINE}. 멀티에이전트가 경기 데이터를 모아 요약하고 사실 여부를 다시 확인합니다.`,
+  description: `${SITE_TAGLINE}. 주요 경기, 리그 일정, 팀 전적, 리그 규칙을 한곳에서 봅니다.`,
 };
 
 export const viewport: Viewport = { themeColor: "#12213a" };
@@ -30,11 +30,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           본문으로 건너뛰기
         </a>
         <header className="site-header">
-          <div className="wrap">
+          <div className="wrap site-header__inner">
             <Link href="/" className="site-header__name">
               {SITE_NAME}
             </Link>
-            <p className="site-header__tagline">{SITE_TAGLINE}</p>
             <SiteNav />
           </div>
         </header>
@@ -52,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="wrap">
             <p>
               {meta.updated_at && <>마지막 갱신 {formatStamp(meta.updated_at)} (한국 시간). </>}
-              경기 데이터는 PandaScore API에서 가져옵니다.
+              경기 데이터는 PandaScore API에서 가져오며, 진행 중 표시는 마지막 갱신 시점 기준입니다.
             </p>
             <p>
               요약은 자동으로 작성되어 틀릴 수 있습니다. 이 사이트는 팬이 만든 비공식 사이트이며 Riot Games와

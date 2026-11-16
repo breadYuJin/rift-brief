@@ -5,10 +5,11 @@ import operator
 from typing import Annotated, TypedDict
 
 from .. import facts as F
+from ..leagues import Ranker, importance
 from ..llm import LLM
 from ..schemas import Case, Context, Match, Team, TeamForm, TraceStep, WatchPoints
 from . import prompts
-from .brief import Source, _facts_block, _step, build_context
+from .brief import Source, _facts_block, _step, build_context, no_ranks
 
 
 class PreviewState(TypedDict, total=False):
@@ -21,6 +22,8 @@ class PreviewState(TypedDict, total=False):
     # 병렬 패널이 동시에 써도 되도록 누적(reducer) 채널로 둔다.
     llm_used: Annotated[list[bool], operator.add]
     generated_by: str
+    importance: int
+    reasons: list[str]
     trace: Annotated[list[TraceStep], operator.add]
 
 
@@ -49,7 +52,7 @@ def template_watch_points(match: Match, ctx: Context) -> list[str]:
     return points[:3]
 
 
-def make_nodes(llm: LLM | None, source: Source):
+def make_nodes(llm: LLM | None, source: Source, ranker: Ranker = no_ranks):
     def collect(state: PreviewState) -> PreviewState:
         match = state["match"]
         ctx = build_context(match, source)
@@ -110,6 +113,13 @@ def make_nodes(llm: LLM | None, source: Source):
 
     def finalize(state: PreviewState) -> PreviewState:
         used = state.get("llm_used", [])
-        return {"generated_by": "llm" if any(used) else "template"}
+        score, reasons = importance(state["match"], [], ranker(state["match"]))
+        note = f"주요 경기 점수 {score}" + (f" ({', '.join(reasons)})" if reasons else "")
+        return {
+            "generated_by": "llm" if any(used) else "template",
+            "importance": score,
+            "reasons": reasons,
+            "trace": _step("편집", note),
+        }
 
     return collect, advocate("a"), advocate("b"), moderate, finalize

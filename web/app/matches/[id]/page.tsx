@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Tags } from "@/components/ResultsFeed";
-import { ScoreLine } from "@/components/ScoreLine";
+import { Badges } from "@/components/MatchCard";
+import { Scoreboard } from "@/components/Scoreboard";
 import { SetStrip } from "@/components/SetStrip";
 import { getResults } from "@/lib/data";
 import { formatDay, formatTime } from "@/lib/format";
+import { stageLabel } from "@/lib/select";
 
 export const dynamicParams = false;
 
@@ -35,22 +36,25 @@ export default async function MatchPage({ params }: Props) {
   const { match } = brief;
   return (
     <article className="detail">
-      <p className="lead__meta">
-        {match.league}
-        {match.stage ? ` ${match.stage}` : ""}, {match.best_of}전제
-        <span className="lead__when">
-          {formatDay(match.end_at)} {formatTime(match.end_at)} 종료
-        </span>
-      </p>
-      <ScoreLine match={match} size="lg" />
-      <SetStrip match={match} detailed />
-      <h1 className="lead__headline">{brief.headline}</h1>
-      <ul className="summary">
-        {brief.summary.map((line, i) => (
-          <li key={i}>{line}</li>
-        ))}
-      </ul>
-      <Tags tags={brief.tags} />
+      <div className="card card--lead">
+        <p className="card__meta">
+          <span>
+            {stageLabel(match)}, {match.best_of}전제
+          </span>
+          <span>
+            {formatDay(match.end_at)} {formatTime(match.end_at)} 종료
+          </span>
+        </p>
+        <Scoreboard match={match} recentA={brief.recent_a} recentB={brief.recent_b} size="lg" />
+        <SetStrip match={match} detailed />
+        <h1 className="card__headline">{brief.headline}</h1>
+        <Badges reasons={brief.reasons} tags={brief.tags} />
+        <ul className="summary">
+          {brief.summary.map((line, i) => (
+            <li key={i}>{line}</li>
+          ))}
+        </ul>
+      </div>
 
       <section className="block">
         <h2>근거로 쓴 데이터</h2>

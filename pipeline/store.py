@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from .schemas import BriefRecord, PreviewRecord
+from .schemas import BriefRecord, LeagueRecord, PreviewRecord
 
 
 def _read(path: Path, default: Any) -> Any:
@@ -40,6 +40,7 @@ class Store:
         self,
         results: list[BriefRecord],
         previews: list[PreviewRecord],
+        leagues: list[LeagueRecord],
         *,
         sample: bool,
         llm_name: str,
@@ -49,6 +50,7 @@ class Store:
         previews = sorted(previews, key=lambda p: p.match.begin_at or "")
         changed = _write_if_changed(self.dir / "results.json", [r.model_dump() for r in results])
         changed |= _write_if_changed(self.dir / "previews.json", [p.model_dump() for p in previews])
+        changed |= _write_if_changed(self.dir / "leagues.json", [l.model_dump() for l in leagues])
 
         now = datetime.now(timezone.utc)
         year, week, _ = now.isocalendar()
