@@ -51,6 +51,7 @@ class SampleSource:
             league_id=LEAGUE_ID,
             serie_id=SERIE_ID,
             tournament=tournament,
+            round="결승" if "결승" in tournament else "",
             stage=f"시범 시즌 {tournament}",
             **kw,
         )

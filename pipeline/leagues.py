@@ -5,7 +5,7 @@ from collections import defaultdict
 from typing import Callable
 
 from .pandascore import pick_current_serie
-from .schemas import LeagueFeed, LeagueRecord, Match, StageRecord, Standing, Team
+from .schemas import Bracket, BracketRound, BracketSlot, LeagueFeed, LeagueRecord, Match, StageRecord, Standing, Team
 
 INTERNATIONAL = ("worlds", "world championship", "mid-season", "msi", "first stand", "월즈", "퍼스트 스탠드")
 FINAL_WORDS = ("final", "결승")
@@ -48,6 +48,86 @@ def _standings(matches: list[Match]) -> list[Standing]:
     )
 
 
+BRACKET_STAGE_WORDS = (
+    "토너먼트", "플레이오프", "플레이-인", "브래킷", "선발전", "playoff", "knockout", "bracket", "play-in",
+)
+FINAL_ROUND = "결승"
+
+
+def _round_rank(name: str) -> tuple[int, int]:
+    """라운드를 진행 순서대로 세운다: 숫자 라운드 → 8강 → 4강 → 결승."""
+    late = {"8강": 1, "4강": 2, FINAL_ROUND: 3}
+    if name in late:
+        return (1, late[name])
+    digits = "".join(ch for ch in name if ch.isdigit())
+    return (0, int(digits) if digits else 0)
+
+
+def _tree_order(rounds: list[list[Match]]) -> list[list[Match]] | None:
+    """한 번 지면 탈락하는 토너먼트면, 다음 라운드 경기가 앞 라운드 두 경기 사이에 오도록 줄을 세운다."""
+    sizes = [len(r) for r in rounds]
+    if sizes[-1] != 1 or any(a != 2 * b for a, b in zip(sizes, sizes[1:])):
+        return None
+    if any(m.winner_id is None for r in rounds for m in r):
+        return None
+    ordered = [rounds[-1]]
+    for prev in reversed(rounds[:-1]):
+        line: list[Match] = []
+        for m in ordered[0]:
+            for team in (m.team_a, m.team_b):
+                feeder = next((p for p in prev if p.winner_id == team.id), None)
+                if feeder is None or feeder in line:
+                    return None
+                line.append(feeder)
+        ordered.insert(0, line)
+    return ordered
+
+
+def build_brackets(matches: list[Match]) -> list[Bracket]:
+    """토너먼트 성격의 스테이지마다 라운드별 대진과 진출·탈락 결과를 만든다."""
+    by_stage: dict[str, list[Match]] = defaultdict(list)
+    for m in matches:
+        if m.round and any(w in m.tournament.lower() for w in BRACKET_STAGE_WORDS):
+            by_stage[m.tournament].append(m)
+
+    brackets: list[Bracket] = []
+    for stage, ms in sorted(by_stage.items(), key=lambda kv: max(m.begin_at or "" for m in kv[1]), reverse=True):
+        ms.sort(key=lambda m: m.begin_at or "")
+        by_round: dict[str, list[Match]] = {}
+        for m in ms:
+            by_round.setdefault(m.round, []).append(m)
+        rounds = sorted(by_round.values(), key=lambda line: _round_rank(line[0].round))
+
+        # 팀마다 이 스테이지의 마지막 경기에서 결과가 정해진다.
+        last: dict[int, Match] = {}
+        for m in ms:
+            if m.winner_id is not None:
+                last[m.team_a.id] = last[m.team_b.id] = m
+
+        def note(m: Match, team: Team) -> str:
+            if last.get(team.id) is not m:
+                return ""
+            if m.winner_id == team.id:
+                return "우승" if m.round == FINAL_ROUND else "진출"
+            return "준우승" if m.round == FINAL_ROUND else "탈락"
+
+        ordered = _tree_order(rounds)
+        brackets.append(
+            Bracket(
+                stage=stage,
+                tree=ordered is not None,
+                rounds=[
+                    BracketRound(
+                        name=line[0].round,
+                        slots=[BracketSlot(match_id=m.id, note_a=note(m, m.team_a), note_b=note(m, m.team_b)) for m in line],
+                    )
+                    for line in (ordered or rounds)
+                ],
+            )
+        )
+    return brackets
+
+
 def build_league(feed: LeagueFeed) -> LeagueRecord:
     serie_id = pick_current_serie(feed.matches)
     current = [m for m in feed.matches if m.serie_id == serie_id and m.status in ("finished", "running", "not_started")]
@@ -83,7 +163,15 @@ def build_league(feed: LeagueFeed) -> LeagueRecord:
         "시작 전" if has_pending else "종료"
     )
     serie_name = feed.serie or next((m.stage.removesuffix(m.tournament).strip() for m in current if m.stage), "")
-    return LeagueRecord(id=feed.id, name=feed.name, serie=serie_name, status=status, stages=stages, matches=current)
+    return LeagueRecord(
+        id=feed.id,
+        name=feed.name,
+        serie=serie_name,
+        status=status,
+        stages=stages,
+        matches=current,
+        brackets=build_brackets(current),
+    )
 
 
 def make_ranker(leagues: list[LeagueRecord]) -> Ranker:

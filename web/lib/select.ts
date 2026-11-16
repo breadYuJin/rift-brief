@@ -1,4 +1,4 @@
-import type { Brief, League, Match, Preview } from "./types";
+import type { Bracket, Brief, League, Match, Preview } from "./types";
 
 const FEATURED_MIN = 2;
 
@@ -32,3 +32,30 @@ export const nextMatches = (leagues: League[], limit = 5): Match[] =>
 export const stageLabel = (m: Match) => [m.league, m.tournament].filter(Boolean).join(" ");
 export const winRate = (wins: number, losses: number) =>
   wins + losses === 0 ? "-" : (wins / (wins + losses)).toFixed(3).replace(/^0/, "");
+
+/** 모든 리그의 대진표를 최근에 열린 순으로 늘어놓는다. 화면에는 대진표에 나오는 경기만 넘긴다. */
+export function bracketEntries(leagues: League[], briefedIds: Set<number>) {
+  const entries = leagues.flatMap((league) => {
+    const byId = new Map(league.matches.map((m) => [m.id, m]));
+    return (league.brackets ?? []).map((bracket: Bracket) => {
+      const ids = bracket.rounds.flatMap((r) => r.slots.map((s) => s.match_id));
+      const matches: Record<number, Match> = {};
+      let latest = "";
+      for (const id of ids) {
+        const m = byId.get(id);
+        if (!m) continue;
+        matches[id] = m;
+        if ((m.begin_at ?? "") > latest) latest = m.begin_at ?? "";
+      }
+      return {
+        key: `${league.id}:${bracket.stage}`,
+        label: bracket.stage.startsWith(league.name) ? bracket.stage : `${league.name} ${bracket.stage}`,
+        bracket,
+        matches,
+        briefed: ids.filter((id) => briefedIds.has(id)),
+        latest,
+      };
+    });
+  });
+  return entries.sort((a, b) => b.latest.localeCompare(a.latest)).map(({ latest: _latest, ...rest }) => rest);
+}

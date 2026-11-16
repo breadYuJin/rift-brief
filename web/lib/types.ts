@@ -18,6 +18,7 @@ export interface Match {
   league_id: number | null;
   serie_id: number | null;
   tournament: string;
+  round?: string;
   best_of: number;
   status: string;
   begin_at: string | null;
@@ -80,6 +81,18 @@ export interface Stage {
   standings: Standing[];
 }
 
+export interface BracketSlot {
+  match_id: number;
+  note_a: string;
+  note_b: string;
+}
+
+export interface Bracket {
+  stage: string;
+  tree: boolean;
+  rounds: { name: string; slots: BracketSlot[] }[];
+}
+
 export interface League {
   id: number;
   name: string;
@@ -87,6 +100,7 @@ export interface League {
   status: "진행 중" | "시작 전" | "종료";
   stages: Stage[];
   matches: Match[];
+  brackets?: Bracket[];
 }
 
 export interface Meta {

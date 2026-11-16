@@ -27,6 +27,8 @@ class Match(BaseModel):
     league_id: int | None = None
     serie_id: int | None = None
     tournament: str = ""
+    # 스테이지 안에서의 라운드(8강, 4강, 결승, 1라운드 ...). 대진표를 그릴 때 쓴다.
+    round: str = ""
     best_of: int
     status: str
     begin_at: str | None = None
@@ -200,6 +202,25 @@ class StageRecord(BaseModel):
     standings: list[Standing]
 
 
+class BracketSlot(BaseModel):
+    match_id: int
+    # 이 경기로 정해진 각 팀의 결과: "", "진출", "탈락", "우승", "준우승"
+    note_a: str = ""
+    note_b: str = ""
+
+
+class BracketRound(BaseModel):
+    name: str
+    slots: list[BracketSlot]
+
+
+class Bracket(BaseModel):
+    stage: str
+    # True 면 한 번 지면 탈락하는 토너먼트라 가지 모양으로 이어 그릴 수 있다.
+    tree: bool
+    rounds: list[BracketRound]
+
+
 class LeagueRecord(BaseModel):
     id: int
     name: str
@@ -207,3 +228,4 @@ class LeagueRecord(BaseModel):
     status: Literal["진행 중", "시작 전", "종료"]
     stages: list[StageRecord]
     matches: list[Match]
+    brackets: list[Bracket] = Field(default_factory=list)

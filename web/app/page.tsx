@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BracketBoard } from "@/components/BracketBoard";
 import { FixtureRow } from "@/components/FixtureRow";
 import { FixtureCard, ResultCard } from "@/components/MatchCard";
 import { ResultsFeed } from "@/components/ResultsFeed";
@@ -6,7 +7,7 @@ import { Scoreboard } from "@/components/Scoreboard";
 import { Standings } from "@/components/Standings";
 import { getLeagues, getPreviews, getResults } from "@/lib/data";
 import { formatDay, groupByDay } from "@/lib/format";
-import { liveMatches, nextMatches, pickFeatured, stageLabel } from "@/lib/select";
+import { bracketEntries, liveMatches, nextMatches, pickFeatured, stageLabel } from "@/lib/select";
 import { SITE_TAGLINE } from "@/lib/site";
 import type { League } from "@/lib/types";
 
@@ -39,6 +40,7 @@ export default function HomePage() {
   const live = liveMatches(leagues);
   const next = nextMatches(leagues);
   const [lead, ...moreFeatured] = featured.results;
+  const brackets = bracketEntries(leagues, new Set(results.map((r) => r.match.id)));
   const RECENT = 12;
   const lastPlayed = (l: (typeof leagues)[number]) =>
     l.matches.reduce((latest, m) => ((m.begin_at ?? "") > latest ? (m.begin_at ?? "") : latest), "");
@@ -90,6 +92,15 @@ export default function HomePage() {
               <p className="empty">아직 올라온 경기가 없습니다. 다음 경기가 끝나면 여기에 올라옵니다.</p>
             )}
           </section>
+
+          {brackets.length > 0 && (
+            <section aria-labelledby="bracket-title" className="o-1b">
+              <h2 id="bracket-title" className="section-title">
+                대진표
+              </h2>
+              <BracketBoard entries={brackets} />
+            </section>
+          )}
 
           <section aria-labelledby="results-title" className="o-5">
             <h2 id="results-title" className="section-title">

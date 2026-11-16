@@ -101,6 +101,22 @@ def stage_name(league: str, prefix: str, page: str, tab: str) -> str:
     return "토너먼트" if final_round else "본선"
 
 
+def round_label(tab: str) -> str:
+    """탭 이름을 화면에 쓸 라운드 이름으로 바꾼다."""
+    t = tab.lower()
+    if "quarter" in t:
+        return "8강"
+    if "semi" in t:
+        return "4강"
+    if "final" in t:
+        return "결승"
+    for word, unit in (("round", "라운드"), ("day", "일차"), ("week", "주차")):
+        found = re.search(rf"{word}\s*(\d+)", t)
+        if found:
+            return f"{found.group(1)}{unit}"
+    return tab
+
+
 def _iso(value: str | None) -> str | None:
     if not value:
         return None
@@ -164,6 +180,7 @@ def to_match(
         league_id=league_id,
         serie_id=year,
         tournament=stage,
+        round=round_label(tab),
         stage=" ".join(p for p in (str(year), stage, tab) if p),
         best_of=_int(row.get("BestOf")) or max(1, 2 * max(score_a, score_b) - 1),
         status="finished" if winner else "not_started",

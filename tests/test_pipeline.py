@@ -348,3 +348,59 @@ def test_lck_groups_are_split_and_combined_tables_are_cumulative():
     assert [(r.team.acronym, r.wins, r.losses) for r in rise.standings] == [("CCC", 2, 1), ("DDD", 0, 3)]
     names = [s.name for s in league.stages]
     assert names.index(legend.name) < names.index("정규 시즌 3~4라운드 레전드 그룹") < names.index(rise.name)
+
+
+def test_round_labels():
+    assert [LP.round_label(t) for t in ("Quarterfinals", "Semifinals", "Finals", "Bracket Round 3", "Play-In Day 2", "Week 10")] == [
+        "8강", "4강", "결승", "3라운드", "2일차", "10주차"]
+
+
+def _ko(i, rnd, a, b, winner, stage="토너먼트"):
+    from pipeline.schemas import Match, Team
+
+    ta, tb = Team(id=a, name=f"팀{a}", acronym=f"T{a}"), Team(id=b, name=f"팀{b}", acronym=f"T{b}")
+    done = winner is not None
+    return Match(id=i, league="월즈", stage=f"2026 {stage}", tournament=stage, round=rnd, best_of=5,
+                 status="finished" if done else "not_started", begin_at=f"2026-11-{i:02d}T10:00:00+00:00",
+                 team_a=ta, team_b=tb, score_a=3 if winner == a else 0, score_b=3 if winner == b else 0, winner_id=winner)
+
+
+def test_single_elimination_bracket_is_ordered_as_a_tree():
+    from pipeline.leagues import build_brackets
+
+    # 8강 경기 순서를 일부러 섞어 둔다: 4강은 (1 vs 5), (3 vs 7), 결승은 1 vs 7
+    ms = [_ko(1, "8강", 1, 2, 1), _ko(2, "8강", 3, 4, 3), _ko(3, "8강", 5, 6, 5), _ko(4, "8강", 7, 8, 7),
+          _ko(5, "4강", 1, 5, 1), _ko(6, "4강", 7, 3, 7), _ko(7, "결승", 7, 1, 7),
+          _ko(8, "3라운드", 1, 2, 1, stage="스위스 스테이지")]
+    (b,) = build_brackets(ms)
+    assert b.stage == "토너먼트" and b.tree and [r.name for r in b.rounds] == ["8강", "4강", "결승"]
+    assert [s.match_id for s in b.rounds[1].slots] == [6, 5]  # 결승의 왼쪽 팀(7)이 올라온 4강이 위
+    assert [s.match_id for s in b.rounds[0].slots] == [4, 2, 1, 3]  # 각 4강 바로 앞에 그 두 팀의 8강
+    final = b.rounds[2].slots[0]
+    assert (final.note_a, final.note_b) == ("우승", "준우승")
+    qf = b.rounds[0].slots[0]
+    assert (qf.note_a, qf.note_b) == ("", "탈락")
+
+
+def test_double_elimination_marks_only_the_last_loss():
+    from pipeline.leagues import build_brackets
+
+    # 팀 2 는 1라운드에서 지고도 패자조에서 살아남았다가 3라운드에서 탈락한다.
+    ms = [_ko(1, "1라운드", 1, 2, 1, "플레이오프"), _ko(2, "1라운드", 3, 4, 3, "플레이오프"),
+          _ko(3, "2라운드", 2, 4, 2, "플레이오프"), _ko(4, "2라운드", 1, 3, 1, "플레이오프"),
+          _ko(5, "3라운드", 3, 2, 3, "플레이오프"), _ko(6, "결승", 1, 3, None, "플레이오프")]
+    (b,) = build_brackets(ms)
+    assert not b.tree and [len(r.slots) for r in b.rounds] == [2, 2, 1, 1]
+    assert [r.name for r in b.rounds] == ["1라운드", "2라운드", "3라운드", "결승"]
+    notes = {s.match_id: (s.note_a, s.note_b) for r in b.rounds for s in r.slots}
+    assert notes[1] == ("", "") and notes[3] == ("", "탈락") and notes[5] == ("진출", "탈락")
+    assert notes[4] == ("진출", "") and notes[6] == ("", "")  # 결승은 아직 안 열림
+
+
+def test_play_in_winners_advance_without_a_champion():
+    from pipeline.leagues import build_brackets
+
+    ms = [_ko(1, "1라운드", 1, 2, 1, "플레이-인"), _ko(2, "1라운드", 3, 4, 3, "플레이-인"), _ko(3, "2라운드", 2, 3, 2, "플레이-인")]
+    (b,) = build_brackets(ms)
+    notes = {s.match_id: (s.note_a, s.note_b) for r in b.rounds for s in r.slots}
+    assert notes == {1: ("진출", ""), 2: ("", "탈락"), 3: ("진출", "탈락")}

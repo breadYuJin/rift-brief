@@ -31,7 +31,7 @@ export function FixtureRow({ match, href, showStage = true }: { match: Match; hr
     </>
   );
   return (
-    <li className="fx">
+    <li className={`fx${href ? " fx--link" : ""}`}>
       <time className="fx__time" dateTime={match.begin_at ?? undefined}>
         {formatTime(match.begin_at)}
       </time>

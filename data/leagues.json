@@ -1287,6 +1287,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-14T08:00:00+00:00",
@@ -1329,6 +1330,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-14T10:00:00+00:00",
@@ -1366,6 +1368,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-15T08:00:00+00:00",
@@ -1403,6 +1406,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-15T10:00:00+00:00",
@@ -1440,6 +1444,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-16T08:00:00+00:00",
@@ -1477,6 +1482,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-16T10:00:00+00:00",
@@ -1519,6 +1525,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-17T08:00:00+00:00",
@@ -1561,6 +1568,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-17T10:00:00+00:00",
@@ -1598,6 +1606,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-18T08:00:00+00:00",
@@ -1635,6 +1644,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-18T10:00:00+00:00",
@@ -1677,6 +1687,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-21T08:00:00+00:00",
@@ -1719,6 +1730,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-21T10:00:00+00:00",
@@ -1761,6 +1773,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-22T08:00:00+00:00",
@@ -1803,6 +1816,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-22T10:00:00+00:00",
@@ -1840,6 +1854,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-23T08:00:00+00:00",
@@ -1877,6 +1892,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-23T10:00:00+00:00",
@@ -1919,6 +1935,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-24T08:00:00+00:00",
@@ -1961,6 +1978,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-24T10:00:00+00:00",
@@ -1998,6 +2016,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-25T08:00:00+00:00",
@@ -2040,6 +2059,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-01-25T10:00:00+00:00",
@@ -2082,6 +2102,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "3주차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-01-28T08:00:00+00:00",
@@ -2134,6 +2155,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "3주차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-01-29T08:00:00+00:00",
@@ -2181,6 +2203,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "3주차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-01-30T08:00:00+00:00",
@@ -2233,6 +2256,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "3주차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-01-31T08:00:00+00:00",
@@ -2275,6 +2299,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 그룹 대항전",
+        "round": "3주차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-01T08:00:00+00:00",
@@ -2317,6 +2342,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이-인",
+        "round": "1라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-02-06T08:00:00+00:00",
@@ -2359,6 +2385,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이-인",
+        "round": "1라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-02-06T10:00:00+00:00",
@@ -2396,6 +2423,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이-인",
+        "round": "2라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-02-07T08:00:00+00:00",
@@ -2433,6 +2461,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이-인",
+        "round": "2라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-02-07T10:00:00+00:00",
@@ -2475,6 +2504,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이-인",
+        "round": "3라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-08T08:00:00+00:00",
@@ -2517,6 +2547,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-12T08:00:00+00:00",
@@ -2569,6 +2600,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-13T08:00:00+00:00",
@@ -2621,6 +2653,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-14T08:00:00+00:00",
@@ -2668,6 +2701,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-15T08:00:00+00:00",
@@ -2715,6 +2749,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-19T08:00:00+00:00",
@@ -2762,6 +2797,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-20T08:00:00+00:00",
@@ -2809,6 +2845,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "4라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-21T08:00:00+00:00",
@@ -2856,6 +2893,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "3라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-22T08:00:00+00:00",
@@ -2908,6 +2946,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "4라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-02-28T08:00:00+00:00",
@@ -2950,6 +2989,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "LCK컵 플레이오프",
+        "round": "결승",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-01T08:00:00+00:00",
@@ -2992,6 +3032,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-01T08:00:00+00:00",
@@ -3029,6 +3070,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-01T10:00:00+00:00",
@@ -3066,6 +3108,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-02T08:00:00+00:00",
@@ -3103,6 +3146,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-02T10:00:00+00:00",
@@ -3140,6 +3184,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-03T08:00:00+00:00",
@@ -3182,6 +3227,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-03T10:00:00+00:00",
@@ -3219,6 +3265,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-04T08:00:00+00:00",
@@ -3256,6 +3303,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-04T10:00:00+00:00",
@@ -3293,6 +3341,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-05T08:00:00+00:00",
@@ -3330,6 +3379,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "1주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-05T10:00:00+00:00",
@@ -3367,6 +3417,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-08T08:00:00+00:00",
@@ -3404,6 +3455,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-08T10:00:00+00:00",
@@ -3441,6 +3493,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-09T08:00:00+00:00",
@@ -3483,6 +3536,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-09T10:00:00+00:00",
@@ -3520,6 +3574,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-10T08:00:00+00:00",
@@ -3557,6 +3612,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-10T10:00:00+00:00",
@@ -3599,6 +3655,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-11T08:00:00+00:00",
@@ -3636,6 +3693,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-11T10:00:00+00:00",
@@ -3673,6 +3731,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-12T08:00:00+00:00",
@@ -3710,6 +3769,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "2주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-12T10:00:00+00:00",
@@ -3747,6 +3807,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-15T08:00:00+00:00",
@@ -3784,6 +3845,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-15T10:00:00+00:00",
@@ -3826,6 +3888,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-16T08:00:00+00:00",
@@ -3863,6 +3926,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-16T10:00:00+00:00",
@@ -3900,6 +3964,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-17T08:00:00+00:00",
@@ -3937,6 +4002,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-17T10:00:00+00:00",
@@ -3979,6 +4045,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-18T08:00:00+00:00",
@@ -4016,6 +4083,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-18T10:00:00+00:00",
@@ -4053,6 +4121,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-19T08:00:00+00:00",
@@ -4095,6 +4164,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "3주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-19T10:00:00+00:00",
@@ -4132,6 +4202,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-22T08:00:00+00:00",
@@ -4169,6 +4240,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-22T10:00:00+00:00",
@@ -4211,6 +4283,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-23T08:00:00+00:00",
@@ -4248,6 +4321,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-23T10:00:00+00:00",
@@ -4285,6 +4359,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-24T08:00:00+00:00",
@@ -4322,6 +4397,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-24T10:00:00+00:00",
@@ -4359,6 +4435,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-25T08:00:00+00:00",
@@ -4396,6 +4473,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-25T10:00:00+00:00",
@@ -4433,6 +4511,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-26T08:00:00+00:00",
@@ -4470,6 +4549,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "4주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-26T10:00:00+00:00",
@@ -4507,6 +4587,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-29T08:00:00+00:00",
@@ -4544,6 +4625,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-29T10:00:00+00:00",
@@ -4581,6 +4663,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-30T08:00:00+00:00",
@@ -4623,6 +4706,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-04-30T10:00:00+00:00",
@@ -4660,6 +4744,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-01T08:00:00+00:00",
@@ -4697,6 +4782,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-01T10:00:00+00:00",
@@ -4739,6 +4825,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-02T08:00:00+00:00",
@@ -4781,6 +4868,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-02T10:00:00+00:00",
@@ -4818,6 +4906,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-03T08:00:00+00:00",
@@ -4855,6 +4944,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "5주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-03T10:00:00+00:00",
@@ -4892,6 +4982,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-06T08:00:00+00:00",
@@ -4929,6 +5020,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-06T10:00:00+00:00",
@@ -4966,6 +5058,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-07T08:00:00+00:00",
@@ -5003,6 +5096,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-07T10:00:00+00:00",
@@ -5040,6 +5134,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-08T08:00:00+00:00",
@@ -5077,6 +5172,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-08T10:00:00+00:00",
@@ -5114,6 +5210,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-09T08:00:00+00:00",
@@ -5151,6 +5248,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-09T10:00:00+00:00",
@@ -5188,6 +5286,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-10T08:00:00+00:00",
@@ -5225,6 +5324,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "6주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-10T10:00:00+00:00",
@@ -5267,6 +5367,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-13T08:00:00+00:00",
@@ -5304,6 +5405,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-13T10:00:00+00:00",
@@ -5341,6 +5443,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-14T08:00:00+00:00",
@@ -5378,6 +5481,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-14T10:00:00+00:00",
@@ -5420,6 +5524,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-15T08:00:00+00:00",
@@ -5457,6 +5562,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-15T10:00:00+00:00",
@@ -5494,6 +5600,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-16T08:00:00+00:00",
@@ -5536,6 +5643,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-16T10:00:00+00:00",
@@ -5573,6 +5681,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-17T08:00:00+00:00",
@@ -5615,6 +5724,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "7주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-17T10:00:00+00:00",
@@ -5657,6 +5767,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-20T08:00:00+00:00",
@@ -5699,6 +5810,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-20T10:00:00+00:00",
@@ -5741,6 +5853,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-21T08:00:00+00:00",
@@ -5778,6 +5891,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-21T10:00:00+00:00",
@@ -5820,6 +5934,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-22T08:00:00+00:00",
@@ -5857,6 +5972,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-22T10:00:00+00:00",
@@ -5894,6 +6010,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-23T08:00:00+00:00",
@@ -5936,6 +6053,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-23T10:00:00+00:00",
@@ -5978,6 +6096,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-24T08:00:00+00:00",
@@ -6015,6 +6134,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "8주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-24T10:00:00+00:00",
@@ -6052,6 +6172,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-27T08:00:00+00:00",
@@ -6094,6 +6215,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-27T10:00:00+00:00",
@@ -6136,6 +6258,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-28T08:00:00+00:00",
@@ -6178,6 +6301,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-28T10:00:00+00:00",
@@ -6215,6 +6339,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-29T08:00:00+00:00",
@@ -6257,6 +6382,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-29T10:00:00+00:00",
@@ -6294,6 +6420,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-30T08:00:00+00:00",
@@ -6331,6 +6458,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-30T10:00:00+00:00",
@@ -6368,6 +6496,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-31T08:00:00+00:00",
@@ -6405,6 +6534,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 1~2라운드",
+        "round": "9주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-05-31T10:00:00+00:00",
@@ -6442,6 +6572,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "MSI 대표 선발전",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-06T08:00:00+00:00",
@@ -6484,6 +6615,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "MSI 대표 선발전",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-07T08:00:00+00:00",
@@ -6536,6 +6668,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "MSI 대표 선발전",
+        "round": "3라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-12T08:00:00+00:00",
@@ -6583,6 +6716,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "MSI 대표 선발전",
+        "round": "3라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-13T06:00:00+00:00",
@@ -6625,6 +6759,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "MSI 대표 선발전",
+        "round": "4라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-14T06:00:00+00:00",
@@ -6677,6 +6812,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-07-29T08:00:00+00:00",
@@ -6714,6 +6850,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-07-29T10:00:00+00:00",
@@ -6751,6 +6888,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-07-30T08:00:00+00:00",
@@ -6788,6 +6926,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-07-30T10:00:00+00:00",
@@ -6830,6 +6969,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-07-31T08:00:00+00:00",
@@ -6867,6 +7007,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-07-31T10:00:00+00:00",
@@ -6909,6 +7050,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-01T08:00:00+00:00",
@@ -6951,6 +7093,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-01T10:00:00+00:00",
@@ -6977,6 +7120,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-02T08:00:00+00:00",
@@ -7019,6 +7163,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "10주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-02T10:00:00+00:00",
@@ -7061,6 +7206,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-05T08:00:00+00:00",
@@ -7103,6 +7249,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-05T10:00:00+00:00",
@@ -7145,6 +7292,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-06T08:00:00+00:00",
@@ -7182,6 +7330,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-06T10:00:00+00:00",
@@ -7219,6 +7368,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-07T08:00:00+00:00",
@@ -7256,6 +7406,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-07T10:00:00+00:00",
@@ -7293,6 +7444,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-08T08:00:00+00:00",
@@ -7335,6 +7487,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-08T10:00:00+00:00",
@@ -7372,6 +7525,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-09T08:00:00+00:00",
@@ -7414,6 +7568,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "11주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-09T10:00:00+00:00",
@@ -7451,6 +7606,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-12T08:00:00+00:00",
@@ -7493,6 +7649,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-12T10:00:00+00:00",
@@ -7530,6 +7687,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-13T08:00:00+00:00",
@@ -7572,6 +7730,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-13T10:00:00+00:00",
@@ -7609,6 +7768,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-14T08:00:00+00:00",
@@ -7651,6 +7811,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-14T10:00:00+00:00",
@@ -7688,6 +7849,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-15T08:00:00+00:00",
@@ -7730,6 +7892,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-15T10:00:00+00:00",
@@ -7767,6 +7930,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-16T08:00:00+00:00",
@@ -7804,6 +7968,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "12주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-16T10:00:00+00:00",
@@ -7846,6 +8011,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-19T08:00:00+00:00",
@@ -7888,6 +8054,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-19T10:00:00+00:00",
@@ -7925,6 +8092,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-20T08:00:00+00:00",
@@ -7962,6 +8130,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-20T10:00:00+00:00",
@@ -7999,6 +8168,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-21T08:00:00+00:00",
@@ -8041,6 +8211,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-21T10:00:00+00:00",
@@ -8083,6 +8254,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-22T08:00:00+00:00",
@@ -8125,6 +8297,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-22T10:00:00+00:00",
@@ -8162,6 +8335,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 레전드 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-23T08:00:00+00:00",
@@ -8199,6 +8373,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "정규 시즌 3~4라운드 라이즈 그룹",
+        "round": "13주차",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-08-23T10:00:00+00:00",
@@ -8241,6 +8416,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-08-26T08:00:00+00:00",
@@ -8293,6 +8469,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-08-27T08:00:00+00:00",
@@ -8340,6 +8517,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-08-28T08:00:00+00:00",
@@ -8392,6 +8570,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-08-29T08:00:00+00:00",
@@ -8444,6 +8623,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-08-30T08:00:00+00:00",
@@ -8486,6 +8666,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-09-01T08:00:00+00:00",
@@ -8528,6 +8709,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-09-02T08:00:00+00:00",
@@ -8580,6 +8762,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-09-03T08:00:00+00:00",
@@ -8632,6 +8815,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-09-04T08:00:00+00:00",
@@ -8679,6 +8863,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "4라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-09-05T08:00:00+00:00",
@@ -8726,6 +8911,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "3라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-09-06T08:00:00+00:00",
@@ -8773,6 +8959,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "4라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-09-12T05:00:00+00:00",
@@ -8820,6 +9007,7 @@
         "league_id": 1,
         "serie_id": 2026,
         "tournament": "플레이오프",
+        "round": "결승",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-09-13T05:00:00+00:00",
@@ -8857,6 +9045,298 @@
             "position": 4,
             "winner_id": 2533266816,
             "length_min": 28
+          }
+        ]
+      }
+    ],
+    "brackets": [
+      {
+        "stage": "플레이오프",
+        "tree": false,
+        "rounds": [
+          {
+            "name": "1라운드",
+            "slots": [
+              {
+                "match_id": 1524921871,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3287099317,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3035240227,
+                "note_a": "탈락",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "2라운드",
+            "slots": [
+              {
+                "match_id": 1487063126,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3249248748,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3064768890,
+                "note_a": "탈락",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "3라운드",
+            "slots": [
+              {
+                "match_id": 1499505249,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "4라운드",
+            "slots": [
+              {
+                "match_id": 1546630372,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3307660638,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "결승",
+            "slots": [
+              {
+                "match_id": 1687796219,
+                "note_a": "우승",
+                "note_b": "준우승"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "플레이-인",
+        "tree": false,
+        "rounds": [
+          {
+            "name": "1라운드",
+            "slots": [
+              {
+                "match_id": 3782967874,
+                "note_a": "진출",
+                "note_b": ""
+              },
+              {
+                "match_id": 2020791288,
+                "note_a": "탈락",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "2라운드",
+            "slots": [
+              {
+                "match_id": 3812441115,
+                "note_a": "탈락",
+                "note_b": "진출"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "MSI 대표 선발전",
+        "tree": false,
+        "rounds": [
+          {
+            "name": "1라운드",
+            "slots": [
+              {
+                "match_id": 961172994,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "2라운드",
+            "slots": [
+              {
+                "match_id": 990701659,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "3라운드",
+            "slots": [
+              {
+                "match_id": 986612332,
+                "note_a": "진출",
+                "note_b": ""
+              },
+              {
+                "match_id": 2747782102,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "4라운드",
+            "slots": [
+              {
+                "match_id": 1065456873,
+                "note_a": "진출",
+                "note_b": "탈락"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "LCK컵 플레이오프",
+        "tree": false,
+        "rounds": [
+          {
+            "name": "1라운드",
+            "slots": [
+              {
+                "match_id": 2337509526,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 307937580,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 1700655546,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "2라운드",
+            "slots": [
+              {
+                "match_id": 2299866831,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 270303093,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 1729843171,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "3라운드",
+            "slots": [
+              {
+                "match_id": 2295809272,
+                "note_a": "탈락",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "4라운드",
+            "slots": [
+              {
+                "match_id": 2375570045,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 345048007,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "결승",
+            "slots": [
+              {
+                "match_id": 613123259,
+                "note_a": "우승",
+                "note_b": "준우승"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "LCK컵 플레이-인",
+        "tree": false,
+        "rounds": [
+          {
+            "name": "1라운드",
+            "slots": [
+              {
+                "match_id": 3315742967,
+                "note_a": "",
+                "note_b": "탈락"
+              },
+              {
+                "match_id": 1554737485,
+                "note_a": "탈락",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "2라운드",
+            "slots": [
+              {
+                "match_id": 3353642670,
+                "note_a": "진출",
+                "note_b": ""
+              },
+              {
+                "match_id": 1592645396,
+                "note_a": "",
+                "note_b": "진출"
+              }
+            ]
+          },
+          {
+            "name": "3라운드",
+            "slots": [
+              {
+                "match_id": 3324439705,
+                "note_a": "진출",
+                "note_b": "탈락"
+              }
+            ]
           }
         ]
       }
@@ -9081,6 +9561,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "1일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-16T13:00:00+00:00",
@@ -9133,6 +9614,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "1일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-16T18:00:00+00:00",
@@ -9175,6 +9657,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "2일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-17T13:00:00+00:00",
@@ -9217,6 +9700,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "2일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-17T18:00:00+00:00",
@@ -9269,6 +9753,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "3일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-18T13:00:00+00:00",
@@ -9311,6 +9796,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "3일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-18T18:00:00+00:00",
@@ -9353,6 +9839,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "4일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-19T13:00:00+00:00",
@@ -9395,6 +9882,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "4일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-19T18:00:00+00:00",
@@ -9437,6 +9925,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "5일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-20T13:00:00+00:00",
@@ -9479,6 +9968,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "그룹 스테이지",
+        "round": "5일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-20T18:00:00+00:00",
@@ -9526,6 +10016,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "4강",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-21T13:00:00+00:00",
@@ -9568,6 +10059,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "4강",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-21T18:00:00+00:00",
@@ -9610,6 +10102,7 @@
         "league_id": 2,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "결승",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-03-22T13:00:00+00:00",
@@ -9647,6 +10140,39 @@
             "position": 4,
             "winner_id": 942363782,
             "length_min": 27
+          }
+        ]
+      }
+    ],
+    "brackets": [
+      {
+        "stage": "토너먼트",
+        "tree": true,
+        "rounds": [
+          {
+            "name": "4강",
+            "slots": [
+              {
+                "match_id": 2677260679,
+                "note_a": "탈락",
+                "note_b": ""
+              },
+              {
+                "match_id": 110792765,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "결승",
+            "slots": [
+              {
+                "match_id": 2402733542,
+                "note_a": "준우승",
+                "note_b": "우승"
+              }
+            ]
           }
         ]
       }
@@ -9885,6 +10411,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "1일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-28T03:00:00+00:00",
@@ -9927,6 +10454,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "1일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-28T08:00:00+00:00",
@@ -9969,6 +10497,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "2일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-29T03:00:00+00:00",
@@ -10011,6 +10540,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "2일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-29T08:00:00+00:00",
@@ -10053,6 +10583,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "3일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-06-30T08:00:00+00:00",
@@ -10095,6 +10626,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "4일차",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-01T08:00:00+00:00",
@@ -10137,6 +10669,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-03T03:00:00+00:00",
@@ -10179,6 +10712,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-03T08:00:00+00:00",
@@ -10231,6 +10765,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-04T03:00:00+00:00",
@@ -10273,6 +10808,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-04T08:00:00+00:00",
@@ -10325,6 +10861,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-05T03:00:00+00:00",
@@ -10372,6 +10909,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-05T08:00:00+00:00",
@@ -10414,6 +10952,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-06T03:00:00+00:00",
@@ -10456,6 +10995,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-06T08:00:00+00:00",
@@ -10498,6 +11038,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-08T03:00:00+00:00",
@@ -10540,6 +11081,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-08T08:00:00+00:00",
@@ -10587,6 +11129,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "4라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-09T08:00:00+00:00",
@@ -10634,6 +11177,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "3라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-10T08:00:00+00:00",
@@ -10676,6 +11220,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "4라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-11T08:00:00+00:00",
@@ -10728,6 +11273,7 @@
         "league_id": 3,
         "serie_id": 2026,
         "tournament": "브래킷 스테이지",
+        "round": "결승",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-07-12T07:30:00+00:00",
@@ -10770,6 +11316,165 @@
             "position": 5,
             "winner_id": 3685920892,
             "length_min": 36
+          }
+        ]
+      }
+    ],
+    "brackets": [
+      {
+        "stage": "브래킷 스테이지",
+        "tree": false,
+        "rounds": [
+          {
+            "name": "1라운드",
+            "slots": [
+              {
+                "match_id": 1482217028,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3243345918,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3059136360,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 674374347,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 1597313629,
+                "note_a": "",
+                "note_b": "탈락"
+              },
+              {
+                "match_id": 3325838311,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "2라운드",
+            "slots": [
+              {
+                "match_id": 1511942173,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3273079207,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3020949809,
+                "note_a": "",
+                "note_b": "탈락"
+              },
+              {
+                "match_id": 712285330,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "3라운드",
+            "slots": [
+              {
+                "match_id": 1541145130,
+                "note_a": "탈락",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "4라운드",
+            "slots": [
+              {
+                "match_id": 1586697391,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3348776213,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "결승",
+            "slots": [
+              {
+                "match_id": 2746765929,
+                "note_a": "준우승",
+                "note_b": "우승"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "플레이-인",
+        "tree": false,
+        "rounds": [
+          {
+            "name": "1일차",
+            "slots": [
+              {
+                "match_id": 4248223364,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 1681911614,
+                "note_a": "",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "2일차",
+            "slots": [
+              {
+                "match_id": 4285530333,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 1719226727,
+                "note_a": "탈락",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "3일차",
+            "slots": [
+              {
+                "match_id": 4273105642,
+                "note_a": "탈락",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "4일차",
+            "slots": [
+              {
+                "match_id": 4227693679,
+                "note_a": "진출",
+                "note_b": "탈락"
+              }
+            ]
           }
         ]
       }
@@ -11289,6 +11994,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-10-15T18:00:00+00:00",
@@ -11341,6 +12047,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-10-15T23:00:00+00:00",
@@ -11383,6 +12090,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-10-16T18:00:00+00:00",
@@ -11425,6 +12133,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "1라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-10-16T23:00:00+00:00",
@@ -11472,6 +12181,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "2라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-10-17T18:00:00+00:00",
@@ -11519,6 +12229,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "플레이-인",
+        "round": "3라운드",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-10-18T18:00:00+00:00",
@@ -11561,6 +12272,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "1라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-23T17:00:00+00:00",
@@ -11593,6 +12305,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "1라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-23T18:00:00+00:00",
@@ -11625,6 +12338,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "1라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-23T19:00:00+00:00",
@@ -11657,6 +12371,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "1라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-23T20:00:00+00:00",
@@ -11689,6 +12404,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "1라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-23T21:00:00+00:00",
@@ -11721,6 +12437,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "1라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-23T22:00:00+00:00",
@@ -11753,6 +12470,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "1라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-23T23:00:00+00:00",
@@ -11785,6 +12503,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "1라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-24T00:00:00+00:00",
@@ -11817,6 +12536,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "2라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-24T17:00:00+00:00",
@@ -11849,6 +12569,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "2라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-24T18:00:00+00:00",
@@ -11881,6 +12602,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "2라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-24T19:00:00+00:00",
@@ -11913,6 +12635,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "2라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-24T20:00:00+00:00",
@@ -11945,6 +12668,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "2라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-24T21:00:00+00:00",
@@ -11977,6 +12701,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "2라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-24T22:00:00+00:00",
@@ -12009,6 +12734,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "2라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-24T23:00:00+00:00",
@@ -12041,6 +12767,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "2라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-25T00:00:00+00:00",
@@ -12073,6 +12800,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "3라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-25T17:00:00+00:00",
@@ -12105,6 +12833,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "3라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-25T18:00:00+00:00",
@@ -12137,6 +12866,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "3라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-25T19:00:00+00:00",
@@ -12174,6 +12904,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "3라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-25T22:00:00+00:00",
@@ -12216,6 +12947,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "3라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-26T17:00:00+00:00",
@@ -12248,6 +12980,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "3라운드",
         "best_of": 1,
         "status": "finished",
         "begin_at": "2026-10-26T18:00:00+00:00",
@@ -12280,6 +13013,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "3라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-26T19:00:00+00:00",
@@ -12317,6 +13051,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "3라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-26T22:00:00+00:00",
@@ -12354,6 +13089,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "4라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-28T20:00:00+00:00",
@@ -12391,6 +13127,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "4라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-28T23:00:00+00:00",
@@ -12433,6 +13170,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "4라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-29T20:00:00+00:00",
@@ -12470,6 +13208,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "4라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-29T23:00:00+00:00",
@@ -12512,6 +13251,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "4라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-30T20:00:00+00:00",
@@ -12554,6 +13294,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "4라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-30T23:00:00+00:00",
@@ -12591,6 +13332,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "5라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-31T17:00:00+00:00",
@@ -12628,6 +13370,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "5라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-31T20:00:00+00:00",
@@ -12670,6 +13413,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "스위스 스테이지",
+        "round": "5라운드",
         "best_of": 3,
         "status": "finished",
         "begin_at": "2026-10-31T23:00:00+00:00",
@@ -12707,6 +13451,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "8강",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-11-03T22:00:00+00:00",
@@ -12754,6 +13499,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "8강",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-11-04T22:00:00+00:00",
@@ -12796,6 +13542,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "8강",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-11-05T22:00:00+00:00",
@@ -12838,6 +13585,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "8강",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-11-06T22:00:00+00:00",
@@ -12885,6 +13633,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "4강",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-11-07T22:00:00+00:00",
@@ -12927,6 +13676,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "4강",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-11-08T22:00:00+00:00",
@@ -12974,6 +13724,7 @@
         "league_id": 4,
         "serie_id": 2026,
         "tournament": "토너먼트",
+        "round": "결승",
         "best_of": 5,
         "status": "finished",
         "begin_at": "2026-11-14T19:00:00+00:00",
@@ -13011,6 +13762,115 @@
             "position": 4,
             "winner_id": 942363782,
             "length_min": 43
+          }
+        ]
+      }
+    ],
+    "brackets": [
+      {
+        "stage": "토너먼트",
+        "tree": true,
+        "rounds": [
+          {
+            "name": "8강",
+            "slots": [
+              {
+                "match_id": 1280355952,
+                "note_a": "탈락",
+                "note_b": ""
+              },
+              {
+                "match_id": 3526638547,
+                "note_a": "탈락",
+                "note_b": ""
+              },
+              {
+                "match_id": 2724122460,
+                "note_a": "탈락",
+                "note_b": ""
+              },
+              {
+                "match_id": 995598054,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "4강",
+            "slots": [
+              {
+                "match_id": 3685481158,
+                "note_a": "",
+                "note_b": "탈락"
+              },
+              {
+                "match_id": 1117956988,
+                "note_a": "탈락",
+                "note_b": ""
+              }
+            ]
+          },
+          {
+            "name": "결승",
+            "slots": [
+              {
+                "match_id": 2856364077,
+                "note_a": "우승",
+                "note_b": "준우승"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "stage": "플레이-인",
+        "tree": false,
+        "rounds": [
+          {
+            "name": "1라운드",
+            "slots": [
+              {
+                "match_id": 1562196856,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3289672386,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3004389972,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "2라운드",
+            "slots": [
+              {
+                "match_id": 1599833377,
+                "note_a": "",
+                "note_b": ""
+              },
+              {
+                "match_id": 3327317147,
+                "note_a": "",
+                "note_b": "탈락"
+              }
+            ]
+          },
+          {
+            "name": "3라운드",
+            "slots": [
+              {
+                "match_id": 1587146518,
+                "note_a": "진출",
+                "note_b": "탈락"
+              }
+            ]
           }
         ]
       }
