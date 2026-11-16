@@ -58,6 +58,26 @@ KOREAN_NAMES = {
     "DNS": "DN 수퍼스",
 }
 
+_SIDES = ("Team1", "Team2")
+GAME_FIELDS = (
+    "GameId,MatchId,N_GameInMatch=N,WinTeam,Gamelength_Number=Len,RiotPlatformGameId=Rpg,DateTime_UTC=Start,Patch,"
+    "Team1,Team2,VOD,"
+    + ",".join(
+        f"{t}{f}"
+        for t in _SIDES
+        for f in ("Picks", "Bans", "Kills", "Gold", "Dragons", "Barons", "Towers", "RiftHeralds", "VoidGrubs", "Atakhans", "Inhibitors")
+    )
+)
+# PicksAndBansS7 의 Team1 은 먼저 밴픽하는 팀이다(진영과는 별개).
+DRAFT_FIELDS = "GameId,MatchId,N_GameInMatch=N,Team1,Team2,Winner," + ",".join(
+    f"{t}{kind}{i}" for kind in ("Ban", "Pick", "Role") for t in _SIDES for i in range(1, 6)
+)
+PLAYER_FIELDS = (
+    "GameId,Link,Team,Champion,Role,Role_Number=RoleN,Side,Kills,Deaths,Assists,CS,Gold,"
+    "DamageToChampions=Dmg,VisionScore=Vision"
+)
+VOD_FIELDS = "GameId,MatchId,N_GameInMatch=N,Blue,Red,FirstPick,Selection,VodGameStart,VodPB,MVP"
+
 REGULAR_1 = "정규 시즌 1~2라운드"
 REGULAR_2 = "정규 시즌 3~4라운드"
 
@@ -246,18 +266,18 @@ class Cargo:
         self._pause = pause
         self.requests_made = 0
 
-    def _get(self, params: dict[str, Any]) -> list[dict[str, Any]]:
+    def _request(self, params: dict[str, Any]) -> dict[str, Any]:
         for attempt in range(5):
             self.requests_made += 1
-            resp = self._session.get(API, params=params, timeout=40)
+            resp = self._session.get(API, params=params, timeout=60)
             try:
                 data = resp.json()
             except ValueError:
                 data = {}
-            if resp.status_code == 200 and "cargoquery" in data:
-                return [r.get("title", {}) for r in data["cargoquery"]]
             error = (data.get("error") or {}) if isinstance(data, dict) else {}
             code = error.get("code")
+            if resp.status_code == 200 and not error:
+                return data
             if resp.status_code in (429, 500, 502, 503, 504) or code == "ratelimited":
                 wait = 20 * (attempt + 1)
                 print(f"[leaguepedia] 잠시 대기 {wait}초 (HTTP {resp.status_code}, {code})")
@@ -265,6 +285,24 @@ class Cargo:
                 continue
             raise RuntimeError(f"Leaguepedia 요청 실패: HTTP {resp.status_code} {error or resp.text[:200]}")
         raise RuntimeError("Leaguepedia 요청이 계속 제한되고 있습니다. 나중에 다시 실행하세요.")
+
+    def _get(self, params: dict[str, Any]) -> list[dict[str, Any]]:
+        data = self._request(params)
+        if "cargoquery" not in data:
+            raise RuntimeError(f"Leaguepedia 응답에 결과가 없습니다: {str(data)[:200]}")
+        return [r.get("title", {}) for r in data["cargoquery"]]
+
+    def page_content(self, title: str) -> str | None:
+        """위키 문서의 본문. 문서가 없으면 None."""
+        data = self._request(
+            {"action": "query", "format": "json", "formatversion": 2, "prop": "revisions",
+             "titles": title, "rvprop": "content", "rvslots": "main"}
+        )
+        time.sleep(self._pause)
+        pages = (data.get("query") or {}).get("pages") or []
+        if not pages or pages[0].get("missing") or not pages[0].get("revisions"):
+            return None
+        return pages[0]["revisions"][0]["slots"]["main"]["content"]
 
     def query(self, *, tables: str, fields: str, where: str, order_by: str) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []
@@ -305,12 +343,7 @@ def fetch_raw(year: int, cargo: Any) -> dict[str, Any]:
         teams: list[dict[str, Any]] = []
         if rows:
             try:
-                games = cargo.query(
-                    tables="ScoreboardGames",
-                    fields="MatchId,N_GameInMatch=N,WinTeam,Gamelength_Number=Len",
-                    where=like,
-                    order_by="DateTime_UTC",
-                )
+                games = cargo.query(tables="ScoreboardGames", fields=GAME_FIELDS, where=like, order_by="DateTime_UTC")
                 print(f"[leaguepedia] {league}: 세트 기록 {len(games)}행")
             except RuntimeError as exc:
                 notes.append(f"{league}: 세트 기록을 받지 못함 ({exc})")
@@ -320,7 +353,19 @@ def fetch_raw(year: int, cargo: Any) -> dict[str, Any]:
                 teams = cargo.query(tables="Teams", fields="Name,Short", where=f"Name IN ({quoted})", order_by="Name")
             except RuntimeError as exc:
                 notes.append(f"{league}: 팀 약칭을 받지 못함 ({exc})")
-        leagues[league] = {"matches": rows, "games": games, "teams": teams}
+        extra: dict[str, list[dict[str, Any]]] = {"drafts": [], "players": [], "vods": []}
+        if rows:
+            for key, table, fields, order in (
+                ("drafts", "PicksAndBansS7", DRAFT_FIELDS, "GameId"),
+                ("players", "ScoreboardPlayers", PLAYER_FIELDS, "GameId"),
+                ("vods", "MatchScheduleGame", VOD_FIELDS, "GameId"),
+            ):
+                try:
+                    extra[key] = cargo.query(tables=table, fields=fields, where=like, order_by=order)
+                    print(f"[leaguepedia] {league}: {table} {len(extra[key])}행")
+                except RuntimeError as exc:
+                    notes.append(f"{league}: {table} 을 받지 못함 ({exc})")
+        leagues[league] = {"matches": rows, "games": games, "teams": teams, **extra}
     return {
         "year": year,
         "source": "Leaguepedia",
@@ -329,6 +374,65 @@ def fetch_raw(year: int, cargo: Any) -> dict[str, Any]:
         "notes": notes,
         "requests": getattr(cargo, "requests_made", 0),
     }
+
+
+def compact_timeline(timeline: dict[str, Any]) -> dict[str, Any]:
+    """경기 타임라인(약 1MB)에서 분석에 쓰는 것만 남긴다: 킬, 오브젝트, 건물, 분당 골드와 위치.
+
+    참가자 번호 1~5 는 블루 진영, 6~10 은 레드 진영이다.
+    """
+    frames = timeline.get("frames") or (timeline.get("info") or {}).get("frames") or []
+    kills: list[list[Any]] = []
+    monsters: list[list[Any]] = []
+    buildings: list[list[Any]] = []
+    gold: list[list[int]] = []
+    positions: list[list[list[int]]] = []
+    for frame in frames:
+        for e in frame.get("events") or []:
+            t = int(e.get("timestamp") or 0) // 1000
+            kind = e.get("type")
+            if kind == "CHAMPION_KILL":
+                pos = e.get("position") or {}
+                kills.append([t, e.get("killerId") or 0, e.get("victimId") or 0, e.get("assistingParticipantIds") or [], pos.get("x"), pos.get("y")])
+            elif kind == "ELITE_MONSTER_KILL":
+                team = e.get("killerTeamId") or (100 if 1 <= (e.get("killerId") or 0) <= 5 else 200)
+                monsters.append([t, e.get("monsterType") or "", e.get("monsterSubType") or "", team])
+            elif kind == "BUILDING_KILL":
+                # teamId 는 건물을 잃은 쪽이다.
+                buildings.append([t, e.get("buildingType") or "", e.get("towerType") or "", e.get("laneType") or "", e.get("teamId")])
+        pf = frame.get("participantFrames") or {}
+        if pf:
+            def total(ids: range) -> int:
+                return sum(int((pf.get(str(i)) or {}).get("totalGold") or 0) for i in ids)
+
+            gold.append([total(range(1, 6)), total(range(6, 11))])
+            positions.append([
+                [int(((pf.get(str(i)) or {}).get("position") or {}).get("x") or 0), int(((pf.get(str(i)) or {}).get("position") or {}).get("y") or 0)]
+                for i in range(1, 11)
+            ])
+    return {"kills": kills, "monsters": monsters, "buildings": buildings, "gold": gold, "pos": positions}
+
+
+def fetch_timelines(raw: dict[str, Any], existing: dict[str, Any], cargo: Any, limit: int) -> dict[str, Any]:
+    """아직 없는 세트의 타임라인을 최근 세트부터 limit 개까지 받아 압축해 더한다."""
+    games = [g for league in raw["leagues"].values() for g in league.get("games") or [] if g.get("Rpg")]
+    games.sort(key=lambda g: g.get("Start") or "", reverse=True)
+    todo = [g for g in games if g["Rpg"] not in existing][:limit]
+    print(f"[leaguepedia] 타임라인: 전체 {len(games)}세트 중 보유 {len(existing)}, 이번에 받을 것 {len(todo)}")
+    added = 0
+    for g in todo:
+        try:
+            body = cargo.page_content(f"V5 data:{g['Rpg']}/Timeline")
+            if body is None:
+                existing[g["Rpg"]] = None  # 문서가 없는 세트는 다시 찾지 않도록 표시한다.
+                continue
+            existing[g["Rpg"]] = compact_timeline(json.loads(body))
+            added += 1
+        except (RuntimeError, ValueError) as exc:
+            print(f"[leaguepedia] 타임라인 중단: {exc}")
+            break
+    print(f"[leaguepedia] 타임라인 {added}건 추가")
+    return existing
 
 
 def build(raw: dict[str, Any]) -> dict[str, Any]:
@@ -386,18 +490,26 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--year", type=int, default=datetime.now(timezone.utc).year)
     parser.add_argument("--offline", action="store_true", help="받아 둔 원본으로 다시 정리만 한다")
+    parser.add_argument("--timeline-limit", type=int, default=int(os.getenv("TIMELINE_LIMIT", "150")),
+                        help="한 번에 받을 타임라인 수 (0 이면 받지 않는다)")
     args = parser.parse_args()
 
     raw_path = ROOT / "data" / "raw" / f"leaguepedia-{args.year}.json"
     if args.offline:
         raw = json.loads(raw_path.read_text(encoding="utf-8"))
     else:
-        raw = fetch_raw(args.year, Cargo())
+        cargo = Cargo()
+        raw = fetch_raw(args.year, cargo)
         if not any(l["matches"] for l in raw["leagues"].values()):
             print("[leaguepedia] 받은 경기가 없어 저장하지 않습니다.")
             return 1
         raw_path.parent.mkdir(parents=True, exist_ok=True)
         raw_path.write_text(json.dumps(raw, ensure_ascii=False, indent=0) + "\n", encoding="utf-8")
+        if args.timeline_limit > 0:
+            tl_path = raw_path.with_name(f"timelines-{args.year}.json")
+            existing = json.loads(tl_path.read_text(encoding="utf-8")) if tl_path.exists() else {}
+            timelines = fetch_timelines(raw, existing, cargo, args.timeline_limit)
+            tl_path.write_text(json.dumps(timelines, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
 
     archive = build(raw)
     total = sum(len(l["matches"]) for l in archive["leagues"])
