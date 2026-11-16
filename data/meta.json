@@ -1,6 +1,8 @@
 {
-  "updated_at": "2026-11-16T06:53:01+00:00",
+  "updated_at": "2026-11-16T07:28:57+00:00",
   "heartbeat": "2026-W47",
-  "sample": true,
+  "sample": false,
+  "source": "archive",
+  "source_note": "Leaguepedia 2026 (2026-11-16 기준)",
   "llm": "template"
 }
