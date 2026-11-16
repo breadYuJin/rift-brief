@@ -31,5 +31,18 @@ class Settings:
     max_rewrites: int = int(os.getenv("MAX_REWRITES", "2"))
 
     @property
+    def archive_dir(self) -> Path:
+        return self.data_dir / "archive"
+
+    @property
+    def mode(self) -> str:
+        """live: PandaScore 실시간 / archive: 수집해 둔 시즌 기록 / sample: 가상 팀."""
+        if self.pandascore_token:
+            return "live"
+        if self.archive_dir.is_dir() and any(self.archive_dir.glob("*.json")):
+            return "archive"
+        return "sample"
+
+    @property
     def sample_mode(self) -> bool:
-        return not self.pandascore_token
+        return self.mode == "sample"

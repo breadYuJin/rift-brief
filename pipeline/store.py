@@ -43,6 +43,8 @@ class Store:
         leagues: list[LeagueRecord],
         *,
         sample: bool,
+        source: str,
+        source_note: str,
         llm_name: str,
         archive_size: int,
     ) -> bool:
@@ -59,6 +61,9 @@ class Store:
             # 주 1회는 값이 바뀌어 커밋이 생긴다 → 비시즌에도 예약 워크플로가 비활성화되지 않는다.
             "heartbeat": f"{year}-W{week:02d}",
             "sample": sample,
+            # live / archive / sample 과, 화면 안내문에 쓰는 출처 설명
+            "source": source,
+            "source_note": source_note,
             "llm": llm_name,
         }
         if meta["updated_at"] is None:

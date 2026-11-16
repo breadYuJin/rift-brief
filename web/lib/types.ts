@@ -92,5 +92,7 @@ export interface League {
 export interface Meta {
   updated_at: string | null;
   sample: boolean;
+  source?: "live" | "archive" | "sample";
+  source_note?: string;
   llm: string;
 }

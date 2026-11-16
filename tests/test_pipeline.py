@@ -190,3 +190,104 @@ def test_brief_graph_records_importance():
     league = build_league(SOURCE.leagues()[0])
     out = build_brief_graph(None, SOURCE, ranker=make_ranker([league])).invoke({"match": MATCH})
     assert out["importance"] >= 1 and "풀세트" in out["reasons"]
+
+
+# ---- 시즌 기록 수집(Leaguepedia)과 아카이브 모드 ----
+
+import json
+
+from pipeline import leaguepedia as LP
+from pipeline.archive import ArchiveSource
+from pipeline.config import Settings
+from pipeline.store import Store
+
+
+class FakeCargo:
+    """Cargo API 응답 모양(별칭을 키로 쓰는 행 목록)을 흉내 낸다."""
+
+    requests_made = 0
+
+    def query(self, *, tables, fields, where, order_by):
+        self.requests_made += 1
+        if "LCK/2026" not in where and "Name IN" not in where:
+            return []
+        if tables == "MatchSchedule":
+            base = {"OverviewPage": "LCK/2026 Season/Rounds 1-2", "Tab": "Week 1", "BestOf": "3"}
+            return [
+                {**base, "MatchId": "m1", "Team1": "T1", "Team2": "Gen.G", "Team1Score": "2", "Team2Score": "1",
+                 "Winner": "1", "Date": "2026-04-01 08:00:00"},
+                {**base, "MatchId": "m2", "Team1": "Gen.G", "Team2": "KT Rolster", "Team1Score": "2", "Team2Score": "0",
+                 "Winner": "1", "Date": "2026-04-02 08:00:00"},
+                {"OverviewPage": "LCK/2026 Season/Playoffs", "Tab": "Finals", "BestOf": "5", "MatchId": "m3",
+                 "Team1": "T1", "Team2": "Gen.G", "Team1Score": "", "Team2Score": "", "Winner": "",
+                 "Date": "2026-09-13 05:00:00"},
+                {**base, "MatchId": "m4", "Team1": "TBD", "Team2": "T1", "Winner": "", "Date": "2026-09-14 05:00:00"},
+            ]
+        if tables == "ScoreboardGames":
+            return [
+                {"MatchId": "m1", "N": "2", "WinTeam": "T1", "Len": "31.4"},
+                {"MatchId": "m1", "N": "1", "WinTeam": "Gen.G", "Len": "28.9"},
+                {"MatchId": "m1", "N": "3", "WinTeam": "T1", "Len": "40.2"},
+                {"MatchId": "m2", "N": "1", "WinTeam": "Gen.G", "Len": "25"},  # 한 세트만 있어 버려져야 한다
+            ]
+        if tables == "Teams":
+            return [{"Name": "T1", "Short": "T1"}, {"Name": "Gen.G", "Short": "GEN"}, {"Name": "KT Rolster", "Short": "KT"}]
+        return []
+
+
+def test_leaguepedia_rows_become_matches():
+    archive = LP.collect(2026, FakeCargo())
+    assert archive["diagnostics"]["stages"] == {"LCK / 정규 시즌 1~2라운드": 2, "LCK / 플레이오프": 1}
+    lck = archive["leagues"][0]
+    m1, m2, final = lck["matches"]
+    assert (m1["team_a"]["acronym"], m1["team_b"]["name"], m1["score_a"], m1["score_b"]) == ("T1", "젠지", 2, 1)
+    assert m1["winner_id"] == m1["team_a"]["id"] and m1["begin_at"] == "2026-04-01T08:00:00+00:00"
+    assert [(g["position"], g["length_min"]) for g in m1["games"]] == [(1, 29), (2, 31), (3, 40)]
+    assert m1["games"][0]["winner_id"] == m1["team_b"]["id"]
+    assert m2["games"] == [] and m2["status"] == "finished"
+    assert final["status"] == "not_started" and final["best_of"] == 5 and final["tournament"] == "플레이오프"
+    assert m1["team_b"]["id"] == m2["team_a"]["id"]  # 같은 팀은 같은 ID
+
+
+def test_stage_names_from_pages_and_tabs():
+    assert LP.stage_name("LCK", "LCK/2026", "LCK/2026 Season/Cup", "Week 1") == "LCK컵"
+    assert LP.stage_name("LCK", "LCK/2026", "LCK/2026 Season/Road to MSI", "Round 1") == "MSI 대표 선발전"
+    worlds = "2026 Season World Championship"
+    assert LP.stage_name("월즈", worlds, f"{worlds}/Play-In", "Round 1") == "플레이-인"
+    assert LP.stage_name("월즈", worlds, f"{worlds}/Main Event", "Quarterfinals") == "토너먼트"
+    assert LP.stage_name("월즈", worlds, f"{worlds}/Main Event", "Round 3") == "스위스 스테이지"
+
+
+def test_semifinal_is_not_scored_as_final():
+    semi = MATCH.model_copy(update={"stage": "2026 토너먼트 Semifinals", "tournament": "토너먼트", "best_of": 5})
+    final = semi.model_copy(update={"stage": "2026 토너먼트 Finals"})
+    assert importance(semi, [], (None, None, 0))[1] == ["4강"]
+    assert importance(final, [], (None, None, 0))[1] == ["결승"]
+    assert importance(final, [], (None, None, 0))[0] > importance(semi, [], (None, None, 0))[0]
+
+
+def test_archive_mode_builds_site_data(tmp_path, monkeypatch):
+    (tmp_path / "archive").mkdir()
+    (tmp_path / "archive" / "2026.json").write_text(json.dumps(LP.collect(2026, FakeCargo())), encoding="utf-8")
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    monkeypatch.delenv("PANDASCORE_TOKEN", raising=False)
+    monkeypatch.delenv("LLM_MODEL", raising=False)
+    assert Settings().mode == "archive"
+
+    from pipeline.run import main
+
+    assert main() == 0
+    store = Store(tmp_path)
+    assert store.meta["source"] == "archive" and store.meta["sample"] is False
+    assert "Leaguepedia 2026" in store.meta["source_note"]
+    results = store.load_results()
+    assert len(results) == 2 and results[0].match.team_a.acronym == "GEN"  # 최신순
+    assert "역전승" in next(r for r in results if r.match.team_a.acronym == "T1").tags
+    assert len(store.load_previews()) == 1
+    league = json.loads((tmp_path / "leagues.json").read_text(encoding="utf-8"))[0]
+    assert league["name"] == "LCK" and league["serie"] == "2026" and league["status"] == "진행 중"
+    assert ArchiveSource(tmp_path / "archive").team_matches(results[0].match.team_a.id)
+
+    # 같은 모드로 다시 돌리면 기존 브리핑을 재사용하고 바뀌는 것이 없다.
+    before = (tmp_path / "results.json").read_text(encoding="utf-8")
+    assert main() == 0 and (tmp_path / "results.json").read_text(encoding="utf-8") == before

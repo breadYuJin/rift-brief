@@ -44,6 +44,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </span>
           </p>
         )}
+        {meta.source === "archive" && (
+          <p className="notice notice--quiet" role="note">
+            <span className="wrap">
+              미리 받아 둔 시즌 기록입니다({meta.source_note}). 새 경기는 자동으로 반영되지 않습니다.
+            </span>
+          </p>
+        )}
         <main id="main" className="wrap">
           {children}
         </main>
@@ -51,7 +58,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="wrap">
             <p>
               {meta.updated_at && <>마지막 갱신 {formatStamp(meta.updated_at)} (한국 시간). </>}
-              경기 데이터는 PandaScore API에서 가져오며, 진행 중 표시는 마지막 갱신 시점 기준입니다.
+              {meta.source === "archive" ? (
+                <>
+                  경기 기록 출처는 <a href="https://lol.fandom.com/">Leaguepedia</a>이며 CC BY-SA 라이선스를 따릅니다.
+                </>
+              ) : (
+                <>경기 데이터는 PandaScore API에서 가져오며, 진행 중 표시는 마지막 갱신 시점 기준입니다.</>
+              )}
             </p>
             <p>
               요약은 자동으로 작성되어 틀릴 수 있습니다. 이 사이트는 팬이 만든 비공식 사이트이며 Riot Games와

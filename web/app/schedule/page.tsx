@@ -2,8 +2,19 @@ import type { Metadata } from "next";
 import { FixtureRow } from "@/components/FixtureRow";
 import { getLeagues, getResults } from "@/lib/data";
 import { groupByDay } from "@/lib/format";
+import type { Match } from "@/lib/types";
 
 export const metadata: Metadata = { title: "리그 일정" };
+
+/** 최신순으로 정렬된 경기를 스테이지별로 묶는다. 처음 나오는 스테이지가 가장 최근 스테이지다. */
+function groupByStage(matches: Match[]): [string, Match[]][] {
+  const groups = new Map<string, Match[]>();
+  for (const m of matches) {
+    const key = m.tournament || "경기";
+    groups.set(key, [...(groups.get(key) ?? []), m]);
+  }
+  return [...groups.entries()];
+}
 
 export default function SchedulePage() {
   const leagues = getLeagues();
@@ -49,15 +60,28 @@ export default function SchedulePage() {
               <div>
                 <h3 className="section-title">지난 경기</h3>
                 {done.length === 0 && <p className="empty">아직 끝난 경기가 없습니다.</p>}
-                {groupByDay(done, (m) => m.begin_at).map(([day, items]) => (
-                  <div key={day} className="fx-group">
-                    <h4 className="fx-group__day">{day}</h4>
-                    <ul className="fx-list">
-                      {items.map((m) => (
-                        <FixtureRow key={m.id} match={m} href={briefed.has(m.id) ? `/matches/${m.id}/` : undefined} />
-                      ))}
-                    </ul>
-                  </div>
+                {groupByStage(done).map(([stage, matches], i) => (
+                  <details key={stage} className="stage-fold" open={i === 0}>
+                    <summary>
+                      <span className="stage-fold__name">{stage}</span>
+                      <span className="stage-fold__count">{matches.length}경기</span>
+                    </summary>
+                    {groupByDay(matches, (m) => m.begin_at).map(([day, items]) => (
+                      <div key={day} className="fx-group">
+                        <h4 className="fx-group__day">{day}</h4>
+                        <ul className="fx-list">
+                          {items.map((m) => (
+                            <FixtureRow
+                              key={m.id}
+                              match={m}
+                              showStage={false}
+                              href={briefed.has(m.id) ? `/matches/${m.id}/` : undefined}
+                            />
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </details>
                 ))}
               </div>
             </div>

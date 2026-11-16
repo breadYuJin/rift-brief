@@ -7,9 +7,13 @@ from typing import Callable
 from .pandascore import pick_current_serie
 from .schemas import LeagueFeed, LeagueRecord, Match, StageRecord, Standing, Team
 
-INTERNATIONAL = ("worlds", "world championship", "mid-season", "msi", "first stand")
+INTERNATIONAL = ("worlds", "world championship", "mid-season", "msi", "first stand", "월즈", "퍼스트 스탠드")
 FINAL_WORDS = ("final", "결승")
-KNOCKOUT_WORDS = ("playoff", "play-off", "play-in", "knockout", "bracket", "플레이오프", "플레이-인")
+# "quarterfinal", "semifinal" 에도 final 이 들어 있어 결승보다 먼저 걸러 낸다.
+PRE_FINAL_WORDS = ("quarter", "semi", "8강", "4강", "준결승")
+KNOCKOUT_WORDS = (
+    "playoff", "play-off", "play-in", "knockout", "bracket", "플레이오프", "플레이-인", "토너먼트", "브래킷", "선발전",
+)
 
 # (A팀 순위, B팀 순위, 전적표의 팀 수)
 Ranker = Callable[[Match], tuple[int | None, int | None, int]]
@@ -64,7 +68,7 @@ def build_league(feed: LeagueFeed) -> LeagueRecord:
     status = "진행 중" if has_pending and (has_finished or any(m.status == "running" for m in current)) else (
         "시작 전" if has_pending else "종료"
     )
-    serie_name = next((m.stage.removesuffix(m.tournament).strip() for m in current if m.stage), "")
+    serie_name = feed.serie or next((m.stage.removesuffix(m.tournament).strip() for m in current if m.stage), "")
     return LeagueRecord(id=feed.id, name=feed.name, serie=serie_name, status=status, stages=stages, matches=current)
 
 
@@ -86,7 +90,10 @@ def importance(match: Match, tags: list[str], ranks: tuple[int | None, int | Non
     """주요 경기 점수와 그 이유. 규칙 기반이라 같은 입력이면 항상 같은 결과가 나온다."""
     score, reasons = 0, []
     stage = f"{match.stage} {match.tournament}".lower()
-    if any(w in stage for w in FINAL_WORDS):
+    if any(w in stage for w in PRE_FINAL_WORDS):
+        score += 3
+        reasons.append("4강" if any(w in stage for w in ("semi", "4강", "준결승")) else "8강")
+    elif any(w in stage for w in FINAL_WORDS):
         score += 4
         reasons.append("결승")
     elif any(w in stage for w in KNOCKOUT_WORDS):

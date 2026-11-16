@@ -170,6 +170,8 @@ class LeagueFeed(BaseModel):
 
     id: int
     name: str
+    # 시리즈 이름을 소스가 알고 있으면 채운다. 비어 있으면 경기의 stage 에서 추정한다.
+    serie: str = ""
     matches: list[Match]
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import sys
 
+from .archive import ArchiveSource
 from .config import Settings
 from .facts import form_text
 from .graphs import build_brief_graph, build_preview_graph
@@ -43,12 +44,23 @@ def _same_fixture(a: Match, b: Match) -> bool:
 def main() -> int:
     settings = Settings()
     store = Store(settings.data_dir)
-    source = SampleSource() if settings.sample_mode else LiveSource(settings)
+    mode = settings.mode
+    if mode == "live":
+        source = LiveSource(settings)
+    elif mode == "archive":
+        source = ArchiveSource(settings.archive_dir)
+    else:
+        source = SampleSource()
+    source_note = getattr(source, "note", "")
     llm = get_llm(settings.llm_model)
-    print(f"[run] 데이터: {'샘플' if settings.sample_mode else 'PandaScore'} / 작성: {llm.name if llm else '템플릿'}")
+    label = {"live": "PandaScore", "archive": f"시즌 기록({source_note})", "sample": "샘플"}[mode]
+    print(f"[run] 데이터: {label} / 작성: {llm.name if llm else '템플릿'}")
 
-    # 샘플 데이터는 매번 새로 만들고, 샘플 → 실데이터 전환 시에는 기존 기록을 버린다.
-    keep_existing = not settings.sample_mode and store.meta.get("sample") is False
+    # 샘플은 매번 새로 만든다. 데이터 소스가 바뀌면 경기 ID 체계가 달라지므로 기존 기록을 버린다.
+    keep_existing = mode != "sample" and store.meta.get("source") == mode
+    # 시즌 기록은 한 해 전체를 브리핑으로 만든다.
+    past_limit = settings.past_limit if mode == "live" else 5000
+    archive_size = settings.archive_size if mode == "live" else 5000
     results = {r.match.id: r for r in store.load_results()} if keep_existing else {}
     old_previews = {p.match.id: p for p in store.load_previews()} if keep_existing else {}
 
@@ -61,7 +73,7 @@ def main() -> int:
     every = [m for feed in feeds for m in feed.matches]
     past = sorted(
         (m for m in every if m.status == "finished" and m.winner_id), key=lambda m: m.end_at or "", reverse=True
-    )[: settings.past_limit]
+    )[:past_limit]
     upcoming = sorted((m for m in every if m.status == "not_started" and m.begin_at), key=lambda m: m.begin_at or "")[
         : settings.upcoming_limit
     ]
@@ -88,7 +100,8 @@ def main() -> int:
                 trace=out["trace"],
             )
             new_briefs += 1
-            print(f"[브리핑] {match.team_a.acronym} vs {match.team_b.acronym}: {out['draft'].headline}")
+            if new_briefs <= 20:
+                print(f"[브리핑] {match.team_a.acronym} vs {match.team_b.acronym}: {out['draft'].headline}")
         except Exception as exc:
             print(f"[브리핑] 경기 {match.id} 처리 실패: {exc}")
 
@@ -129,9 +142,11 @@ def main() -> int:
         list(results.values()),
         previews,
         leagues,
-        sample=settings.sample_mode,
+        sample=mode == "sample",
+        source=mode,
+        source_note=source_note,
         llm_name=llm.name if llm else "template",
-        archive_size=settings.archive_size,
+        archive_size=archive_size,
     )
     print(f"[run] 새 브리핑 {new_briefs}건, 새 프리뷰 {new_previews}건, 데이터 변경: {'있음' if changed else '없음'}")
     return 0

@@ -42,7 +42,7 @@ export default async function MatchPage({ params }: Props) {
             {stageLabel(match)}, {match.best_of}전제
           </span>
           <span>
-            {formatDay(match.end_at)} {formatTime(match.end_at)} 종료
+            {formatDay(match.begin_at)} {formatTime(match.begin_at)}
           </span>
         </p>
         <Scoreboard match={match} recentA={brief.recent_a} recentB={brief.recent_b} size="lg" />

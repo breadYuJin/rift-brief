@@ -8,6 +8,28 @@ import { getLeagues, getPreviews, getResults } from "@/lib/data";
 import { formatDay, groupByDay } from "@/lib/format";
 import { liveMatches, nextMatches, pickFeatured, stageLabel } from "@/lib/select";
 import { SITE_TAGLINE } from "@/lib/site";
+import type { League } from "@/lib/types";
+
+function LeagueSummary({ league: l }: { league: League }) {
+  return (
+    <div className="league">
+      <p className="league__head">
+        <span className="league__name">
+          {l.name} {l.serie}
+        </span>
+        <span className={`status status--${l.status === "진행 중" ? "on" : "off"}`}>{l.status}</span>
+      </p>
+      {l.stages[0] ? (
+        <>
+          <p className="league__stage">{l.stages[0].name}</p>
+          <Standings stage={l.stages[0]} limit={4} />
+        </>
+      ) : (
+        <p className="panel__empty">아직 치른 경기가 없습니다.</p>
+      )}
+    </div>
+  );
+}
 
 export default function HomePage() {
   const results = getResults();
@@ -17,6 +39,14 @@ export default function HomePage() {
   const live = liveMatches(leagues);
   const next = nextMatches(leagues);
   const [lead, ...moreFeatured] = featured.results;
+  const RECENT = 12;
+  const lastPlayed = (l: (typeof leagues)[number]) =>
+    l.matches.reduce((latest, m) => ((m.begin_at ?? "") > latest ? (m.begin_at ?? "") : latest), "");
+  const ongoing = leagues.filter((l) => l.status !== "종료");
+  const ended = leagues
+    .filter((l) => l.status === "종료")
+    .sort((a, b) => lastPlayed(b).localeCompare(lastPlayed(a)))
+    .slice(0, 3);
 
   return (
     <>
@@ -65,7 +95,12 @@ export default function HomePage() {
             <h2 id="results-title" className="section-title">
               최근 결과
             </h2>
-            <ResultsFeed briefs={results} />
+            <ResultsFeed briefs={results.slice(0, RECENT)} />
+            {results.length > RECENT && (
+              <p className="more">
+                <Link href="/schedule/">지난 경기 {results.length}건 전체 보기</Link>
+              </p>
+            )}
           </section>
         </div>
 
@@ -93,25 +128,18 @@ export default function HomePage() {
             <h2 id="leagues-title" className="panel__title">
               진행 중인 리그
             </h2>
-            {leagues.length === 0 && <p className="panel__empty">등록된 리그가 없습니다.</p>}
-            {leagues.map((l) => (
-              <div key={l.id} className="league">
-                <p className="league__head">
-                  <span className="league__name">
-                    {l.name} {l.serie}
-                  </span>
-                  <span className={`status status--${l.status === "진행 중" ? "on" : "off"}`}>{l.status}</span>
-                </p>
-                {l.stages[0] ? (
-                  <>
-                    <p className="league__stage">{l.stages[0].name}</p>
-                    <Standings stage={l.stages[0]} limit={4} />
-                  </>
-                ) : (
-                  <p className="panel__empty">아직 치른 경기가 없습니다.</p>
-                )}
-              </div>
+            {ongoing.length === 0 && <p className="panel__empty">지금 진행 중인 리그가 없습니다.</p>}
+            {ongoing.map((l) => (
+              <LeagueSummary key={l.id} league={l} />
             ))}
+            {ended.length > 0 && (
+              <>
+                <h3 className="panel__sub">최근 끝난 리그</h3>
+                {ended.map((l) => (
+                  <LeagueSummary key={l.id} league={l} />
+                ))}
+              </>
+            )}
             <p className="panel__more">
               <Link href="/teams/">팀 전적 전체 보기</Link>
             </p>
