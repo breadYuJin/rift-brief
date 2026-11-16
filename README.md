@@ -46,6 +46,18 @@ LLM이 쓴 문장은 코드가 먼저 걸러 냅니다. 데이터에 없는 숫�
 - 운영: GitHub Actions(예약 실행·배포), GitHub Pages
 - 데이터: PandaScore API 무료 플랜(일정·결과·팀)
 
+## 데이터 모드
+
+토큰과 파일 유무에 따라 세 가지로 돕니다.
+
+| 모드 | 조건 | 데이터 |
+|---|---|---|
+| live | `PANDASCORE_TOKEN` 이 있음 | PandaScore API 로 매시 갱신 |
+| archive | 토큰이 없고 `data/archive/*.json` 이 있음 | 미리 받아 둔 시즌 기록 (갱신 없음) |
+| sample | 둘 다 없음 | 가상 팀 샘플 |
+
+시즌 기록은 `archive` 워크플로를 수동 실행하면 Leaguepedia 공개 API 에서 받아 옵니다 (LCK, 퍼스트 스탠드, MSI, 월즈). 원본 행은 `data/raw/` 에 남기 때문에, 스테이지 이름 같은 정리 규칙을 고친 뒤에는 `python -m pipeline.leaguepedia --year 2026 --offline` 으로 네트워크 없이 다시 정리할 수 있습니다. Leaguepedia 의 내용은 CC BY-SA 이므로 사이트 꼬리말에 출처를 표기합니다.
+
 ## 로컬에서 실행
 
 ```bash
@@ -93,13 +105,15 @@ pipeline/            멀티에이전트 파이프라인
   facts.py           규칙 기반 팩트 도출과 검증 도구
   leagues.py         리그 일정·팀 전적 집계, 주요 경기 점수
   pandascore.py      API 클라이언트
+  leaguepedia.py     시즌 기록 수집·정리 (archive 워크플로에서 실행)
+  archive.py         받아 둔 시즌 기록을 읽는 데이터 소스
   sample.py          키 없이 돌릴 때 쓰는 가상 팀 데이터
   store.py           data/*.json 저장
 tests/               네트워크·키 없이 도는 테스트
 data/                파이프라인 결과 (사이트가 빌드 때 읽음)
 web/                 Next.js 사이트
   content/           대회 규칙(tournaments.ts)과 밴픽·용어(terms.ts). 시즌이 바뀌면 여기를 고친다
-.github/workflows/   pipeline(예약 실행), deploy(Pages), ci(테스트)
+.github/workflows/   pipeline(예약 실행), archive(시즌 기록 수집), deploy(Pages), ci(테스트)
 ```
 
 ## 알아 둘 제약

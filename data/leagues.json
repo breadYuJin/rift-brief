@@ -182,206 +182,6 @@
         ]
       },
       {
-        "name": "정규 시즌 최종 라이즈 그룹 (1~4라운드 누적)",
-        "standings": [
-          {
-            "team": {
-              "id": 3803308907,
-              "name": "한진 브리온",
-              "acronym": "BRO"
-            },
-            "wins": 10,
-            "losses": 16,
-            "set_wins": 27,
-            "set_losses": 34,
-            "recent": [
-              false,
-              true,
-              true,
-              false,
-              true
-            ],
-            "streak": -1
-          },
-          {
-            "team": {
-              "id": 1338814969,
-              "name": "BNK 피어엑스",
-              "acronym": "BFX"
-            },
-            "wins": 10,
-            "losses": 16,
-            "set_wins": 24,
-            "set_losses": 35,
-            "recent": [
-              false,
-              true,
-              false,
-              true,
-              true
-            ],
-            "streak": -1
-          },
-          {
-            "team": {
-              "id": 3712053306,
-              "name": "농심 레드포스",
-              "acronym": "NS"
-            },
-            "wins": 10,
-            "losses": 16,
-            "set_wins": 25,
-            "set_losses": 36,
-            "recent": [
-              true,
-              true,
-              true,
-              false,
-              false
-            ],
-            "streak": 3
-          },
-          {
-            "team": {
-              "id": 1857248547,
-              "name": "키움 DRX",
-              "acronym": "KRX"
-            },
-            "wins": 7,
-            "losses": 19,
-            "set_wins": 22,
-            "set_losses": 41,
-            "recent": [
-              false,
-              false,
-              false,
-              false,
-              false
-            ],
-            "streak": -5
-          },
-          {
-            "team": {
-              "id": 340434635,
-              "name": "DN 수퍼스",
-              "acronym": "DNS"
-            },
-            "wins": 6,
-            "losses": 20,
-            "set_wins": 13,
-            "set_losses": 42,
-            "recent": [
-              true,
-              false,
-              true,
-              true,
-              true
-            ],
-            "streak": 1
-          }
-        ]
-      },
-      {
-        "name": "정규 시즌 3~4라운드 라이즈 그룹",
-        "standings": [
-          {
-            "team": {
-              "id": 3712053306,
-              "name": "농심 레드포스",
-              "acronym": "NS"
-            },
-            "wins": 5,
-            "losses": 3,
-            "set_wins": 12,
-            "set_losses": 8,
-            "recent": [
-              true,
-              true,
-              true,
-              false,
-              false
-            ],
-            "streak": 3
-          },
-          {
-            "team": {
-              "id": 340434635,
-              "name": "DN 수퍼스",
-              "acronym": "DNS"
-            },
-            "wins": 5,
-            "losses": 3,
-            "set_wins": 10,
-            "set_losses": 8,
-            "recent": [
-              true,
-              false,
-              true,
-              true,
-              true
-            ],
-            "streak": 1
-          },
-          {
-            "team": {
-              "id": 3803308907,
-              "name": "한진 브리온",
-              "acronym": "BRO"
-            },
-            "wins": 4,
-            "losses": 4,
-            "set_wins": 11,
-            "set_losses": 10,
-            "recent": [
-              false,
-              true,
-              true,
-              false,
-              true
-            ],
-            "streak": -1
-          },
-          {
-            "team": {
-              "id": 1338814969,
-              "name": "BNK 피어엑스",
-              "acronym": "BFX"
-            },
-            "wins": 4,
-            "losses": 4,
-            "set_wins": 10,
-            "set_losses": 10,
-            "recent": [
-              false,
-              true,
-              false,
-              true,
-              true
-            ],
-            "streak": -1
-          },
-          {
-            "team": {
-              "id": 1857248547,
-              "name": "키움 DRX",
-              "acronym": "KRX"
-            },
-            "wins": 2,
-            "losses": 6,
-            "set_wins": 6,
-            "set_losses": 13,
-            "recent": [
-              false,
-              false,
-              false,
-              false,
-              false
-            ],
-            "streak": -5
-          }
-        ]
-      },
-      {
         "name": "정규 시즌 최종 레전드 그룹 (1~4라운드 누적)",
         "standings": [
           {
@@ -569,6 +369,206 @@
             "wins": 2,
             "losses": 6,
             "set_wins": 8,
+            "set_losses": 13,
+            "recent": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "streak": -5
+          }
+        ]
+      },
+      {
+        "name": "정규 시즌 최종 라이즈 그룹 (1~4라운드 누적)",
+        "standings": [
+          {
+            "team": {
+              "id": 3803308907,
+              "name": "한진 브리온",
+              "acronym": "BRO"
+            },
+            "wins": 10,
+            "losses": 16,
+            "set_wins": 27,
+            "set_losses": 34,
+            "recent": [
+              false,
+              true,
+              true,
+              false,
+              true
+            ],
+            "streak": -1
+          },
+          {
+            "team": {
+              "id": 1338814969,
+              "name": "BNK 피어엑스",
+              "acronym": "BFX"
+            },
+            "wins": 10,
+            "losses": 16,
+            "set_wins": 24,
+            "set_losses": 35,
+            "recent": [
+              false,
+              true,
+              false,
+              true,
+              true
+            ],
+            "streak": -1
+          },
+          {
+            "team": {
+              "id": 3712053306,
+              "name": "농심 레드포스",
+              "acronym": "NS"
+            },
+            "wins": 10,
+            "losses": 16,
+            "set_wins": 25,
+            "set_losses": 36,
+            "recent": [
+              true,
+              true,
+              true,
+              false,
+              false
+            ],
+            "streak": 3
+          },
+          {
+            "team": {
+              "id": 1857248547,
+              "name": "키움 DRX",
+              "acronym": "KRX"
+            },
+            "wins": 7,
+            "losses": 19,
+            "set_wins": 22,
+            "set_losses": 41,
+            "recent": [
+              false,
+              false,
+              false,
+              false,
+              false
+            ],
+            "streak": -5
+          },
+          {
+            "team": {
+              "id": 340434635,
+              "name": "DN 수퍼스",
+              "acronym": "DNS"
+            },
+            "wins": 6,
+            "losses": 20,
+            "set_wins": 13,
+            "set_losses": 42,
+            "recent": [
+              true,
+              false,
+              true,
+              true,
+              true
+            ],
+            "streak": 1
+          }
+        ]
+      },
+      {
+        "name": "정규 시즌 3~4라운드 라이즈 그룹",
+        "standings": [
+          {
+            "team": {
+              "id": 3712053306,
+              "name": "농심 레드포스",
+              "acronym": "NS"
+            },
+            "wins": 5,
+            "losses": 3,
+            "set_wins": 12,
+            "set_losses": 8,
+            "recent": [
+              true,
+              true,
+              true,
+              false,
+              false
+            ],
+            "streak": 3
+          },
+          {
+            "team": {
+              "id": 340434635,
+              "name": "DN 수퍼스",
+              "acronym": "DNS"
+            },
+            "wins": 5,
+            "losses": 3,
+            "set_wins": 10,
+            "set_losses": 8,
+            "recent": [
+              true,
+              false,
+              true,
+              true,
+              true
+            ],
+            "streak": 1
+          },
+          {
+            "team": {
+              "id": 3803308907,
+              "name": "한진 브리온",
+              "acronym": "BRO"
+            },
+            "wins": 4,
+            "losses": 4,
+            "set_wins": 11,
+            "set_losses": 10,
+            "recent": [
+              false,
+              true,
+              true,
+              false,
+              true
+            ],
+            "streak": -1
+          },
+          {
+            "team": {
+              "id": 1338814969,
+              "name": "BNK 피어엑스",
+              "acronym": "BFX"
+            },
+            "wins": 4,
+            "losses": 4,
+            "set_wins": 10,
+            "set_losses": 10,
+            "recent": [
+              false,
+              true,
+              false,
+              true,
+              true
+            ],
+            "streak": -1
+          },
+          {
+            "team": {
+              "id": 1857248547,
+              "name": "키움 DRX",
+              "acronym": "KRX"
+            },
+            "wins": 2,
+            "losses": 6,
+            "set_wins": 6,
             "set_losses": 13,
             "recent": [
               false,

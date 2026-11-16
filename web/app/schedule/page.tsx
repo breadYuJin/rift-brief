@@ -42,10 +42,10 @@ export default function SchedulePage() {
               {l.name} {l.serie}
               <span className={`status status--${l.status === "진행 중" ? "on" : "off"}`}>{l.status}</span>
             </h2>
-            <div className="split">
-              <div>
+            {pending.length === 0 && <p className="empty">대진이 확정된 예정 경기가 없습니다.</p>}
+            <div className={pending.length ? "split" : undefined}>
+              <div hidden={pending.length === 0}>
                 <h3 className="section-title">예정·진행 중</h3>
-                {pending.length === 0 && <p className="empty">대진이 확정된 예정 경기가 없습니다.</p>}
                 {groupByDay(pending, (m) => m.begin_at).map(([day, items]) => (
                   <div key={day} className="fx-group">
                     <h4 className="fx-group__day">{day}</h4>

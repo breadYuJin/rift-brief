@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {meta.source === "archive" && (
           <p className="notice notice--quiet" role="note">
             <span className="wrap">
-              미리 받아 둔 시즌 기록입니다({meta.source_note}). 새 경기는 자동으로 반영되지 않습니다.
+              미리 받아 둔 시즌 기록입니다 ({meta.source_note}). 새 경기는 자동으로 반영되지 않습니다.
             </span>
           </p>
         )}

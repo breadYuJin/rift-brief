@@ -23,7 +23,7 @@ export function Scoreboard({ match, recentA, recentB, size = "md" }: Props) {
         <abbr className="sb__acr" title={a.name}>
           {a.acronym}
         </abbr>
-        {size !== "sm" && <span className="sb__name">{a.name}</span>}
+        {size !== "sm" && a.name !== a.acronym && <span className="sb__name">{a.name}</span>}
         {size !== "sm" && <FormPips recent={recentA} side="a" />}
       </div>
       <div className="sb__mid">
@@ -43,7 +43,7 @@ export function Scoreboard({ match, recentA, recentB, size = "md" }: Props) {
         <abbr className="sb__acr" title={b.name}>
           {b.acronym}
         </abbr>
-        {size !== "sm" && <span className="sb__name">{b.name}</span>}
+        {size !== "sm" && b.name !== b.acronym && <span className="sb__name">{b.name}</span>}
         {size !== "sm" && <FormPips recent={recentB} side="b" />}
       </div>
       {winner && (

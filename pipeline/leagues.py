@@ -59,7 +59,12 @@ def build_league(feed: LeagueFeed) -> LeagueRecord:
     # 가장 최근에 경기가 있었던 스테이지가 먼저 오게 한다.
     stages = [
         StageRecord(name=name, standings=_standings(ms))
-        for name, ms in sorted(by_stage.items(), key=lambda kv: max(m.begin_at or "" for m in kv[1]), reverse=True)
+        for name, ms in sorted(
+            by_stage.items(),
+            # 최근 스테이지가 먼저. 같은 기간에 열린 그룹은 레전드 그룹을 앞에 둔다.
+            key=lambda kv: (max((m.begin_at or "")[:10] for m in kv[1]), "라이즈" not in kv[0]),
+            reverse=True,
+        )
     ]
     stages = [s for s in stages if s.standings]
     # 누적 순위표는 기준이 되는 스테이지 바로 앞에 끼워 넣는다.
@@ -99,6 +104,7 @@ def importance(match: Match, tags: list[str], ranks: tuple[int | None, int | Non
     """주요 경기 점수와 그 이유. 규칙 기반이라 같은 입력이면 항상 같은 결과가 나온다."""
     score, reasons = 0, []
     stage = f"{match.stage} {match.tournament}".lower()
+    bracket = True
     if any(w in stage for w in PRE_FINAL_WORDS):
         score += 3
         reasons.append("4강" if any(w in stage for w in ("semi", "4강", "준결승")) else "8강")
@@ -108,10 +114,13 @@ def importance(match: Match, tags: list[str], ranks: tuple[int | None, int | Non
     elif any(w in stage for w in KNOCKOUT_WORDS):
         score += 3
         reasons.append("플레이오프")
+    else:
+        bracket = "스위스" in stage or "swiss" in stage
     if any(w in match.league.lower() for w in INTERNATIONAL):
         score += 3
         reasons.append("국제 대회")
-    a, b, size = ranks
+    # 순위 맞대결은 풀리그 스테이지에서만 의미가 있다. 토너먼트의 승패 표는 순위가 아니다.
+    a, b, size = (None, None, 0) if bracket else ranks
     if a and b and max(a, b) <= 2 and size >= 4:
         score += 3
         reasons.append("1·2위 맞대결")

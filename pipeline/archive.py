@@ -18,7 +18,7 @@ class ArchiveSource:
         for path in archive_files(archive_dir):
             data = json.loads(path.read_text(encoding="utf-8"))
             self._feeds += [LeagueFeed.model_validate(f) for f in data.get("leagues", [])]
-            notes.append(f"{data.get('source', '기록')} {data.get('year', '')} ({data.get('fetched_on', '')} 기준)")
+            notes.append(f"{data.get('source', '기록')} {data.get('year', '')}, {data.get('fetched_on', '')} 기준")
         # 화면 안내문에 쓰는 출처 설명.
         self.note = ", ".join(notes)
         self._by_team: dict[int, list[Match]] = {}

@@ -272,6 +272,8 @@ def test_semifinal_is_not_scored_as_final():
     assert importance(semi, [], (None, None, 0))[1] == ["4강"]
     assert importance(final, [], (None, None, 0))[1] == ["결승"]
     assert importance(final, [], (None, None, 0))[0] > importance(semi, [], (None, None, 0))[0]
+    # 토너먼트의 승패 표로는 순위 맞대결을 따지지 않는다.
+    assert importance(final, [], (1, 2, 8))[1] == ["결승"]
 
 
 def test_archive_mode_builds_site_data(tmp_path, monkeypatch):
@@ -287,7 +289,7 @@ def test_archive_mode_builds_site_data(tmp_path, monkeypatch):
     assert main() == 0
     store = Store(tmp_path)
     assert store.meta["source"] == "archive" and store.meta["sample"] is False
-    assert "Leaguepedia 2026" in store.meta["source_note"]
+    assert store.meta["source_note"].startswith("Leaguepedia 2026, ")
     results = store.load_results()
     assert len(results) == 2 and results[0].match.team_a.acronym == "GEN"  # 최신순
     assert "역전승" in next(r for r in results if r.match.team_a.acronym == "T1").tags
@@ -299,6 +301,15 @@ def test_archive_mode_builds_site_data(tmp_path, monkeypatch):
     # 같은 모드로 다시 돌리면 기존 브리핑을 재사용하고 바뀌는 것이 없다.
     before = (tmp_path / "results.json").read_text(encoding="utf-8")
     assert main() == 0 and (tmp_path / "results.json").read_text(encoding="utf-8") == before
+
+    # 기록을 다시 정리해 경기 내용이 바뀌면 그 경기의 브리핑은 새로 만들고, 사라진 경기는 지운다.
+    archive = json.loads((tmp_path / "archive" / "2026.json").read_text(encoding="utf-8"))
+    archive["leagues"][0]["matches"][0]["team_a"]["name"] = "티원"
+    del archive["leagues"][0]["matches"][1]
+    (tmp_path / "archive" / "2026.json").write_text(json.dumps(archive), encoding="utf-8")
+    assert main() == 0
+    again = Store(tmp_path).load_results()
+    assert len(again) == 1 and "티원" in again[0].summary[0]
 
 
 def test_renamed_teams_and_showmatches():
@@ -317,7 +328,7 @@ def test_lck_groups_are_split_and_combined_tables_are_cumulative():
     def row(i, page, t1, t2, w):
         return {"OverviewPage": f"LCK/2026 Season/{page}", "Tab": "Week 1", "BestOf": "3", "MatchId": f"g{i}",
                 "Team1": t1, "Team2": t2, "Team1Score": "2" if w == "1" else "0", "Team2Score": "0" if w == "1" else "2",
-                "Winner": w, "Date": f"2026-0{4 if page == 'Rounds 1-2' else 7}-{10 + i:02d} 08:00:00"}
+                "Winner": w, "Date": f"2026-04-{10 + i:02d} 08:00:00" if page == "Rounds 1-2" else f"2026-07-20 {i:02d}:00:00"}
 
     rows = [
         row(1, "Rounds 1-2", "AAA", "CCC", "1"), row(2, "Rounds 1-2", "BBB", "DDD", "1"),
@@ -336,4 +347,4 @@ def test_lck_groups_are_split_and_combined_tables_are_cumulative():
     rise = next(s for s in league.stages if s.name.startswith("정규 시즌 최종 라이즈"))
     assert [(r.team.acronym, r.wins, r.losses) for r in rise.standings] == [("CCC", 2, 1), ("DDD", 0, 3)]
     names = [s.name for s in league.stages]
-    assert names.index(legend.name) < names.index("정규 시즌 3~4라운드 레전드 그룹")
+    assert names.index(legend.name) < names.index("정규 시즌 3~4라운드 레전드 그룹") < names.index(rise.name)

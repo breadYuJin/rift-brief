@@ -49,7 +49,7 @@ export function Standings({ stage, limit }: { stage: Stage; limit?: number }) {
                 <td className="num table__rank">{i + 1}</td>
                 <th scope="row" className="table__team">
                   <span className="table__acr">{r.team.acronym}</span>
-                  {!compact && <span className="table__name">{r.team.name}</span>}
+                  {!compact && r.team.name !== r.team.acronym && <span className="table__name">{r.team.name}</span>}
                 </th>
                 <td className="num">{r.wins}</td>
                 <td className="num">{r.losses}</td>

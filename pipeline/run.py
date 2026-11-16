@@ -78,6 +78,11 @@ def main() -> int:
         : settings.upcoming_limit
     ]
 
+    if mode == "archive":
+        # 시즌 기록을 다시 정리하면 팀 이름·스테이지가 바뀔 수 있다. 경기 내용이 그대로인 브리핑만 재사용한다.
+        current = {m.id: m for m in every}
+        results = {i: r for i, r in results.items() if current.get(i) == r.match}
+
     brief_graph = build_brief_graph(llm, source, settings.max_rewrites, ranker)
     new_briefs = 0
     for match in past:
