@@ -1,0 +1,25 @@
+name: probe
+
+# 데이터 출처에 무엇이 있는지 확인하는 일회성 조사. 결과는 로그에만 남는다.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/probe.py"
+      - ".github/workflows/probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - run: python -m pipeline.probe
