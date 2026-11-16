@@ -61,12 +61,12 @@ def build_mock_draft_graph(
     llm: LLM | None,
     first: Team,
     second: Team,
-    when: str,
+    patch: str | None,
     unavailable: set[str],
     series_bans: dict[int, set[str]] | None = None,
     name: Callable[[str], str] = str,
 ):
-    """first 가 먼저 밴픽하는 팀. unavailable 은 피어리스로 이미 소진된 챔피언.
+    """first 가 먼저 밴픽하는 팀. patch 는 그 경기의 패치(모르면 None), unavailable 은 피어리스로 이미 소진된 챔피언.
 
     name 은 기록의 챔피언 이름을 에이전트에게 보여 줄 이름(한국어)으로 바꾸는 함수다.
     """
@@ -81,7 +81,7 @@ def build_mock_draft_graph(
         p = model.predict(
             team.id,
             opp.id,
-            when,
+            patch,
             unavailable=taken,
             series_bans=series_bans.get(team.id, ()),
             series_denied=series_bans.get(opp.id, ()),
@@ -160,12 +160,12 @@ def run_mock_draft(
     llm: LLM | None,
     first: Team,
     second: Team,
-    when: str,
+    patch: str | None,
     unavailable: set[str] | None = None,
     series_bans: dict[int, set[str]] | None = None,
     name: Callable[[str], str] = str,
 ) -> dict[str, Any]:
-    graph = build_mock_draft_graph(model, llm, first, second, when, set(unavailable or ()), series_bans, name)
+    graph = build_mock_draft_graph(model, llm, first, second, patch, set(unavailable or ()), series_bans, name)
     out = graph.invoke({"moves": []}, config={"recursion_limit": 80})
     return {
         "first_id": first.id,

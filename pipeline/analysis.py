@@ -4,6 +4,7 @@
   data/models.json          밴픽 예측과 승률 모델의 검증 결과
   data/draft.json           밴픽 예측 페이지의 목록(최근 시리즈)과 다가오는 경기의 예상
   data/players.json         팀별 선수 시즌 평균
+  data/patches.json         패치별로 공식 경기에서 많이 나온 챔피언
 
 모든 예상은 "그 세트 이전 기록만으로" 낸 것이다.
 """
@@ -16,7 +17,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from . import champions, highlights, insights, youtube
+from . import champions, highlights, insights, ratings, youtube
 from .agents.mock_draft import run_mock_draft
 from .draft_model import TOP_N, DraftModel, SetForecast, appear_rate, evaluate, meta_only, rank_hit_rates, recall, replay, tune
 from .gamedata import ROLES, SetRecord, load_sets, load_timelines
@@ -25,9 +26,10 @@ from .schemas import Match, Team
 from .win_model import report as win_report
 from .win_model import walk_forward
 
-VERSION = 2  # 산출물 형식이나 계산 방식이 바뀌면 올린다(다시 계산하게 됨)
+VERSION = 3  # 산출물 형식이나 계산 방식이 바뀌면 올린다(다시 계산하게 됨)
 TRAIN_SHARE = 0.6
 MOCK_SERIES = 12  # 모의 밴픽을 만들어 둘 최근 시리즈 수
+PATCHES_SHOWN = 6  # 패치별 메타를 보여 줄 최근 패치 수
 MOCK_LLM_SERIES = int(os.getenv("MOCK_LLM_SERIES", "3"))  # 그중 LLM 에이전트로 돌릴 수(한 시리즈에 21회 호출)
 RECENT_SERIES = 40
 
@@ -128,7 +130,7 @@ def build(
             return
         first, second = s.team(s.first_pick_id), s.other(s.first_pick_id)
         use = llm if s.match_id in llm_targets else None
-        mocks[s.match_id] = run_mock_draft(model, use, first, second, s.start, name=name)
+        mocks[s.match_id] = run_mock_draft(model, use, first, second, s.patch, name=name)
 
     forecasts, draft_model = replay(sets, weights, before_set=before_set)
     order = {s.game_id: i for i, s in enumerate(drafted)}
@@ -157,7 +159,7 @@ def build(
         "holdout": metrics(holdout),
         "holdout_set1": metrics([f for f in holdout if f.number == 1]),
         "holdout_later_sets": metrics([f for f in holdout if f.number > 1]),
-        "baseline_meta_only": evaluate(sets, meta_only(tau_meta=weights.tau_meta), start_at=TRAIN_SHARE),
+        "baseline_meta_only": evaluate(sets, meta_only(weights.meta_carry), start_at=TRAIN_SHARE),
         "rank_hit": rank_p,
     }
     print(f"[분석] 밴픽 예측 검증(뒤 {100 - int(TRAIN_SHARE * 100)}%): {draft_report['holdout']} / 기준선 {draft_report['baseline_meta_only']}")
@@ -172,7 +174,9 @@ def build(
     forecast_by_game: dict[str, dict[int, SetForecast]] = defaultdict(dict)
     for f in forecasts:
         forecast_by_game[f.game_id][f.team_id] = f
-    averages = insights.player_averages(sets)
+    scale = ratings.load_scale(data_dir, sets)
+    rated = {s.game_id: ratings.rate_set(s, scale) for s in sets} if scale else {}
+    averages = insights.player_averages(sets, rated)
     changed = False
     timeline_ok = 0
     clip_sets = 0
@@ -180,7 +184,12 @@ def build(
     keep: set[str] = set()
     for match_id, series in by_series.items():
         out_sets = []
+        totals: dict[tuple[int, str], list[float]] = defaultdict(list)
+        role_of: dict[tuple[int, str], str] = {}
         for s in sorted(series, key=lambda s: s.number):
+            for key, value in rated.get(s.game_id, {}).items():
+                totals[key].append(value)
+            role_of.update({(p.team_id, p.player): p.role for p in s.players})
             timeline = timelines.get(s.rpg)
             summary = insights.set_summary(s, timeline)
             timeline_ok += bool(summary.get("participants_ok"))
@@ -207,7 +216,9 @@ def build(
                     "first_pick_id": s.first_pick_id,
                     "draft": [step.model_dump() for step in s.draft],
                     "stats": {"blue": s.blue_stats.model_dump(), "red": s.red_stats.model_dump()},
-                    "matchups": insights.matchups(s),
+                    "matchups": insights.matchups(s, rated.get(s.game_id)),
+                    # 이긴 팀에서 평점이 가장 높은 선수(이 사이트가 뽑는 세트 최고 선수)
+                    "best": ratings.best_of(rated.get(s.game_id, {}), s.winner_id),
                     "summary": summary,
                     "win": {"before": round(win.before_draft, 3), "after": round(win.after_draft, 3)} if win else None,
                     "forecast": {
@@ -220,7 +231,21 @@ def build(
         keep.add(name)
         changed |= _write_if_changed(
             data_dir / "sets" / name,
-            {"match_id": match_id, "sets": out_sets, "mock": mocks.get(match_id)},
+            {
+                "match_id": match_id,
+                "sets": out_sets,
+                "mock": mocks.get(match_id),
+                # 시리즈 평균 평점. 세트 절반 이상 뛴 선수만.
+                "ratings": sorted(
+                    (
+                        {"player": name, "team_id": team_id, "role": role_of.get((team_id, name), ""),
+                         "rating": round(sum(v) / len(v), 2), "sets": len(v)}
+                        for (team_id, name), v in totals.items()
+                        if len(v) * 2 >= len(series)
+                    ),
+                    key=lambda r: (-r["rating"], r["player"]),
+                ),
+            },
         )
     for stale in (data_dir / "sets").glob("*.json"):
         if stale.name not in keep:
@@ -259,7 +284,6 @@ def build(
         a, b = m.team_a, m.team_b
         if not (draft_model.knows(a.id) and draft_model.knows(b.id)):
             continue
-        when = m.begin_at or ""
         before, _after = win_model.probability(a.id, b.id, [], [])
         upcoming_out.append(
             {
@@ -274,9 +298,9 @@ def build(
                         "by_role": {r: [c for c, _ in items] for r, items in p.picks_by_role.items() if items},
                     }
                     for t, o in ((a, b), (b, a))
-                    for p in [draft_model.predict(t.id, o.id, when)]
+                    for p in [draft_model.predict(t.id, o.id)]  # 패치를 모르므로 가장 최근 패치 기준
                 },
-                "mock": run_mock_draft(draft_model, llm, a, b, when, name=name),
+                "mock": run_mock_draft(draft_model, llm, a, b, None, name=name),
                 "win_before": round(before, 3),
             }
         )
@@ -286,6 +310,15 @@ def build(
         if stats["sets"] >= 5:
             players[str(team_id)].append({"player": name, **stats})
     changed |= _write_if_changed(data_dir / "players.json", players)
+    # 패치별 메타: 그 패치가 적용된 공식 경기에서 많이 나온 챔피언. 최근 패치부터.
+    last_day = {p: max(s.start[:10] for s in drafted if s.patch == p) for p in draft_model.patches}
+    first_day = {p: min(s.start[:10] for s in drafted if s.patch == p) for p in draft_model.patches}
+    leagues_of = {p: sorted({s.league for s in drafted if s.patch == p}) for p in draft_model.patches}
+    patches = [
+        {**draft_model.patch_meta(p), "from": first_day[p], "to": last_day[p], "leagues": leagues_of[p]}
+        for p in reversed(draft_model.patches[-PATCHES_SHOWN:])
+    ]
+    changed |= _write_if_changed(data_dir / "patches.json", patches)
     changed |= _write_if_changed(data_dir / "draft.json", {"recent": recent, "upcoming": upcoming_out})
     changed |= _write_if_changed(
         data_dir / "models.json",

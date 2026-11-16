@@ -63,7 +63,7 @@ def _lolesports_get() -> list[dict[str, Any]]:
 
 
 def match_lolesports(teams: dict[int, dict[str, Any]], official: list[dict[str, Any]]) -> dict[int, str]:
-    """공식 팀 목록에서 우리 팀을 찾는다. 이름이 같으면 가장 확실하고, 아니면 약칭이 같은 현역 팀을 쓴다."""
+    """공식 팀 목록에서 우리 팀을 찾는다. 이름이 같은 팀이 가장 확실하고, 그다음은 약칭이 같으면서 이름이 비슷한 팀이다."""
     usable = [t for t in official if t.get("image") and t.get("name")]
     by_name: dict[str, list[dict[str, Any]]] = defaultdict(list)
     by_code: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -72,7 +72,9 @@ def match_lolesports(teams: dict[int, dict[str, Any]], official: list[dict[str, 
         by_code[(t.get("code") or "").upper()].append(t)
 
     def active_first(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        return sorted(items, key=lambda t: t.get("status") != "active")
+        """현역 1군을 앞에 둔다. 2군·아카데미는 뒤로, 그다음은 이름이 짧은 쪽을 앞으로."""
+        second = re.compile(r"challengers|academy|youth|rookies", re.I)
+        return sorted(items, key=lambda t: (t.get("status") != "active", bool(second.search(t["name"])), len(t["name"])))
 
     out: dict[int, str] = {}
     for team_id, team in teams.items():
@@ -85,11 +87,16 @@ def match_lolesports(teams: dict[int, dict[str, Any]], official: list[dict[str, 
             t for t in coded
             if any(len(k) >= 2 and (norm(t["name"]).startswith(k) or k.startswith(norm(t["name"]))) for k in keys)
         ]
-        active_coded = [t for t in coded if t.get("status") == "active"]
-        # 약칭만 같은 경우는 현역 팀이 하나뿐일 때만 믿는다(2군·해체 팀과 약칭이 겹칠 수 있다).
+        # 이름이 전혀 다른데 약칭만 같은 경우(JD Gaming ↔ Beijing JDG Esports)는, 공식 이름에 그 약칭이
+        # 낱말로 들어 있고 그런 현역 팀이 하나뿐일 때만 믿는다. 약칭만 우연히 같은 다른 팀을 피하기 위해서다.
+        code = team["acronym"].upper()
+        worded = [
+            t for t in coded
+            if t.get("status") == "active" and code in re.split(r"[^A-Z0-9]+", t["name"].upper())
+        ]
         pick = (
             active_first(both) or active_first(named) or active_first(close)
-            or (active_coded if len(active_coded) == 1 else [])
+            or (worded if len(worded) == 1 else [])
         )
         if pick:
             out[team_id] = https(pick[0]["image"])

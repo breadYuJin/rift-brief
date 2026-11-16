@@ -81,7 +81,7 @@ def test_draft_model_predicts_from_team_history():
     model = DraftModel()
     for s in season(12):
         model.add(s)
-    p = model.predict(T1.id, T2.id, (START + timedelta(days=13)).isoformat())
+    p = model.predict(T1.id, T2.id, "26.1")
     assert {c for c, _ in p.picks[:5]} == set(POOL[1][0])
     # 금지 예상에는 자기 팀이 금지해 온 챔피언과 상대가 고르는 챔피언이 섞여 나온다.
     predicted = {c for c, _ in p.bans}
@@ -96,8 +96,7 @@ def test_draft_model_excludes_unavailable_and_boosts_repeat_bans():
     model = DraftModel()
     for s in season(12):
         model.add(s)
-    when = (START + timedelta(days=13)).isoformat()
-    p = model.predict(T1.id, T2.id, when, unavailable={"아리", "제드"}, series_bans={"티모"})
+    p = model.predict(T1.id, T2.id, "26.1", unavailable={"아리", "제드"}, series_bans={"티모"})
     assert "아리" not in {c for c, _ in p.picks}
     assert "제드" not in {c for c, _ in p.bans}
     assert p.bans[0][0] == "티모"  # 같은 시리즈에서 이미 금지했던 챔피언이 맨 위로 온다
@@ -125,7 +124,7 @@ def test_team_model_beats_meta_only_and_tune_runs():
     team_based, _ = replay(sets)
     baseline, _ = replay(sets, meta_only())
     assert recall(team_based, "pick", 5) > recall(baseline, "pick", 5)
-    assert tune(sets).tau_team in (45.0, 90.0, 180.0)
+    assert tune(sets).team_keep in (0.5, 0.75, 1.0)
 
 
 # ---- 승률 ----
@@ -225,7 +224,7 @@ def trained() -> DraftModel:
 
 
 def test_mock_draft_policy_fills_all_steps_without_duplicates():
-    out = run_mock_draft(trained(), None, T1, T2, (START + timedelta(days=30)).isoformat())
+    out = run_mock_draft(trained(), None, T1, T2, "26.1")
     moves = out["moves"]
     assert len(moves) == 20 and out["by"] == "policy"
     assert [m["kind"] for m in moves] == [k for k, _, _ in DRAFT_ORDER]
@@ -240,7 +239,7 @@ def test_mock_draft_policy_fills_all_steps_without_duplicates():
 def test_mock_draft_with_llm_and_fearless():
     llm = PickSecond()
     gone = set(POOL[1][0][:2])
-    out = run_mock_draft(trained(), llm, T1, T2, (START + timedelta(days=30)).isoformat(), unavailable=gone)
+    out = run_mock_draft(trained(), llm, T1, T2, "26.1", unavailable=gone)
     assert out["by"] == "llm" and out["commentary"] == "가짜 해설." and llm.calls == 21
     assert not gone & {m["champion"] for m in out["moves"]}
     assert any(m["reason"] == "두 번째 후보" for m in out["moves"])
@@ -254,7 +253,7 @@ def test_mock_draft_shows_korean_names_to_agents():
             seen.append(user)
             return super().structured(system, user, schema)
 
-    out = run_mock_draft(trained(), Reader(), T1, T2, (START + timedelta(days=30)).isoformat(), name=lambda c: f"한글{c}")
+    out = run_mock_draft(trained(), Reader(), T1, T2, "26.1", name=lambda c: f"한글{c}")
     assert "한글" in seen[0].split("후보:")[1]
     # 에이전트가 보여 준 이름으로 답해도 기록에는 원래 이름으로 남는다.
     assert out["by"] == "llm" and not any(m["champion"].startswith("한글") for m in out["moves"])
@@ -269,7 +268,7 @@ def test_mock_draft_rejects_choice_outside_candidates():
                 raise RuntimeError("down")
             return Choice(champion="없는챔피언", reason="무시돼야 함")
 
-    out = run_mock_draft(trained(), Rogue(), T1, T2, (START + timedelta(days=30)).isoformat())
+    out = run_mock_draft(trained(), Rogue(), T1, T2, "26.1")
     assert out["by"] == "policy"
     assert "없는챔피언" not in {m["champion"] for m in out["moves"]}
     assert out["commentary"]
@@ -280,7 +279,7 @@ def test_mock_draft_rejects_choice_outside_candidates():
 
 def test_track_updates_after_each_event():
     s = make_set(40, T1, T2, T1)
-    views = list(track(ManualFeed.from_set(s), trained(), T1, T2, s.start))
+    views = list(track(ManualFeed.from_set(s), trained(), T1, T2, s.patch))
     assert len(views) == 20 and views[0]["step"] == 1 and views[0]["kind"] == "ban"
     assert views[1]["after"]["champion"] == s.draft[0].champion
     seen: set[str] = set()
@@ -361,6 +360,10 @@ def test_analysis_build_writes_files(tmp_path):
     assert len(one["draft"]) == 20 and one["summary"]["has_timeline"] and one["summary"]["fight_count"]["total"] == 3
     assert len(one["matchups"]) == 5 and len(one["forecast"]) == 2
     assert len(last["mock"]["moves"]) == 20
+    assert one["best"]["team_id"] == one["winner_id"] and one["matchups"][0]["blue"]["rating"] is not None
+    assert len(last["ratings"]) == 10 and last["ratings"][0]["rating"] >= last["ratings"][-1]["rating"]
+    patches = json.loads((tmp_path / "patches.json").read_text(encoding="utf-8"))
+    assert patches[0]["patch"] == "26.1" and patches[0]["sets"] == 30 and patches[0]["champions"][0]["presence"] > 0.5
     forecast = next(iter(one["forecast"].values()))
     assert forecast["pick_hits"] == 5 and all("p" in row for row in forecast["picks"])
 
@@ -497,7 +500,17 @@ def test_logo_matching_and_fallback(tmp_path):
         {"name": "T1", "code": "T1", "image": "http://static.lolesports.com/teams/t1.png", "status": "active"},
         {"name": "T1 (old)", "code": "T1", "image": "http://static.lolesports.com/teams/old.png", "status": "archived"},
         {"name": "Kiwoom DRX", "code": "KRX", "image": "", "status": "active"},
+        {"name": "Beijing JDG Esports", "code": "JDG", "image": "http://static.lolesports.com/teams/jdg file.png", "status": "active"},
+        {"name": "Team Bliss", "code": "TB", "image": "http://static.lolesports.com/teams/bliss.png", "status": "active"},
+        {"name": "Cloud9 Kia", "code": "C9", "image": "http://static.lolesports.com/teams/c9.png", "status": "active"},
+        {"name": "Cloud9 Challengers", "code": "C9", "image": "http://static.lolesports.com/teams/c9c.png", "status": "active"},
     ]
+    more = {"JD Gaming": "JDG", "Team Baron (MSI 2026)": "TB", "Cloud9": "C9"}
+    found = logos.match_lolesports(
+        {i: {"acronym": short, "names": {name}} for i, (name, short) in enumerate(more.items())}, official
+    )
+    # 약칭이 이름 속 낱말인 팀, 후원사 이름이 붙은 팀은 찾고, 약칭만 우연히 같은 팀은 고르지 않는다.
+    assert found == {0: "https://static.lolesports.com/teams/jdg%20file.png", 2: "https://static.lolesports.com/teams/c9.png"}
 
     class Wiki:
         def query(self, **kw):
@@ -528,3 +541,60 @@ def test_logo_matching_and_fallback(tmp_path):
     again = logos.collect(tmp_path, 2026, official=down, cargo=Empty(), check=lambda url: False)
     assert "4팀 중 3팀" in again and "공식 목록 실패" in again
     assert logos.norm("Gen.G Esports") == logos.norm("Gen.G") == "geng"
+
+
+# ---- 패치 기준 메타 ----
+
+
+def test_meta_follows_the_patch_not_the_calendar():
+    model = DraftModel()
+    old = [make_set(i, T1, T2, T1) for i in range(10)]
+    for s in old:
+        model.add(s)
+    # 새 패치: 완전히 다른 챔피언이 나오기 시작한다.
+    fresh = {1: ["크산테", "녹턴", "아지르", "바루스", "카르마"], 2: ["오른", "신짜오", "탈리야", "세나", "렐"]}
+    assert model.meta_rates("26.2")["pick"]["아리"] == 1.0  # 세트가 없는 새 패치는 직전 패치 흐름을 그대로
+    for i in range(10, 16):
+        model.add(make_set(i, T2, T3, T2, picks={2: fresh[2], 3: fresh[1]}).model_copy(update={"patch": "26.2"}))
+    now, before = model.meta_rates("26.2")["pick"], model.meta_rates("26.1")["pick"]
+    assert before["아리"] == 1.0 and "탈리야" not in before  # 지난 패치 기록은 새 패치 경기로 바뀌지 않는다
+    assert now["탈리야"] > now["아리"] > 0  # 새 패치 세트가 쌓일수록 직전 패치 비중이 줄어든다
+    assert model.patches == ["26.1", "26.2"]
+    # 팀 기록은 지난 패치일수록 가볍게: 알파는 26.1 에만 나왔으므로 비율은 같고, 섞인 세트 수만 줄어든다.
+    assert model.team_rates(T1.id, "26.2")["pick"]["아리"] == 1.0
+    assert model.team_rates(99, "26.2") == {}
+
+    meta = model.patch_meta("26.2")
+    assert meta["sets"] == 6 and meta["champions"][0]["presence"] == 1.0
+    names = [r["champion"] for r in meta["champions"]]
+    assert "탈리야" in names and "아리" not in names  # 직전 패치를 섞지 않은 실제 횟수만
+    row = next(r for r in meta["champions"] if r["champion"] == "탈리야")
+    assert row == {"champion": "탈리야", "picks": 6, "bans": 0, "presence": 1.0, "win_rate": 1.0, "role": "미드", "change": 1.0}
+    # 패치를 모르는 다가오는 경기는 가장 최근 패치로 본다.
+    assert model.predict(T2.id, T3.id).picks == model.predict(T2.id, T3.id, "26.2").picks
+
+
+# ---- 선수 평점 ----
+
+
+def test_player_ratings(tmp_path):
+    from pipeline import ratings
+
+    sets = season(40)
+    assert ratings.load_scale(tmp_path, sets[:5]) is None  # 세트가 모자라면 만들지 않는다
+    scale = ratings.load_scale(tmp_path, sets)
+    assert (tmp_path / "rating_scale.json").exists() and set(scale) == set(ROLES)
+    assert ratings.load_scale(tmp_path, sets[:5]) == scale  # 한 번 만든 기준은 그대로 쓴다
+
+    good = make_set(50, T1, T2, T1)
+    star = next(p for p in good.players if p.team_id == T1.id and p.role == "미드")
+    star.kills, star.deaths, star.assists, star.damage, star.gold = 12, 0, 8, 40000, 16000
+    rated = ratings.rate_set(good, scale)
+    assert all(1.0 <= v <= 10.0 for v in rated.values()) and len(rated) == 10
+    assert rated[(T1.id, "ALP미드")] == max(rated.values())
+    assert rated[(T1.id, "ALP미드")] > rated[(T2.id, "BRV미드")] + 1
+    assert ratings.best_of(rated, T1.id) == {"player": "ALP미드", "team_id": T1.id, "rating": rated[(T1.id, "ALP미드")]}
+    assert ratings.best_of(rated, 99) is None
+    assert ratings.rate_set(good.model_copy(update={"length_min": None}), scale) == {}
+    rows = insights.matchups(good, rated)
+    assert rows[2]["blue"]["rating"] == rated[(T1.id, "ALP미드")]

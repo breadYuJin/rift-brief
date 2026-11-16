@@ -66,7 +66,7 @@ def track(
     model: DraftModel,
     first: Team,
     second: Team,
-    when: str,
+    patch: str | None = None,
     unavailable: set[str] | None = None,
     top: int = 5,
 ) -> Iterator[dict[str, Any]]:
@@ -83,7 +83,7 @@ def track(
             return None
         kind, who, _ = DRAFT_ORDER[done]
         team, opp = teams[who], teams["S" if who == "F" else "F"]
-        p = model.predict(team.id, opp.id, when, unavailable=taken, top=top)
+        p = model.predict(team.id, opp.id, patch, unavailable=taken, top=top)
         return {"step": done + 1, "kind": kind, "team_id": team.id, "candidates": p.bans if kind == "ban" else p.picks}
 
     first_view = forecast()

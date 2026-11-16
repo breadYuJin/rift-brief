@@ -138,8 +138,8 @@ def set_summary(s: SetRecord, timeline: dict[str, Any] | None) -> dict[str, Any]
     return out
 
 
-def matchups(s: SetRecord) -> list[dict[str, Any]]:
-    """포지션별로 두 선수의 세트 기록을 나란히 놓는다."""
+def matchups(s: SetRecord, ratings: dict[tuple[int, str], float] | None = None) -> list[dict[str, Any]]:
+    """포지션별로 두 선수의 세트 기록을 나란히 놓는다. ratings 가 있으면 평점도 붙인다."""
     minutes = s.length_min or 0
     by_key = {(p.team_id, p.role): p for p in s.players}
     rows = []
@@ -159,14 +159,17 @@ def matchups(s: SetRecord) -> list[dict[str, Any]]:
                 "vision": p.vision,
                 "cs_min": round(p.cs / minutes, 1) if minutes else None,
                 "dpm": round(p.damage / minutes) if minutes else None,
+                "rating": (ratings or {}).get((p.team_id, p.player)),
             }
 
         rows.append({"role": role, "blue": line(a), "red": line(b)})
     return rows
 
 
-def player_averages(sets: list[SetRecord]) -> dict[tuple[int, str], dict[str, Any]]:
-    """선수별 시즌 평균. 키는 (팀 ID, 선수 이름)."""
+def player_averages(
+    sets: list[SetRecord], ratings: dict[str, dict[tuple[int, str], float]] | None = None
+) -> dict[tuple[int, str], dict[str, Any]]:
+    """선수별 시즌 평균. 키는 (팀 ID, 선수 이름). ratings 는 세트 ID → 선수별 평점."""
     acc: dict[tuple[int, str], dict[str, float]] = defaultdict(lambda: defaultdict(float))
     roles: dict[tuple[int, str], str] = {}
     for s in sets:
@@ -179,6 +182,10 @@ def player_averages(sets: list[SetRecord]) -> dict[tuple[int, str], dict[str, An
             a["sets"] += 1
             a["wins"] += s.winner_id == p.team_id
             a["minutes"] += minutes
+            rating = (ratings or {}).get(s.game_id, {}).get((p.team_id, p.player))
+            if rating is not None:
+                a["rating_sum"] += rating
+                a["rated"] += 1
             for key in ("kills", "deaths", "assists", "cs", "gold", "damage", "vision"):
                 a[key] += getattr(p, key)
     out = {}
@@ -193,5 +200,6 @@ def player_averages(sets: list[SetRecord]) -> dict[tuple[int, str], dict[str, An
             "dpm": round(a["damage"] / m),
             "gpm": round(a["gold"] / m),
             "vision_min": round(a["vision"] / m, 2),
+            "rating": round(a["rating_sum"] / a["rated"], 2) if a["rated"] else None,
         }
     return out
