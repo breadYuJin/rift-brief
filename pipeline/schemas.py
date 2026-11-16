@@ -165,6 +165,15 @@ class PreviewRecord(BaseModel):
 # ---- 리그 일정·전적 ----
 
 
+class CombinedTable(BaseModel):
+    """여러 스테이지의 경기를 합쳐 만드는 순위표(예: 정규 시즌 누적)."""
+
+    name: str
+    stages: list[str]
+    # 이 스테이지에 나온 팀만 표에 넣는다.
+    teams_from: str
+
+
 class LeagueFeed(BaseModel):
     """데이터 소스가 돌려주는 리그 한 곳의 경기 묶음(종료·진행 중·예정 모두 포함)."""
 
@@ -173,6 +182,7 @@ class LeagueFeed(BaseModel):
     # 시리즈 이름을 소스가 알고 있으면 채운다. 비어 있으면 경기의 stage 에서 추정한다.
     serie: str = ""
     matches: list[Match]
+    tables: list[CombinedTable] = Field(default_factory=list)
 
 
 class Standing(BaseModel):

@@ -62,6 +62,15 @@ def build_league(feed: LeagueFeed) -> LeagueRecord:
         for name, ms in sorted(by_stage.items(), key=lambda kv: max(m.begin_at or "" for m in kv[1]), reverse=True)
     ]
     stages = [s for s in stages if s.standings]
+    # 누적 순위표는 기준이 되는 스테이지 바로 앞에 끼워 넣는다.
+    for table in feed.tables:
+        members = {t.id for m in by_stage.get(table.teams_from, []) for t in (m.team_a, m.team_b)}
+        pool = [m for name in table.stages for m in by_stage.get(name, [])]
+        rows = [row for row in _standings(pool) if row.team.id in members]
+        if not rows:
+            continue
+        at = next((i for i, st in enumerate(stages) if st.name == table.teams_from), len(stages))
+        stages.insert(at, StageRecord(name=table.name, standings=rows))
 
     has_finished = any(m.status == "finished" for m in current)
     has_pending = any(m.status in ("running", "not_started") for m in current)

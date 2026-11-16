@@ -250,7 +250,15 @@ def test_leaguepedia_rows_become_matches():
 
 
 def test_stage_names_from_pages_and_tabs():
-    assert LP.stage_name("LCK", "LCK/2026", "LCK/2026 Season/Cup", "Week 1") == "LCK컵"
+    assert LP.stage_name("LCK", "LCK/2026", "LCK/2026 Season/Cup", "Week 1") == "LCK컵 그룹 대항전"
+    assert LP.stage_name("LCK", "LCK/2026", "LCK/2026 Season/Cup", "Play-In Round 1") == "LCK컵 플레이-인"
+    assert LP.stage_name("LCK", "LCK/2026", "LCK/2026 Season/Cup", "Finals") == "LCK컵 플레이오프"
+    assert LP.stage_name("LCK", "LCK/2026", "LCK/2026 Season/Season Playoffs", "Round 1") == "플레이오프"
+    msi = "2026 Mid-Season Invitational"
+    assert LP.stage_name("MSI", msi, msi, "Play-In Day 1") == "플레이-인"
+    assert LP.stage_name("MSI", msi, msi, "Finals") == "브래킷 스테이지"
+    assert LP.stage_name("퍼스트 스탠드", "2026 First Stand", "2026 First Stand", "Groups Day 2") == "그룹 스테이지"
+    assert LP.stage_name("퍼스트 스탠드", "2026 First Stand", "2026 First Stand", "Semifinals") == "토너먼트"
     assert LP.stage_name("LCK", "LCK/2026", "LCK/2026 Season/Road to MSI", "Round 1") == "MSI 대표 선발전"
     worlds = "2026 Season World Championship"
     assert LP.stage_name("월즈", worlds, f"{worlds}/Play-In", "Round 1") == "플레이-인"
@@ -291,3 +299,41 @@ def test_archive_mode_builds_site_data(tmp_path, monkeypatch):
     # 같은 모드로 다시 돌리면 기존 브리핑을 재사용하고 바뀌는 것이 없다.
     before = (tmp_path / "results.json").read_text(encoding="utf-8")
     assert main() == 0 and (tmp_path / "results.json").read_text(encoding="utf-8") == before
+
+
+def test_renamed_teams_and_showmatches():
+    shorts = {"Gen.G": "GEN", "Kiwoom DRX": "KRX"}
+    assert LP.resolve_team("DRX", shorts).id == LP.resolve_team("Kiwoom DRX", shorts).id
+    assert LP.resolve_team("Kiwoom DRX", shorts).name == "키움 DRX"
+    assert LP.resolve_team("BRION", {}).acronym == "BRO"
+    lyon = LP.resolve_team("LYON (2024 American Team)", {})
+    assert (lyon.name, lyon.acronym) == ("LYON", "LYON")
+    row = {"OverviewPage": "LCK/2026 Season/Rounds 3-4/Classic Showmatch", "Tab": "Day 1", "Team1": "A", "Team2": "B",
+           "Winner": "1", "Team1Score": "3", "Team2Score": "0", "Date": "2026-08-01 08:00:00", "MatchId": "x"}
+    assert LP.to_match(row, "LCK", 1, "LCK/2026", 2026, {}, []) is None
+
+
+def test_lck_groups_are_split_and_combined_tables_are_cumulative():
+    def row(i, page, t1, t2, w):
+        return {"OverviewPage": f"LCK/2026 Season/{page}", "Tab": "Week 1", "BestOf": "3", "MatchId": f"g{i}",
+                "Team1": t1, "Team2": t2, "Team1Score": "2" if w == "1" else "0", "Team2Score": "0" if w == "1" else "2",
+                "Winner": w, "Date": f"2026-0{4 if page == 'Rounds 1-2' else 7}-{10 + i:02d} 08:00:00"}
+
+    rows = [
+        row(1, "Rounds 1-2", "AAA", "CCC", "1"), row(2, "Rounds 1-2", "BBB", "DDD", "1"),
+        row(3, "Rounds 1-2", "AAA", "DDD", "1"), row(4, "Rounds 1-2", "BBB", "CCC", "2"),
+        row(5, "Rounds 3-4", "AAA", "BBB", "2"), row(6, "Rounds 3-4", "CCC", "DDD", "1"),
+    ]
+    raw = {"year": 2026, "leagues": {"LCK": {"matches": rows, "games": [], "teams": []}}}
+    archive = LP.build(raw)
+    assert archive["diagnostics"]["stages"]["LCK / 정규 시즌 3~4라운드 레전드 그룹"] == 1
+    assert archive["diagnostics"]["stages"]["LCK / 정규 시즌 3~4라운드 라이즈 그룹"] == 1
+    from pipeline.schemas import LeagueFeed
+
+    league = build_league(LeagueFeed.model_validate(archive["leagues"][0]))
+    legend = next(s for s in league.stages if s.name.startswith("정규 시즌 최종 레전드"))
+    assert [(r.team.acronym, r.wins, r.losses) for r in legend.standings] == [("AAA", 2, 1), ("BBB", 2, 1)]
+    rise = next(s for s in league.stages if s.name.startswith("정규 시즌 최종 라이즈"))
+    assert [(r.team.acronym, r.wins, r.losses) for r in rise.standings] == [("CCC", 2, 1), ("DDD", 0, 3)]
+    names = [s.name for s in league.stages]
+    assert names.index(legend.name) < names.index("정규 시즌 3~4라운드 레전드 그룹")
