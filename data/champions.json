@@ -1,0 +1,885 @@
+{
+ "version": "16.22.1",
+ "champions": {
+  "aatrox": {
+   "id": "Aatrox",
+   "en": "Aatrox",
+   "ko": "아트록스"
+  },
+  "ahri": {
+   "id": "Ahri",
+   "en": "Ahri",
+   "ko": "아리"
+  },
+  "akali": {
+   "id": "Akali",
+   "en": "Akali",
+   "ko": "아칼리"
+  },
+  "akshan": {
+   "id": "Akshan",
+   "en": "Akshan",
+   "ko": "아크샨"
+  },
+  "alistar": {
+   "id": "Alistar",
+   "en": "Alistar",
+   "ko": "알리스타"
+  },
+  "ambessa": {
+   "id": "Ambessa",
+   "en": "Ambessa",
+   "ko": "암베사"
+  },
+  "amumu": {
+   "id": "Amumu",
+   "en": "Amumu",
+   "ko": "아무무"
+  },
+  "anivia": {
+   "id": "Anivia",
+   "en": "Anivia",
+   "ko": "애니비아"
+  },
+  "annie": {
+   "id": "Annie",
+   "en": "Annie",
+   "ko": "애니"
+  },
+  "aphelios": {
+   "id": "Aphelios",
+   "en": "Aphelios",
+   "ko": "아펠리오스"
+  },
+  "ashe": {
+   "id": "Ashe",
+   "en": "Ashe",
+   "ko": "애쉬"
+  },
+  "aurelionsol": {
+   "id": "AurelionSol",
+   "en": "Aurelion Sol",
+   "ko": "아우렐리온 솔"
+  },
+  "aurora": {
+   "id": "Aurora",
+   "en": "Aurora",
+   "ko": "오로라"
+  },
+  "azir": {
+   "id": "Azir",
+   "en": "Azir",
+   "ko": "아지르"
+  },
+  "bard": {
+   "id": "Bard",
+   "en": "Bard",
+   "ko": "바드"
+  },
+  "belveth": {
+   "id": "Belveth",
+   "en": "Bel'Veth",
+   "ko": "벨베스"
+  },
+  "blitzcrank": {
+   "id": "Blitzcrank",
+   "en": "Blitzcrank",
+   "ko": "블리츠크랭크"
+  },
+  "brand": {
+   "id": "Brand",
+   "en": "Brand",
+   "ko": "브랜드"
+  },
+  "braum": {
+   "id": "Braum",
+   "en": "Braum",
+   "ko": "브라움"
+  },
+  "briar": {
+   "id": "Briar",
+   "en": "Briar",
+   "ko": "브라이어"
+  },
+  "caitlyn": {
+   "id": "Caitlyn",
+   "en": "Caitlyn",
+   "ko": "케이틀린"
+  },
+  "camille": {
+   "id": "Camille",
+   "en": "Camille",
+   "ko": "카밀"
+  },
+  "cassiopeia": {
+   "id": "Cassiopeia",
+   "en": "Cassiopeia",
+   "ko": "카시오페아"
+  },
+  "chogath": {
+   "id": "Chogath",
+   "en": "Cho'Gath",
+   "ko": "초가스"
+  },
+  "corki": {
+   "id": "Corki",
+   "en": "Corki",
+   "ko": "코르키"
+  },
+  "darius": {
+   "id": "Darius",
+   "en": "Darius",
+   "ko": "다리우스"
+  },
+  "diana": {
+   "id": "Diana",
+   "en": "Diana",
+   "ko": "다이애나"
+  },
+  "draven": {
+   "id": "Draven",
+   "en": "Draven",
+   "ko": "드레이븐"
+  },
+  "drmundo": {
+   "id": "DrMundo",
+   "en": "Dr. Mundo",
+   "ko": "문도 박사"
+  },
+  "ekko": {
+   "id": "Ekko",
+   "en": "Ekko",
+   "ko": "에코"
+  },
+  "elise": {
+   "id": "Elise",
+   "en": "Elise",
+   "ko": "엘리스"
+  },
+  "evelynn": {
+   "id": "Evelynn",
+   "en": "Evelynn",
+   "ko": "이블린"
+  },
+  "ezreal": {
+   "id": "Ezreal",
+   "en": "Ezreal",
+   "ko": "이즈리얼"
+  },
+  "fiddlesticks": {
+   "id": "Fiddlesticks",
+   "en": "Fiddlesticks",
+   "ko": "피들스틱"
+  },
+  "fiora": {
+   "id": "Fiora",
+   "en": "Fiora",
+   "ko": "피오라"
+  },
+  "fizz": {
+   "id": "Fizz",
+   "en": "Fizz",
+   "ko": "피즈"
+  },
+  "galio": {
+   "id": "Galio",
+   "en": "Galio",
+   "ko": "갈리오"
+  },
+  "gangplank": {
+   "id": "Gangplank",
+   "en": "Gangplank",
+   "ko": "갱플랭크"
+  },
+  "garen": {
+   "id": "Garen",
+   "en": "Garen",
+   "ko": "가렌"
+  },
+  "gnar": {
+   "id": "Gnar",
+   "en": "Gnar",
+   "ko": "나르"
+  },
+  "gragas": {
+   "id": "Gragas",
+   "en": "Gragas",
+   "ko": "그라가스"
+  },
+  "graves": {
+   "id": "Graves",
+   "en": "Graves",
+   "ko": "그레이브즈"
+  },
+  "gwen": {
+   "id": "Gwen",
+   "en": "Gwen",
+   "ko": "그웬"
+  },
+  "hecarim": {
+   "id": "Hecarim",
+   "en": "Hecarim",
+   "ko": "헤카림"
+  },
+  "heimerdinger": {
+   "id": "Heimerdinger",
+   "en": "Heimerdinger",
+   "ko": "하이머딩거"
+  },
+  "hwei": {
+   "id": "Hwei",
+   "en": "Hwei",
+   "ko": "흐웨이"
+  },
+  "illaoi": {
+   "id": "Illaoi",
+   "en": "Illaoi",
+   "ko": "일라오이"
+  },
+  "irelia": {
+   "id": "Irelia",
+   "en": "Irelia",
+   "ko": "이렐리아"
+  },
+  "ivern": {
+   "id": "Ivern",
+   "en": "Ivern",
+   "ko": "아이번"
+  },
+  "janna": {
+   "id": "Janna",
+   "en": "Janna",
+   "ko": "잔나"
+  },
+  "jarvaniv": {
+   "id": "JarvanIV",
+   "en": "Jarvan IV",
+   "ko": "자르반 4세"
+  },
+  "jax": {
+   "id": "Jax",
+   "en": "Jax",
+   "ko": "잭스"
+  },
+  "jayce": {
+   "id": "Jayce",
+   "en": "Jayce",
+   "ko": "제이스"
+  },
+  "jhin": {
+   "id": "Jhin",
+   "en": "Jhin",
+   "ko": "진"
+  },
+  "jinx": {
+   "id": "Jinx",
+   "en": "Jinx",
+   "ko": "징크스"
+  },
+  "kaisa": {
+   "id": "Kaisa",
+   "en": "Kai'Sa",
+   "ko": "카이사"
+  },
+  "kalista": {
+   "id": "Kalista",
+   "en": "Kalista",
+   "ko": "칼리스타"
+  },
+  "karma": {
+   "id": "Karma",
+   "en": "Karma",
+   "ko": "카르마"
+  },
+  "karthus": {
+   "id": "Karthus",
+   "en": "Karthus",
+   "ko": "카서스"
+  },
+  "kassadin": {
+   "id": "Kassadin",
+   "en": "Kassadin",
+   "ko": "카사딘"
+  },
+  "katarina": {
+   "id": "Katarina",
+   "en": "Katarina",
+   "ko": "카타리나"
+  },
+  "kayle": {
+   "id": "Kayle",
+   "en": "Kayle",
+   "ko": "케일"
+  },
+  "kayn": {
+   "id": "Kayn",
+   "en": "Kayn",
+   "ko": "케인"
+  },
+  "kennen": {
+   "id": "Kennen",
+   "en": "Kennen",
+   "ko": "케넨"
+  },
+  "khazix": {
+   "id": "Khazix",
+   "en": "Kha'Zix",
+   "ko": "카직스"
+  },
+  "kindred": {
+   "id": "Kindred",
+   "en": "Kindred",
+   "ko": "킨드레드"
+  },
+  "kled": {
+   "id": "Kled",
+   "en": "Kled",
+   "ko": "클레드"
+  },
+  "kogmaw": {
+   "id": "KogMaw",
+   "en": "Kog'Maw",
+   "ko": "코그모"
+  },
+  "ksante": {
+   "id": "KSante",
+   "en": "K'Sante",
+   "ko": "크산테"
+  },
+  "leblanc": {
+   "id": "Leblanc",
+   "en": "LeBlanc",
+   "ko": "르블랑"
+  },
+  "leesin": {
+   "id": "LeeSin",
+   "en": "Lee Sin",
+   "ko": "리 신"
+  },
+  "leona": {
+   "id": "Leona",
+   "en": "Leona",
+   "ko": "레오나"
+  },
+  "lillia": {
+   "id": "Lillia",
+   "en": "Lillia",
+   "ko": "릴리아"
+  },
+  "lissandra": {
+   "id": "Lissandra",
+   "en": "Lissandra",
+   "ko": "리산드라"
+  },
+  "locke": {
+   "id": "Locke",
+   "en": "Locke",
+   "ko": "로크"
+  },
+  "lucian": {
+   "id": "Lucian",
+   "en": "Lucian",
+   "ko": "루시안"
+  },
+  "lulu": {
+   "id": "Lulu",
+   "en": "Lulu",
+   "ko": "룰루"
+  },
+  "lux": {
+   "id": "Lux",
+   "en": "Lux",
+   "ko": "럭스"
+  },
+  "malphite": {
+   "id": "Malphite",
+   "en": "Malphite",
+   "ko": "말파이트"
+  },
+  "malzahar": {
+   "id": "Malzahar",
+   "en": "Malzahar",
+   "ko": "말자하"
+  },
+  "maokai": {
+   "id": "Maokai",
+   "en": "Maokai",
+   "ko": "마오카이"
+  },
+  "masteryi": {
+   "id": "MasterYi",
+   "en": "Master Yi",
+   "ko": "마스터 이"
+  },
+  "mel": {
+   "id": "Mel",
+   "en": "Mel",
+   "ko": "멜"
+  },
+  "milio": {
+   "id": "Milio",
+   "en": "Milio",
+   "ko": "밀리오"
+  },
+  "missfortune": {
+   "id": "MissFortune",
+   "en": "Miss Fortune",
+   "ko": "미스 포츈"
+  },
+  "monkeyking": {
+   "id": "MonkeyKing",
+   "en": "Wukong",
+   "ko": "오공"
+  },
+  "mordekaiser": {
+   "id": "Mordekaiser",
+   "en": "Mordekaiser",
+   "ko": "모데카이저"
+  },
+  "morgana": {
+   "id": "Morgana",
+   "en": "Morgana",
+   "ko": "모르가나"
+  },
+  "naafiri": {
+   "id": "Naafiri",
+   "en": "Naafiri",
+   "ko": "나피리"
+  },
+  "nami": {
+   "id": "Nami",
+   "en": "Nami",
+   "ko": "나미"
+  },
+  "nasus": {
+   "id": "Nasus",
+   "en": "Nasus",
+   "ko": "나서스"
+  },
+  "nautilus": {
+   "id": "Nautilus",
+   "en": "Nautilus",
+   "ko": "노틸러스"
+  },
+  "neeko": {
+   "id": "Neeko",
+   "en": "Neeko",
+   "ko": "니코"
+  },
+  "nidalee": {
+   "id": "Nidalee",
+   "en": "Nidalee",
+   "ko": "니달리"
+  },
+  "nilah": {
+   "id": "Nilah",
+   "en": "Nilah",
+   "ko": "닐라"
+  },
+  "nocturne": {
+   "id": "Nocturne",
+   "en": "Nocturne",
+   "ko": "녹턴"
+  },
+  "nunu": {
+   "id": "Nunu",
+   "en": "Nunu & Willump",
+   "ko": "누누와 윌럼프"
+  },
+  "nunuwillump": {
+   "id": "Nunu",
+   "en": "Nunu & Willump",
+   "ko": "누누와 윌럼프"
+  },
+  "olaf": {
+   "id": "Olaf",
+   "en": "Olaf",
+   "ko": "올라프"
+  },
+  "orianna": {
+   "id": "Orianna",
+   "en": "Orianna",
+   "ko": "오리아나"
+  },
+  "ornn": {
+   "id": "Ornn",
+   "en": "Ornn",
+   "ko": "오른"
+  },
+  "pantheon": {
+   "id": "Pantheon",
+   "en": "Pantheon",
+   "ko": "판테온"
+  },
+  "poppy": {
+   "id": "Poppy",
+   "en": "Poppy",
+   "ko": "뽀삐"
+  },
+  "pyke": {
+   "id": "Pyke",
+   "en": "Pyke",
+   "ko": "파이크"
+  },
+  "qiyana": {
+   "id": "Qiyana",
+   "en": "Qiyana",
+   "ko": "키아나"
+  },
+  "quinn": {
+   "id": "Quinn",
+   "en": "Quinn",
+   "ko": "퀸"
+  },
+  "rakan": {
+   "id": "Rakan",
+   "en": "Rakan",
+   "ko": "라칸"
+  },
+  "rammus": {
+   "id": "Rammus",
+   "en": "Rammus",
+   "ko": "람머스"
+  },
+  "reksai": {
+   "id": "RekSai",
+   "en": "Rek'Sai",
+   "ko": "렉사이"
+  },
+  "rell": {
+   "id": "Rell",
+   "en": "Rell",
+   "ko": "렐"
+  },
+  "renata": {
+   "id": "Renata",
+   "en": "Renata Glasc",
+   "ko": "레나타 글라스크"
+  },
+  "renataglasc": {
+   "id": "Renata",
+   "en": "Renata Glasc",
+   "ko": "레나타 글라스크"
+  },
+  "renekton": {
+   "id": "Renekton",
+   "en": "Renekton",
+   "ko": "레넥톤"
+  },
+  "rengar": {
+   "id": "Rengar",
+   "en": "Rengar",
+   "ko": "렝가"
+  },
+  "riven": {
+   "id": "Riven",
+   "en": "Riven",
+   "ko": "리븐"
+  },
+  "rumble": {
+   "id": "Rumble",
+   "en": "Rumble",
+   "ko": "럼블"
+  },
+  "ryze": {
+   "id": "Ryze",
+   "en": "Ryze",
+   "ko": "라이즈"
+  },
+  "samira": {
+   "id": "Samira",
+   "en": "Samira",
+   "ko": "사미라"
+  },
+  "sejuani": {
+   "id": "Sejuani",
+   "en": "Sejuani",
+   "ko": "세주아니"
+  },
+  "senna": {
+   "id": "Senna",
+   "en": "Senna",
+   "ko": "세나"
+  },
+  "seraphine": {
+   "id": "Seraphine",
+   "en": "Seraphine",
+   "ko": "세라핀"
+  },
+  "sett": {
+   "id": "Sett",
+   "en": "Sett",
+   "ko": "세트"
+  },
+  "shaco": {
+   "id": "Shaco",
+   "en": "Shaco",
+   "ko": "샤코"
+  },
+  "shen": {
+   "id": "Shen",
+   "en": "Shen",
+   "ko": "쉔"
+  },
+  "shyvana": {
+   "id": "Shyvana",
+   "en": "Shyvana",
+   "ko": "쉬바나"
+  },
+  "singed": {
+   "id": "Singed",
+   "en": "Singed",
+   "ko": "신지드"
+  },
+  "sion": {
+   "id": "Sion",
+   "en": "Sion",
+   "ko": "사이온"
+  },
+  "sivir": {
+   "id": "Sivir",
+   "en": "Sivir",
+   "ko": "시비르"
+  },
+  "skarner": {
+   "id": "Skarner",
+   "en": "Skarner",
+   "ko": "스카너"
+  },
+  "smolder": {
+   "id": "Smolder",
+   "en": "Smolder",
+   "ko": "스몰더"
+  },
+  "sona": {
+   "id": "Sona",
+   "en": "Sona",
+   "ko": "소나"
+  },
+  "soraka": {
+   "id": "Soraka",
+   "en": "Soraka",
+   "ko": "소라카"
+  },
+  "swain": {
+   "id": "Swain",
+   "en": "Swain",
+   "ko": "스웨인"
+  },
+  "sylas": {
+   "id": "Sylas",
+   "en": "Sylas",
+   "ko": "사일러스"
+  },
+  "syndra": {
+   "id": "Syndra",
+   "en": "Syndra",
+   "ko": "신드라"
+  },
+  "tahmkench": {
+   "id": "TahmKench",
+   "en": "Tahm Kench",
+   "ko": "탐 켄치"
+  },
+  "taliyah": {
+   "id": "Taliyah",
+   "en": "Taliyah",
+   "ko": "탈리야"
+  },
+  "talon": {
+   "id": "Talon",
+   "en": "Talon",
+   "ko": "탈론"
+  },
+  "taric": {
+   "id": "Taric",
+   "en": "Taric",
+   "ko": "타릭"
+  },
+  "teemo": {
+   "id": "Teemo",
+   "en": "Teemo",
+   "ko": "티모"
+  },
+  "thresh": {
+   "id": "Thresh",
+   "en": "Thresh",
+   "ko": "쓰레쉬"
+  },
+  "tristana": {
+   "id": "Tristana",
+   "en": "Tristana",
+   "ko": "트리스타나"
+  },
+  "trundle": {
+   "id": "Trundle",
+   "en": "Trundle",
+   "ko": "트런들"
+  },
+  "tryndamere": {
+   "id": "Tryndamere",
+   "en": "Tryndamere",
+   "ko": "트린다미어"
+  },
+  "twistedfate": {
+   "id": "TwistedFate",
+   "en": "Twisted Fate",
+   "ko": "트위스티드 페이트"
+  },
+  "twitch": {
+   "id": "Twitch",
+   "en": "Twitch",
+   "ko": "트위치"
+  },
+  "udyr": {
+   "id": "Udyr",
+   "en": "Udyr",
+   "ko": "우디르"
+  },
+  "urgot": {
+   "id": "Urgot",
+   "en": "Urgot",
+   "ko": "우르곳"
+  },
+  "varus": {
+   "id": "Varus",
+   "en": "Varus",
+   "ko": "바루스"
+  },
+  "vayne": {
+   "id": "Vayne",
+   "en": "Vayne",
+   "ko": "베인"
+  },
+  "veigar": {
+   "id": "Veigar",
+   "en": "Veigar",
+   "ko": "베이가"
+  },
+  "velkoz": {
+   "id": "Velkoz",
+   "en": "Vel'Koz",
+   "ko": "벨코즈"
+  },
+  "vex": {
+   "id": "Vex",
+   "en": "Vex",
+   "ko": "벡스"
+  },
+  "vi": {
+   "id": "Vi",
+   "en": "Vi",
+   "ko": "바이"
+  },
+  "viego": {
+   "id": "Viego",
+   "en": "Viego",
+   "ko": "비에고"
+  },
+  "viktor": {
+   "id": "Viktor",
+   "en": "Viktor",
+   "ko": "빅토르"
+  },
+  "vladimir": {
+   "id": "Vladimir",
+   "en": "Vladimir",
+   "ko": "블라디미르"
+  },
+  "volibear": {
+   "id": "Volibear",
+   "en": "Volibear",
+   "ko": "볼리베어"
+  },
+  "warwick": {
+   "id": "Warwick",
+   "en": "Warwick",
+   "ko": "워윅"
+  },
+  "wukong": {
+   "id": "MonkeyKing",
+   "en": "Wukong",
+   "ko": "오공"
+  },
+  "xayah": {
+   "id": "Xayah",
+   "en": "Xayah",
+   "ko": "자야"
+  },
+  "xerath": {
+   "id": "Xerath",
+   "en": "Xerath",
+   "ko": "제라스"
+  },
+  "xinzhao": {
+   "id": "XinZhao",
+   "en": "Xin Zhao",
+   "ko": "신 짜오"
+  },
+  "yasuo": {
+   "id": "Yasuo",
+   "en": "Yasuo",
+   "ko": "야스오"
+  },
+  "yone": {
+   "id": "Yone",
+   "en": "Yone",
+   "ko": "요네"
+  },
+  "yorick": {
+   "id": "Yorick",
+   "en": "Yorick",
+   "ko": "요릭"
+  },
+  "yunara": {
+   "id": "Yunara",
+   "en": "Yunara",
+   "ko": "유나라"
+  },
+  "yuumi": {
+   "id": "Yuumi",
+   "en": "Yuumi",
+   "ko": "유미"
+  },
+  "zaahen": {
+   "id": "Zaahen",
+   "en": "Zaahen",
+   "ko": "자헨"
+  },
+  "zac": {
+   "id": "Zac",
+   "en": "Zac",
+   "ko": "자크"
+  },
+  "zed": {
+   "id": "Zed",
+   "en": "Zed",
+   "ko": "제드"
+  },
+  "zeri": {
+   "id": "Zeri",
+   "en": "Zeri",
+   "ko": "제리"
+  },
+  "ziggs": {
+   "id": "Ziggs",
+   "en": "Ziggs",
+   "ko": "직스"
+  },
+  "zilean": {
+   "id": "Zilean",
+   "en": "Zilean",
+   "ko": "질리언"
+  },
+  "zoe": {
+   "id": "Zoe",
+   "en": "Zoe",
+   "ko": "조이"
+  },
+  "zyra": {
+   "id": "Zyra",
+   "en": "Zyra",
+   "ko": "자이라"
+  }
+ }
+}
