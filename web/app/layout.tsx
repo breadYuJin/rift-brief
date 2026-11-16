@@ -8,7 +8,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: { default: SITE_NAME, template: `%s | ${SITE_NAME}` },
-  description: `${SITE_TAGLINE}. 주요 경기, 리그 일정, 팀 전적, 리그 규칙을 한곳에서 봅니다.`,
+  description: `${SITE_TAGLINE}. 주요 경기, 리그 일정, 팀 전적, 대회 규칙을 한곳에서 봅니다.`,
 };
 
 export const viewport: Viewport = { themeColor: "#12213a" };

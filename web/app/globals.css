@@ -1262,6 +1262,282 @@ a.fx__teams:hover {
   font-size: 0.9375rem;
 }
 
+/* ---- 대회 규칙: 대회 탭, 진행 순서, 스위스 사다리, 용어 ---- */
+
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs__tab {
+  flex: none;
+  padding: 0.6rem 1rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.tabs__tab:hover {
+  color: var(--text);
+}
+
+.tabs__tab[aria-current="page"] {
+  background: var(--panel);
+  border-color: var(--line);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.tour-head {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 1.25rem 1.25rem 1.4rem;
+}
+
+.tour-head__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--step-2);
+  line-height: 1.2;
+}
+
+.tour-head__season {
+  font-size: var(--step--1);
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.tour-head__lede {
+  margin-top: 0.75rem;
+  max-width: 44rem;
+}
+
+.facts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 2.5rem;
+  margin-top: 1.1rem;
+}
+
+.facts-row dt {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.facts-row dd {
+  font-weight: 600;
+}
+
+.flow {
+  margin-top: 1rem;
+  counter-reset: flow;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.flow__step {
+  counter-increment: flow;
+  position: relative;
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: 0.5rem 1.5rem;
+  padding: 0.9rem 1rem 0.9rem 3.25rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.flow__step::before {
+  content: counter(flow);
+  position: absolute;
+  left: 1rem;
+  top: 0.8rem;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  line-height: 1.2;
+  color: var(--side-a);
+}
+
+.flow__name {
+  font-size: var(--step-0);
+  font-weight: 600;
+}
+
+.flow__body {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.9375rem;
+}
+
+.flow__body > div {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.flow__body dt {
+  color: var(--muted);
+  font-size: var(--step--1);
+  line-height: 1.85;
+}
+
+@media (max-width: 44rem) {
+  .flow__step {
+    grid-template-columns: 1fr;
+  }
+}
+
+.swiss {
+  margin-top: 1.5rem;
+}
+
+.swiss figcaption {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.swiss__rounds {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.swiss__label {
+  font-size: var(--step--1);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.swiss__round ul {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.swiss__group {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: 4px;
+}
+
+.swiss__record {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+
+.swiss__teams,
+.swiss__kind {
+  font-size: var(--step--1);
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.swiss__group--advance {
+  border-left-color: var(--text);
+}
+
+.swiss__group--eliminate {
+  border-left-color: var(--live);
+}
+
+.swiss__group--both {
+  border-left-color: var(--text);
+  border-right: 4px solid var(--live);
+}
+
+.swiss__group--advance .swiss__kind,
+.swiss__group--both .swiss__kind {
+  color: var(--text);
+}
+
+.swiss__group--eliminate .swiss__kind {
+  color: var(--live);
+}
+
+.swiss__result {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+
+.swiss__result > div {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.swiss__result dt {
+  font-weight: 600;
+}
+
+.swiss__result dd {
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+@media (max-width: 52rem) {
+  .swiss__rounds {
+    grid-template-columns: 1fr;
+  }
+
+  .swiss__round ul {
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  }
+
+  .swiss__result {
+    grid-template-columns: 1fr;
+  }
+}
+
+.glossary + .glossary {
+  margin-top: 1.75rem;
+}
+
+.glossary:first-of-type {
+  margin-top: 1rem;
+}
+
+.glossary__terms {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+  gap: 0.6rem;
+}
+
+.glossary__terms > div {
+  padding: 0.75rem 0.9rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.glossary__terms dt {
+  font-weight: 600;
+}
+
+.glossary__terms dd {
+  font-size: 0.9375rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
 /* ---- 설명 페이지 ---- */
 
 .prose h2 {
