@@ -450,7 +450,7 @@ def test_collect_registry_records_each_source(tmp_path, monkeypatch):
     assert status["ok"]["note"] == "2026년 3건" and "SOME_KEY" in status["keyed"]["note"]
     saved = json.loads((tmp_path / "collect.json").read_text(encoding="utf-8"))
     assert saved["bad"]["note"] == "서버 오류"
-    assert [s.name for s in collect.SOURCES] == ["leaguepedia", "champions", "youtube", "grid"]
+    assert [s.name for s in collect.SOURCES] == ["leaguepedia", "champions", "logos", "youtube", "grid"]
 
 
 def test_timeline_keeps_real_time_anchors():
@@ -476,3 +476,55 @@ def test_timeline_keeps_real_time_anchors():
     out = fetch_timelines(raw, {"A": {"kills": []}, "C": {"kills": [], "anchors": []}}, pages, limit=5)
     assert pages.asked == ["V5 data:B/Timeline", "V5 data:A/Timeline"]
     assert out["A"]["anchors"] and out["B"]["anchors"]
+
+
+# ---- 팀 로고 ----
+
+
+def test_logo_matching_and_fallback(tmp_path):
+    from pipeline import logos
+    from pipeline.leaguepedia import resolve_team
+
+    raw = {"leagues": {"LCK": {
+        "teams": [{"Name": "Gen.G", "Short": "GEN"}, {"Name": "T1", "Short": "T1"}, {"Name": "DRX", "Short": "DRX"}, {"Name": "Nongshim RedForce", "Short": "NS"}],
+        "matches": [{"Team1": "Gen.G", "Team2": "T1"}, {"Team1": "DRX", "Team2": "Nongshim RedForce"}, {"Team1": "TBD", "Team2": "T1"}],
+    }}}
+    (tmp_path / "raw").mkdir()
+    (tmp_path / "raw" / "leaguepedia-2026.json").write_text(json.dumps(raw), encoding="utf-8")
+    official = [
+        {"name": "Gen.G Esports", "code": "GEN", "image": "http://static.lolesports.com/teams/gen.png", "status": "active"},
+        {"name": "Gen.G Global Academy", "code": "GEN", "image": "http://static.lolesports.com/teams/gga.png", "status": "active"},
+        {"name": "T1", "code": "T1", "image": "http://static.lolesports.com/teams/t1.png", "status": "active"},
+        {"name": "T1 (old)", "code": "T1", "image": "http://static.lolesports.com/teams/old.png", "status": "archived"},
+        {"name": "Kiwoom DRX", "code": "KRX", "image": "", "status": "active"},
+    ]
+
+    class Wiki:
+        def query(self, **kw):
+            assert kw["tables"] == "Teams" and "Nongshim RedForce" in kw["where"] and "Gen.G" not in kw["where"]
+            return [{"Name": "DRX", "Image": "DRXlogo square.png"}, {"Name": "Nongshim RedForce", "Image": ""}]
+
+        def image_urls(self, files):
+            return {"DRXlogo square.png": "https://static.wikia.nocookie.net/drx.png"}
+
+    ids = {n: resolve_team(n, {"Gen.G": "GEN", "T1": "T1", "DRX": "DRX", "Nongshim RedForce": "NS"}).id for n in ("Gen.G", "T1", "DRX", "Nongshim RedForce")}
+    summary = logos.collect(tmp_path, 2026, official=lambda: official, cargo=Wiki(), check=lambda url: True)
+    saved = json.loads((tmp_path / "teams.json").read_text(encoding="utf-8"))
+    # 이름이 같은 팀을 고르고(2군 제외), 주소는 https 로 바꾼다.
+    assert saved[str(ids["Gen.G"])] == {"acronym": "GEN", "logo": "https://static.lolesports.com/teams/gen.png", "source": "lolesports"}
+    assert saved[str(ids["T1"])]["logo"].endswith("/t1.png")
+    assert saved[str(ids["DRX"])]["source"] == "leaguepedia"
+    assert str(ids["Nongshim RedForce"]) not in saved
+    assert summary == "4팀 중 3팀 (공식 2, Leaguepedia 1), 없음: NS"
+
+    # 공식 목록이 막혀도 이미 찾은 로고는 남는다.
+    def down():
+        raise RuntimeError("403")
+
+    class Empty(Wiki):
+        def query(self, **kw):
+            return []
+
+    again = logos.collect(tmp_path, 2026, official=down, cargo=Empty(), check=lambda url: False)
+    assert "4팀 중 3팀" in again and "공식 목록 실패" in again
+    assert logos.norm("Gen.G Esports") == logos.norm("Gen.G") == "geng"

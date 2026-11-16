@@ -5,7 +5,8 @@
 
   수집원            받는 것                                      필요한 것
   leaguepedia       경기 결과·밴픽·세트/선수 기록·타임라인       (없음)
-  champions         챔피언 한국어 이름표                         (없음)
+  champions         챔피언 한국어 이름표와 아이콘 주소           (없음)
+  logos             팀 로고 주소                                 (없음)
   youtube           공식 채널(@LCK) 영상 목록과 방송 시각        YOUTUBE_API_KEY
   grid              실시간 밴픽·경기 진행                        GRID_API_KEY (아직 구현 전)
 
@@ -22,7 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from . import champions, leaguepedia, youtube
+from . import champions, leaguepedia, logos, youtube
 from .config import Settings
 
 
@@ -48,7 +49,9 @@ def _leaguepedia(data_dir: Path, year: int) -> str:
 def _champions(data_dir: Path, year: int) -> str:
     table = champions.fetch()
     champions.save(data_dir, table)
-    return f"패치 {table['version']}"
+    sample = next(iter(table["champions"].values()))["id"]
+    icons = "열림" if logos.is_image(f"{table['icon_base']}{sample}.png") else "열리지 않음"
+    return f"패치 {table['version']}, 아이콘 {icons}"
 
 
 def _grid(data_dir: Path, year: int) -> str:
@@ -57,7 +60,8 @@ def _grid(data_dir: Path, year: int) -> str:
 
 SOURCES = [
     Source("leaguepedia", "경기 결과·밴픽·세트/선수 기록·타임라인", (), _leaguepedia),
-    Source("champions", "챔피언 한국어 이름표", (), _champions),
+    Source("champions", "챔피언 한국어 이름표와 아이콘", (), _champions),
+    Source("logos", "팀 로고", (), logos.collect),
     Source("youtube", "공식 채널 영상 목록과 방송 시각", ("YOUTUBE_API_KEY",), youtube.collect),
     Source("grid", "실시간 밴픽·경기 진행", ("GRID_API_KEY",), _grid),
 ]

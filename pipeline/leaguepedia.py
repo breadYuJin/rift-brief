@@ -304,6 +304,26 @@ class Cargo:
             return None
         return pages[0]["revisions"][0]["slots"]["main"]["content"]
 
+    def image_urls(self, files: list[str], width: int = 160) -> dict[str, str]:
+        """위키에 올라온 그림 파일 이름 → 주소(가로 width 로 줄인 것)."""
+        out: dict[str, str] = {}
+        for start in range(0, len(files), 40):
+            batch = files[start : start + 40]
+            data = self._request(
+                {"action": "query", "format": "json", "formatversion": 2, "prop": "imageinfo",
+                 "iiprop": "url", "iiurlwidth": width, "titles": "|".join(f"File:{f}" for f in batch)}
+            )
+            time.sleep(self._pause)
+            query = data.get("query") or {}
+            asked = {n["to"]: n["from"] for n in query.get("normalized") or []}
+            for page in query.get("pages") or []:
+                info = (page.get("imageinfo") or [{}])[0]
+                url = info.get("thumburl") or info.get("url")
+                if url:
+                    title = asked.get(page["title"], page["title"])
+                    out[title.removeprefix("File:")] = url
+        return out
+
     def query(self, *, tables: str, fields: str, where: str, order_by: str) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []
         while True:

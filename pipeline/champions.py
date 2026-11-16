@@ -36,7 +36,12 @@ def build_table(version: str, english: dict[str, Any], korean: dict[str, Any]) -
     for alias, official in ALIASES.items():
         if key(official) in champions:
             champions.setdefault(key(alias), champions[key(official)])
-    return {"version": version, "champions": dict(sorted(champions.items()))}
+    return {
+        "version": version,
+        # 챔피언 얼굴 아이콘 주소는 icon_base + <id>.png
+        "icon_base": f"{BASE}/cdn/{version}/img/champion/",
+        "champions": dict(sorted(champions.items())),
+    }
 
 
 def _get_json(url: str) -> Any:
