@@ -15,6 +15,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Callable
+from urllib.parse import quote
 
 import requests
 
@@ -51,7 +52,8 @@ def our_teams(raw: dict[str, Any]) -> dict[int, dict[str, Any]]:
 
 
 def https(url: str) -> str:
-    return re.sub(r"^http://", "https://", url.strip())
+    """https 로 바꾸고, 주소에 섞인 공백 같은 글자를 안전하게 바꾼다."""
+    return quote(re.sub(r"^http://", "https://", url.strip()), safe=":/?&=%+,;@()!*'~-._")
 
 
 def _lolesports_get() -> list[dict[str, Any]]:
@@ -74,14 +76,27 @@ def match_lolesports(teams: dict[int, dict[str, Any]], official: list[dict[str, 
 
     out: dict[int, str] = {}
     for team_id, team in teams.items():
-        named = [t for n in team["names"] for t in by_name.get(norm(n), [])]
+        keys = {norm(n) for n in team["names"]}
+        named = [t for k in keys for t in by_name.get(k, [])]
         coded = by_code.get(team["acronym"].upper(), [])
         both = [t for t in named if t in coded]
+        # 후원사 이름이 붙어 표기가 다른 경우(Cloud9 ↔ Cloud9 Kia): 약칭이 같고 이름이 서로의 앞부분이면 같은 팀으로 본다.
+        close = [
+            t for t in coded
+            if any(len(k) >= 2 and (norm(t["name"]).startswith(k) or k.startswith(norm(t["name"]))) for k in keys)
+        ]
         active_coded = [t for t in coded if t.get("status") == "active"]
         # 약칭만 같은 경우는 현역 팀이 하나뿐일 때만 믿는다(2군·해체 팀과 약칭이 겹칠 수 있다).
-        pick = active_first(both) or active_first(named) or (active_coded if len(active_coded) == 1 else [])
+        pick = (
+            active_first(both) or active_first(named) or active_first(close)
+            or (active_coded if len(active_coded) == 1 else [])
+        )
         if pick:
             out[team_id] = https(pick[0]["image"])
+        if os.getenv("LOGO_DEBUG"):
+            print(f"[로고] {team['acronym']} {sorted(team['names'])} → {pick[0]['name'] if pick else '못 찾음'}")
+            for t in coded[:8]:
+                print(f"         약칭 후보: {t['name']} / {t.get('status')} / {(t.get('homeLeague') or {}).get('name')} / {t['image']}")
     return out
 
 
@@ -105,13 +120,21 @@ def from_leaguepedia(teams: dict[int, dict[str, Any]], cargo: Any) -> dict[int, 
 
 
 def is_image(url: str) -> bool:
+    """그 주소가 실제로 그림을 돌려주는지. 그림 서버가 종류를 안 알려 주는 경우가 있어 파일 앞머리도 본다."""
     try:
-        r = requests.get(url, stream=True, timeout=30)
-        ok = r.status_code == 200 and r.headers.get("content-type", "").startswith("image/")
+        r = requests.get(url, stream=True, timeout=30, headers={"User-Agent": "Mozilla/5.0 (rift-brief logo check)"})
+        head = next(r.iter_content(16), b"") if r.status_code == 200 else b""
+        kind = r.headers.get("content-type", "")
         r.close()
-        return ok
-    except requests.RequestException:
+    except requests.RequestException as exc:
+        if os.getenv("LOGO_DEBUG"):
+            print(f"[로고] 열기 실패 {url}: {exc}")
         return False
+    magic = head.startswith((b"\x89PNG", b"\xff\xd8", b"GIF8", b"RIFF")) or b"<svg" in head or head.startswith(b"<?xml")
+    ok = r.status_code == 200 and (kind.startswith("image/") or magic)
+    if not ok and os.getenv("LOGO_DEBUG"):
+        print(f"[로고] 그림 아님 {url}: HTTP {r.status_code}, {kind!r}, {head[:8]!r}")
+    return ok
 
 
 def collect(

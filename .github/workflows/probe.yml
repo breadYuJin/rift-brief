@@ -13,5 +13,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements.txt
-      - run: python -m pipeline.collect --only champions,logos
+      - run: python -m pipeline.collect --only logos
+        env:
+          LOGO_DEBUG: "1"
       - run: cat data/teams.json; cat data/collect.json
