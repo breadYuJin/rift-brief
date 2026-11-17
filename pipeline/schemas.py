@@ -39,6 +39,8 @@ class Match(BaseModel):
     score_b: int = 0
     winner_id: int | None = None
     games: list[Game] = Field(default_factory=list)
+    # 주최 측이 그 경기에서 뽑은 선수(LCK 의 POM, 국제 대회의 경기 MVP·결승 MVP). 없으면 None.
+    mvp: str | None = None
 
     @property
     def winner(self) -> Team | None:

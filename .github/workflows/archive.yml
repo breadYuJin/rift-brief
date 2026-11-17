@@ -27,6 +27,7 @@ on:
 
 permissions:
   contents: write
+  issues: read  # 평점 의견 이슈 읽기
 
 concurrency:
   group: pipeline
@@ -52,6 +53,7 @@ jobs:
         run: python -m pipeline.collect ${{ inputs.year && format('--year {0}', inputs.year) || '' }}
         env:
           TIMELINE_LIMIT: ${{ inputs.timeline_limit || '300' }}
+          GITHUB_TOKEN: ${{ github.token }}  # 평점 의견 이슈 읽기
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           GRID_API_KEY: ${{ secrets.GRID_API_KEY }}
           LOLESPORTS_API_KEY: ${{ secrets.LOLESPORTS_API_KEY }}  # 선택: 팀 로고 목록의 공개 키가 바뀌었을 때만

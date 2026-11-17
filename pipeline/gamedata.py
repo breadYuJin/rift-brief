@@ -10,7 +10,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-from .leaguepedia import LEAGUES, resolve_team, stable_id
+from .leaguepedia import LEAGUES, official_player, resolve_team, stable_id
 from .schemas import Team
 
 # 표준 밴픽 순서. F 는 먼저 밴픽하는 팀, S 는 나중 팀. (종류, 팀, 그 팀의 몇 번째인지)
@@ -81,6 +81,7 @@ class SetRecord(BaseModel):
     players: list[PlayerLine] = Field(default_factory=list)
     rpg: str = ""
     vod: str = ""
+    official_mvp: str | None = None  # 주최 측이 세트마다 뽑는 대회에서의 세트 MVP
 
     def team(self, team_id: int) -> Team:
         return self.blue if team_id == self.blue.id else self.red
@@ -146,6 +147,7 @@ def build_sets(raw: dict[str, Any]) -> list[SetRecord]:
         data = raw["leagues"].get(league) or {}
         shorts = {(t.get("Name") or "").strip(): t["Short"].strip() for t in data.get("teams") or [] if t.get("Short")}
         drafts = {d.get("GameId"): d for d in data.get("drafts") or []}
+        set_mvp = {v.get("GameId"): official_player(v.get("MVP")) for v in data.get("vods") or []}
         players: dict[str, list[dict[str, Any]]] = {}
         for p in data.get("players") or []:
             players.setdefault(p.get("GameId") or "", []).append(p)
@@ -200,6 +202,7 @@ def build_sets(raw: dict[str, Any]) -> list[SetRecord]:
                     winner_id=winner.id if winner else None,
                     length_min=float(g["Len"]) if g.get("Len") else None,
                     first_pick_id=first_pick,
+                    official_mvp=set_mvp.get(game_id),
                     draft=draft,
                     blue_stats=_stats(g, "Team1"),
                     red_stats=_stats(g, "Team2"),

@@ -453,7 +453,7 @@ def test_collect_registry_records_each_source(tmp_path, monkeypatch):
     assert status["ok"]["note"] == "2026년 3건" and "SOME_KEY" in status["keyed"]["note"]
     saved = json.loads((tmp_path / "collect.json").read_text(encoding="utf-8"))
     assert saved["bad"]["note"] == "서버 오류"
-    assert [s.name for s in collect.SOURCES] == ["leaguepedia", "champions", "logos", "youtube", "grid"]
+    assert [s.name for s in collect.SOURCES] == ["leaguepedia", "champions", "logos", "feedback", "youtube", "grid"]
 
 
 def test_timeline_keeps_real_time_anchors():
@@ -598,3 +598,121 @@ def test_player_ratings(tmp_path):
     assert ratings.rate_set(good.model_copy(update={"length_min": None}), scale) == {}
     rows = insights.matchups(good, rated)
     assert rows[2]["blue"]["rating"] == rated[(T1.id, "ALP미드")]
+
+
+# ---- 주최 측 선정 선수, 평점 설정, 팬 의견 ----
+
+
+def test_official_player_names():
+    from pipeline.leaguepedia import official_player
+
+    assert official_player("Zeka (Kim Geon-woo)") == "Zeka"
+    assert official_player("Ruler") == "Ruler"
+    assert official_player("N/A") is None and official_player("") is None and official_player(None) is None
+
+
+def test_rating_config_overrides_and_bad_values(tmp_path):
+    from pipeline import ratings
+
+    assert ratings.load_config(tmp_path / "none.json") == ratings.Config()
+    path = tmp_path / "ratings.config.json"
+    path.write_text(json.dumps({
+        "win_bonus": 0.5,
+        "weights": {"미드": {"kda": 0.4, "없는지표": 9}, "없는포지션": {"kda": 1}},
+        "feedback": {"min_votes": 2, "max_share": 7, "prior_votes": "많이"},
+    }), encoding="utf-8")
+    c = ratings.load_config(path)
+    assert c.win_bonus == 0.5 and c.spread == 1.6
+    assert c.weights["미드"]["kda"] == 0.4 and "없는지표" not in c.weights["미드"] and "없는포지션" not in c.weights
+    assert c.weights["탑"] == ratings.WEIGHTS["탑"]
+    assert c.feedback.min_votes == 2 and c.feedback.max_share == 1.0 and c.feedback.prior_votes == 5.0
+    assert c.digest() != ratings.Config().digest()
+    # 저장소에 들어 있는 설정 파일은 기본값과 같아야 한다(지금의 계산 방식을 그대로 유지).
+    assert ratings.load_config() == ratings.Config()
+
+    # 가중치를 바꾸면 평점이 달라진다.
+    sets = season(40)
+    scale = ratings.build_scale(sets)
+    good = make_set(50, T1, T2, T1)
+    assert ratings.rate_set(good, scale, c) != ratings.rate_set(good, scale)
+
+
+def test_blend_moves_rating_only_partly():
+    from pipeline.ratings import Feedback, blend
+
+    fb = Feedback()
+    assert blend(6.0, 10.0, 2, fb) == 6.0  # 세 명이 안 되면 그대로
+    assert blend(6.0, 9.0, 3, fb) == 6.3
+    assert blend(6.0, 9.0, 30, fb) == 6.8  # 많이 모여도 30% 를 넘지 않는다
+    assert blend(6.0, 1.0, 10000, fb) == 5.0  # 한 번에 1점 넘게 움직이지 않는다
+    assert blend(9.8, 10.0, 50, Feedback(max_shift=5)) <= 10.0
+
+
+def issue(number, login, body, title="[평점] ALP 대 BRV 1세트", **more):
+    return {"number": number, "title": title, "body": body, "user": {"login": login}, "created_at": f"2026-01-{number:02d}T00:00:00Z", **more}
+
+
+def test_feedback_issues_are_parsed_and_aggregated(tmp_path, monkeypatch):
+    from pipeline import feedback
+
+    s = make_set(1, T1, T2, T1, match_id=555)
+    body = "경기: 555\n세트: 1\n\n생각하는 점수를 적어 주세요.\n\nALP미드: 9\nBRV미드: 3,5\nALP탑:\n없는선수: 8\nALP정글: 99\n"
+    issues = [
+        issue(1, "kim", body),
+        issue(2, "kim", "경기: 555\n세트: 1\nALP미드: 7"),  # 같은 계정이 다시 보내면 마지막 것만
+        issue(3, "Lee", "경기: 555\n세트: 1\n- ALP ALP미드 = 8점"),  # 팀 약칭을 붙여 적어도 된다
+        issue(4, "park", "경기: 555\n세트: 1\nALP미드: 10"),
+        issue(5, "choi", "경기: 555\n세트: 1\nALP미드: 9", title="버그 신고"),  # 평점 의견이 아닌 이슈
+        issue(6, "jung", "경기: 555\n세트: 1\nALP미드: 9", pull_request={}),
+        issue(7, "han", "세트: 1\nALP미드: 9"),  # 경기 번호가 없으면 버린다
+        issue(8, "yoo", "경기: 999\n세트: 1\nALP미드: 1"),  # 없는 경기
+    ]
+    first = feedback.parse_issue(issues[0])
+    assert first["match_id"] == 555 and first["set"] == 1
+    assert first["scores"] == {"ALP미드": 9.0, "BRV미드": 3.5, "없는선수": 8.0}
+    assert "kim" not in json.dumps(first) and len(first["voter"]) == 12
+
+    monkeypatch.setenv("GITHUB_REPOSITORY", "someone/repo")
+    summary = feedback.collect(tmp_path, 2026, lambda path, params: issues if params["page"] == 1 else [])
+    assert summary == "평점 의견 5건 (4명)"
+    votes = feedback.load_votes(tmp_path)
+    fan = feedback.aggregate(votes, [s])
+    mean, count = fan["g1"][(T1.id, "ALP미드")]
+    assert count == 3 and round(mean, 2) == round((7 + 8 + 10) / 3, 2)
+    assert fan["g1"][(T2.id, "BRV미드")] == (3.5, 1)
+    assert len(fan["g1"]) == 2 and feedback.digest(votes) != feedback.digest([])
+    monkeypatch.delenv("GITHUB_REPOSITORY")
+    assert feedback.collect(tmp_path, 2026).startswith("건너뜀")
+
+
+def test_analysis_blends_votes_and_reports_official_agreement(tmp_path):
+    from pipeline import feedback
+    from pipeline.schemas import Match
+
+    (tmp_path / "raw").mkdir()
+    (tmp_path / "raw" / "leaguepedia-2026.json").write_text(json.dumps(raw_fixture()), encoding="utf-8")
+    sets = build_sets(raw_fixture())
+    target = sets[-1]
+    mid = next(p.player for p in target.players if p.role == "미드" and p.team_id == target.winner_id)
+    votes = [
+        {"issue": i, "voter": f"v{i}", "at": f"2026-02-0{i}", "match_id": target.match_id, "set": 1, "scores": {mid: 10}}
+        for i in range(1, 5)
+    ]
+    (tmp_path / "raw" / "rating_votes.json").write_text(json.dumps(votes), encoding="utf-8")
+    winner, loser = target.team(target.winner_id), target.other(target.winner_id)
+    official = Match(
+        id=target.match_id, league="LCK", stage="", best_of=1, status="finished",
+        team_a=winner, team_b=loser, score_a=1, winner_id=winner.id, mvp=mid.upper(),
+    )
+    assert analysis.build(tmp_path, matches=[official]) is True
+
+    data = json.loads((tmp_path / "sets" / f"{target.match_id}.json").read_text(encoding="utf-8"))
+    line = next(side for row in data["sets"][0]["matchups"] for side in (row["blue"], row["red"]) if side["player"] == mid)
+    assert line["votes"] == 4 and line["fan"] == 10.0
+    assert line["rating"] > line["rating_base"] and line["rating"] - line["rating_base"] <= 1.0
+    untouched = next(side for row in data["sets"][0]["matchups"] for side in (row["blue"], row["red"]) if side["player"] != mid)
+    assert "votes" not in untouched
+    models = json.loads((tmp_path / "models.json").read_text(encoding="utf-8"))
+    assert models["ratings"]["votes"] == 4 and models["ratings"]["voted_lines"] == 1
+    assert models["ratings"]["official"]["matches"] == 1 and models["ratings"]["official"]["mean_rank"] >= 1
+    assert models["ratings"]["feedback"]["max_share"] == 0.3

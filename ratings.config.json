@@ -1,0 +1,22 @@
+{
+  "설명": "선수 평점 계산을 바꾸고 싶을 때 고치는 파일입니다. 비워 둔 항목은 pipeline/ratings.py 의 기본값을 씁니다. 고치면 다음 수집 때 모든 경기의 평점이 다시 계산됩니다.",
+
+  "win_bonus": 0.3,
+  "spread": 1.6,
+
+  "weights": {
+    "탑": {"kda": 0.25, "kp": 0.10, "deaths": -0.15, "dmg_share": 0.20, "gold_diff": 0.15, "cs_diff": 0.10, "vision": 0.05},
+    "정글": {"kda": 0.25, "kp": 0.20, "deaths": -0.15, "dmg_share": 0.10, "gold_diff": 0.15, "cs_diff": 0.05, "vision": 0.10},
+    "미드": {"kda": 0.25, "kp": 0.15, "deaths": -0.15, "dmg_share": 0.20, "gold_diff": 0.15, "cs_diff": 0.05, "vision": 0.05},
+    "원딜": {"kda": 0.25, "kp": 0.15, "deaths": -0.15, "dmg_share": 0.25, "gold_diff": 0.10, "cs_diff": 0.05, "vision": 0.05},
+    "서포터": {"kda": 0.25, "kp": 0.25, "deaths": -0.20, "dmg_share": 0.05, "gold_diff": 0.05, "cs_diff": 0.0, "vision": 0.20}
+  },
+
+  "feedback": {
+    "설명": "팬 의견을 평점에 섞는 정도. 최종 평점 = 계산 평점 + 반영 비율 × (의견 평균 − 계산 평점). 반영 비율 = max_share × 의견 수 ÷ (의견 수 + prior_votes).",
+    "min_votes": 3,
+    "max_share": 0.3,
+    "prior_votes": 5,
+    "max_shift": 1.0
+  }
+}

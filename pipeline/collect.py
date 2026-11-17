@@ -7,6 +7,7 @@
   leaguepedia       경기 결과·밴픽·세트/선수 기록·타임라인       (없음)
   champions         챔피언 한국어 이름표와 아이콘 주소           (없음)
   logos             팀 로고 주소                                 (없음)
+  feedback          평점에 대한 팬 의견(GitHub 이슈)             GITHUB_TOKEN (Actions 에서는 자동)
   youtube           공식 채널(@LCK) 영상 목록과 방송 시각        YOUTUBE_API_KEY
   grid              실시간 밴픽·경기 진행                        GRID_API_KEY (아직 구현 전)
 
@@ -23,7 +24,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from . import champions, leaguepedia, logos, youtube
+from . import champions, feedback, leaguepedia, logos, youtube
 from .config import Settings
 
 
@@ -62,6 +63,7 @@ SOURCES = [
     Source("leaguepedia", "경기 결과·밴픽·세트/선수 기록·타임라인", (), _leaguepedia),
     Source("champions", "챔피언 한국어 이름표와 아이콘", (), _champions),
     Source("logos", "팀 로고", (), logos.collect),
+    Source("feedback", "평점에 대한 팬 의견 (GitHub 이슈)", ("GITHUB_TOKEN", "GITHUB_REPOSITORY"), feedback.collect),
     Source("youtube", "공식 채널 영상 목록과 방송 시각", ("YOUTUBE_API_KEY",), youtube.collect),
     Source("grid", "실시간 밴픽·경기 진행", ("GRID_API_KEY",), _grid),
 ]

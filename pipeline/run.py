@@ -84,6 +84,9 @@ def main() -> int:
     sets = load_sets(settings.data_dir) if mode != "sample" else []
     timelines = load_timelines(settings.data_dir) if sets else {}
     extra = analysis.extra_facts(sets, timelines) if mode == "archive" else {}
+    for m in every if mode == "archive" else []:
+        if m.mvp:  # 주최 측이 그 경기에서 뽑은 선수(LCK 의 POM, 국제 대회의 경기·결승 MVP)
+            extra[m.id].append(f"주최 측 선정 선수: {m.mvp}")
 
     if mode == "archive":
         # 시즌 기록을 다시 정리하면 팀 이름·스테이지가 바뀔 수 있다. 경기 내용이 그대로이고
@@ -169,7 +172,9 @@ def main() -> int:
 
     if sets:
         try:
-            analysis.build(settings.data_dir, llm, upcoming if mode == "archive" else [], sets=sets, timelines=timelines)
+            analysis.build(
+                settings.data_dir, llm, upcoming if mode == "archive" else [], matches=every, sets=sets, timelines=timelines
+            )
         except Exception as exc:  # 분석이 실패해도 브리핑은 이미 저장됐다.
             print(f"[분석] 실패: {exc}")
     return 0

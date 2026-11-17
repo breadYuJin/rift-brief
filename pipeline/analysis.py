@@ -17,7 +17,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from . import champions, highlights, insights, ratings, youtube
+from . import champions, feedback, highlights, insights, ratings, youtube
 from .agents.mock_draft import run_mock_draft
 from .draft_model import TOP_N, DraftModel, SetForecast, appear_rate, evaluate, meta_only, rank_hit_rates, recall, replay, tune
 from .gamedata import ROLES, SetRecord, load_sets, load_timelines
@@ -26,7 +26,7 @@ from .schemas import Match, Team
 from .win_model import report as win_report
 from .win_model import walk_forward
 
-VERSION = 3  # 산출물 형식이나 계산 방식이 바뀌면 올린다(다시 계산하게 됨)
+VERSION = 4  # 산출물 형식이나 계산 방식이 바뀌면 올린다(다시 계산하게 됨)
 TRAIN_SHARE = 0.6
 MOCK_SERIES = 12  # 모의 밴픽을 만들어 둘 최근 시리즈 수
 PATCHES_SHOWN = 6  # 패치별 메타를 보여 줄 최근 패치 수
@@ -80,11 +80,63 @@ def _old_mock(data_dir: Path, match_id: int) -> dict[str, Any] | None:
         return None
 
 
+def _with_feedback(
+    rows: list[dict[str, Any]],
+    s: SetRecord,
+    base: dict[tuple[int, str], float],
+    fan: dict[tuple[int, str], tuple[float, int]],
+) -> list[dict[str, Any]]:
+    """팬 의견이 있는 선수 줄에 계산 평점과 의견 수를 덧붙인다."""
+    for row in rows:
+        for color, team in (("blue", s.blue), ("red", s.red)):
+            key = (team.id, row[color]["player"])
+            if key in fan:
+                mean, count = fan[key]
+                row[color] |= {"rating_base": base.get(key), "fan": round(mean, 1), "votes": count}
+    return rows
+
+
+def _official_agreement(
+    official: dict[int, str], by_series: dict[int, list[SetRecord]], rated: dict[str, dict[tuple[int, str], float]]
+) -> dict[str, Any]:
+    """주최 측이 뽑은 선수와 이 사이트 평점이 얼마나 겹치는지.
+
+    경기마다 이긴 팀 선수 다섯을 평균 평점 순으로 세워, 주최 측 선정 선수가 몇 번째인지 본다.
+    아무렇게나 골라도 1위로 맞을 확률은 20% 다.
+    """
+    ranks: list[int] = []
+    for match_id, name in official.items():
+        series = by_series.get(match_id)
+        if not series:
+            continue
+        wins = defaultdict(int)
+        for s in series:
+            wins[s.winner_id] += 1
+        winner = max(wins, key=lambda t: wins[t])
+        totals: dict[str, list[float]] = defaultdict(list)
+        for s in series:
+            for (team_id, player), value in rated.get(s.game_id, {}).items():
+                if team_id == winner:
+                    totals[player].append(value)
+        order = sorted(totals, key=lambda p: -sum(totals[p]) / len(totals[p]))
+        lowered = [p.lower() for p in order]
+        if name.lower() in lowered:
+            ranks.append(lowered.index(name.lower()) + 1)
+    n = len(ranks)
+    return {
+        "matches": n,
+        "top1": round(sum(r == 1 for r in ranks) / n, 3) if n else None,
+        "top2": round(sum(r <= 2 for r in ranks) / n, 3) if n else None,
+        "mean_rank": round(sum(ranks) / n, 2) if n else None,
+    }
+
+
 def build(
     data_dir: Path,
     llm: LLM | None = None,
     upcoming: list[Match] | None = None,
     *,
+    matches: list[Match] | None = None,
     sets: list[SetRecord] | None = None,
     timelines: dict[str, Any] | None = None,
 ) -> bool:
@@ -98,8 +150,16 @@ def build(
     videos = youtube.load_videos(data_dir)
     clips_on = highlights.enabled() and bool(videos)
     name = champions.namer(data_dir)
+    config = ratings.load_config()
+    votes = feedback.load_votes(data_dir)
+    official = {m.id: m.mvp for m in matches or [] if m.mvp}
     fingerprint = _fingerprint(
-        sets, timelines, llm, upcoming, f"{len(videos)}:{clips_on}:{highlights.offset_sec()}:{name('Wukong')}"
+        sets,
+        timelines,
+        llm,
+        upcoming,
+        f"{len(videos)}:{clips_on}:{highlights.offset_sec()}:{name('Wukong')}"
+        f":{config.digest()}:{feedback.digest(votes)}:{len(official)}:{sum(bool(s.official_mvp) for s in sets)}",
     )
     try:
         if json.loads((data_dir / "models.json").read_text(encoding="utf-8")).get("input") == fingerprint:
@@ -175,7 +235,16 @@ def build(
     for f in forecasts:
         forecast_by_game[f.game_id][f.team_id] = f
     scale = ratings.load_scale(data_dir, sets)
-    rated = {s.game_id: ratings.rate_set(s, scale) for s in sets} if scale else {}
+    # 계산 평점(base)에 팬 의견을 일부 섞어 최종 평점(rated)을 만든다.
+    base_rated = {s.game_id: ratings.rate_set(s, scale, config) for s in sets} if scale else {}
+    fan = feedback.aggregate(votes, sets)
+    rated = {
+        game_id: {
+            key: ratings.blend(value, *fan[game_id][key], config.feedback) if key in fan.get(game_id, {}) else value
+            for key, value in players.items()
+        }
+        for game_id, players in base_rated.items()
+    }
     averages = insights.player_averages(sets, rated)
     changed = False
     timeline_ok = 0
@@ -216,7 +285,11 @@ def build(
                     "first_pick_id": s.first_pick_id,
                     "draft": [step.model_dump() for step in s.draft],
                     "stats": {"blue": s.blue_stats.model_dump(), "red": s.red_stats.model_dump()},
-                    "matchups": insights.matchups(s, rated.get(s.game_id)),
+                    "matchups": _with_feedback(
+                        insights.matchups(s, rated.get(s.game_id)), s, base_rated.get(s.game_id, {}), fan.get(s.game_id, {})
+                    ),
+                    # 주최 측이 세트마다 MVP 를 뽑는 대회에서의 세트 MVP
+                    "official_mvp": s.official_mvp,
                     # 이긴 팀에서 평점이 가장 높은 선수(이 사이트가 뽑는 세트 최고 선수)
                     "best": ratings.best_of(rated.get(s.game_id, {}), s.winner_id),
                     "summary": summary,
@@ -334,6 +407,12 @@ def build(
                 "clip_sets": clip_sets,
             },
             "clips": clips_on,
+            "ratings": {
+                "official": _official_agreement(official, by_series, rated),
+                "votes": sum(count for players in fan.values() for _mean, count in players.values()),
+                "voted_lines": sum(len(players) for players in fan.values()),
+                "feedback": config.feedback.__dict__,
+            },
             "input": fingerprint,
             "mock_by": "llm" if any(m.get("by") == "llm" for m in mocks.values()) else "policy",
         },

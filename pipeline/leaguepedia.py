@@ -162,6 +162,12 @@ def resolve_team(name: str, shorts: dict[str, str]) -> Team:
     return Team(id=stable_id(short), name=KOREAN_NAMES.get(short, clean), acronym=short)
 
 
+def official_player(value: Any) -> str | None:
+    """주최 측 선정 선수 칸을 선수 이름으로 정리한다. 'Zeka (Kim Geon-woo)' → 'Zeka', 'N/A'·빈칸 → None."""
+    name = str(value or "").split(" (")[0].strip()
+    return name if name and name.upper() not in ("N/A", "NA", "TBD", "-") else None
+
+
 def to_match(
     row: dict[str, Any],
     league: str,
@@ -203,6 +209,7 @@ def to_match(
         round=round_label(tab),
         stage=" ".join(p for p in (str(year), stage, tab) if p),
         best_of=_int(row.get("BestOf")) or max(1, 2 * max(score_a, score_b) - 1),
+        mvp=official_player(row.get("MVP")),
         status="finished" if winner else "not_started",
         begin_at=begin,
         end_at=begin if winner else None,
@@ -354,7 +361,7 @@ def fetch_raw(year: int, cargo: Any) -> dict[str, Any]:
         like = f'OverviewPage LIKE "{prefix}%"'
         rows = cargo.query(
             tables="MatchSchedule",
-            fields="MatchId,OverviewPage,Tab,Team1,Team2,Team1Score,Team2Score,Winner,BestOf,DateTime_UTC=Date",
+            fields="MatchId,OverviewPage,Tab,Team1,Team2,Team1Score,Team2Score,Winner,BestOf,MVP,DateTime_UTC=Date",
             where=like,
             order_by="DateTime_UTC",
         )
