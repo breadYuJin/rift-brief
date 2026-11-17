@@ -1,0 +1,16 @@
+# 임시 확인용. 확인 후 지운다.
+name: probe
+on:
+  push:
+    paths: [".github/workflows/probe.yml", "scripts/probe_mvp.py"]
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m scripts.probe_mvp
