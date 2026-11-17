@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import sys
 
-from . import analysis
+from . import analysis, awards
 from .archive import ArchiveSource
 from .config import Settings
 from .facts import form_text
@@ -169,6 +169,9 @@ def main() -> int:
         archive_size=archive_size,
     )
     print(f"[run] 새 브리핑 {new_briefs}건, 새 프리뷰 {new_previews}건, 데이터 변경: {'있음' if changed else '없음'}")
+
+    if mode == "archive":
+        awards.save(settings.data_dir, every)  # 대회 종료 후 따로 발표되는 상(파이널 MVP 등)을 결승 경기에 잇는다
 
     if sets:
         try:

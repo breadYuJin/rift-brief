@@ -7,7 +7,7 @@ import { TeamLogo } from "@/components/Assets";
 import { Rating } from "@/components/sets/Matchups";
 import { MockPlayer } from "@/components/sets/MockPlayer";
 import { SetExplorer } from "@/components/sets/SetExplorer";
-import { championName, getMatchSets, getModels, getPlayers, getResults } from "@/lib/data";
+import { championName, getAwards, getMatchSets, getModels, getPlayers, getResults } from "@/lib/data";
 import { toMockView, toSetViews } from "@/lib/sets";
 import { REPO_URL } from "@/lib/site";
 import type { PlayerAverage } from "@/lib/types";
@@ -53,9 +53,20 @@ export default async function MatchPage({ params }: Props) {
     .map((m) => ({ role: m.role, a: seasonA.get(m.a.player), b: seasonB.get(m.b.player) }))
     .filter((r): r is { role: string; a: PlayerAverage; b: PlayerAverage } => Boolean(r.a && r.b));
   const feedback = getModels()?.ratings?.feedback;
-  // 주최 측이 이 경기에서 뽑은 선수. LCK 는 POM(Player of the Match), 결승은 결승 MVP 라고 부른다.
-  const officialLabel = match.round === "결승" ? "결승 MVP" : match.league === "LCK" ? "POM" : "경기 MVP";
-  const isOfficial = (player: string) => !!match.mvp && match.mvp.toLowerCase() === player.toLowerCase();
+  // 주최 측이 이 경기에서 뽑은 선수(경기 기록). 이름이 확인된 경우에만 그 이름으로 부른다:
+  // LCK 정규 시즌은 POM, 국제 대회의 결승이 아닌 경기는 경기 MVP. 그 밖에는 "선정 선수"라고만 한다.
+  // 결승 뒤에 따로 발표되는 파이널 MVP 는 다른 상이므로 여기서 미루어 붙이지 않고 award 로 따로 받는다.
+  const isFinal = match.round === "결승";
+  const officialLabel =
+    match.league === "LCK" && match.tournament?.startsWith("정규 시즌")
+      ? "POM"
+      : match.league !== "LCK" && !isFinal
+        ? "경기 MVP"
+        : "선정 선수";
+  const officialTag = officialLabel === "선정 선수" ? "주최 측 선정" : officialLabel;
+  const award = getAwards()[String(match.id)] ?? null;
+  const same = (x: string | null | undefined, player: string) => !!x && x.toLowerCase() === player.toLowerCase();
+  const isOfficial = (player: string) => same(match.mvp, player);
   const ROLE_ORDER = ["탑", "정글", "미드", "원딜", "서포터"];
   const ratings = data?.ratings ?? [];
   // 경기 최고 평점은 이긴 팀에서 뽑는다(세트 절반 이상 뛴 선수, 평점 높은 순으로 정렬돼 있다).
@@ -79,11 +90,34 @@ export default async function MatchPage({ params }: Props) {
         <SetStrip match={match} detailed />
         <h1 className="card__headline">{brief.headline}</h1>
         <Badges reasons={brief.reasons} tags={brief.tags} />
-        {match.mvp && (
-          <p className="official">
-            <span className="official__label">주최 측 선정 {officialLabel}</span>
-            <strong>{match.mvp}</strong>
-          </p>
+        {(match.mvp || award) && (
+          <dl className="official">
+            {award && (
+              <div>
+                <dt>대회 종료 후 선정된 {award.award}</dt>
+                <dd>
+                  <strong>{award.player}</strong>
+                  <a href={award.source} target="_blank" rel="noopener noreferrer">
+                    출처
+                  </a>
+                </dd>
+              </div>
+            )}
+            {match.mvp && (
+              <div>
+                <dt>
+                  {isFinal
+                    ? "이 경기 기록에 적힌 주최 측 선정 선수"
+                    : officialLabel === "선정 선수"
+                      ? "주최 측 선정 선수"
+                      : `주최 측 선정 ${officialLabel}`}
+                </dt>
+                <dd>
+                  <strong>{match.mvp}</strong>
+                </dd>
+              </div>
+            )}
+          </dl>
         )}
         <ul className="summary">
           {brief.summary.map((line, i) => (
@@ -97,7 +131,7 @@ export default async function MatchPage({ params }: Props) {
           <h2>선수 평점</h2>
           <p className="block__hint">
             세트 기록으로 계산한 10점 만점 점수이고, 이 경기 세트들의 평균입니다. 평균은 6점 안팎입니다. 팬 의견이
-            모이면 일부만 반영합니다. {match.mvp && `"${officialLabel}" 표시는 주최 측이 뽑은 선수로, 이 평점과는 따로 정해집니다.`}
+            모이면 일부만 반영합니다. {(match.mvp || award) && "이름 옆 표시는 주최 측이 뽑은 선수이고, 이 평점과는 따로 정해집니다."}
           </p>
           <div className="rates">
             {[match.team_a, match.team_b].map((team, i) => (
@@ -112,7 +146,10 @@ export default async function MatchPage({ params }: Props) {
                       <span className="rates__role">{r.role}</span>
                       <span className="rates__name">
                         {r.player}
-                        {isOfficial(r.player) && <span className="rate__official">{officialLabel}</span>}
+                        {award && same(award.player, r.player) && <span className="rate__official">{award.award}</span>}
+                        {isOfficial(r.player) && !(award && same(award.player, r.player)) && (
+                          <span className="rate__official">{officialTag}</span>
+                        )}
                       </span>
                       <span className="rates__bar" aria-hidden="true">
                         <span style={{ width: `${r.rating * 10}%` }} />

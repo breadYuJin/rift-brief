@@ -3363,24 +3363,39 @@ a.fx__teams:hover {
 /* ---- 주최 측 선정 선수, 평점 의견 ---- */
 
 .official {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.2rem 0.6rem;
+  display: grid;
+  gap: 0.35rem;
   margin-top: 0.8rem;
   padding-top: 0.7rem;
   border-top: 1px solid var(--line);
 }
 
-.official__label {
+.official > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+}
+
+.official dt {
   font-size: var(--step--1);
   color: var(--muted);
+}
+
+.official dd {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
 }
 
 .official strong {
   font-family: var(--font-display);
   font-weight: 400;
   font-size: var(--step-1);
+}
+
+.official a {
+  font-size: var(--step--1);
 }
 
 .rate__official {

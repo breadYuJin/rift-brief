@@ -120,7 +120,7 @@ export function SetExplorer({
               <span className="set__sub">
                 {set.best && `세트 최고 평점 ${set.best.player} ${set.best.rating.toFixed(1)}`}
                 {set.best && set.officialMvp && ", "}
-                {set.officialMvp && `주최 측 세트 MVP ${set.officialMvp}`}
+                {set.officialMvp && `경기 기록의 세트 MVP ${set.officialMvp}`}
               </span>
             )}
           </h3>
@@ -131,7 +131,11 @@ export function SetExplorer({
               <a href={feedbackUrl} target="_blank" rel="noopener noreferrer">
                 의견 보내기
               </a>
-              . GitHub 계정이 필요합니다. 한 선수에 {minVotes}명 이상 모이면 평점에 일부 반영됩니다.
+              . 보는 것은 누구나 할 수 있고, 의견을 남길 때만 GitHub 로그인이 필요합니다. 한 선수에 {minVotes}명 이상
+              모이면 평점에 일부 반영됩니다.{" "}
+              <a href={`${repoUrl}/issues?q=${encodeURIComponent("is:issue [평점] in:title")}`} target="_blank" rel="noopener noreferrer">
+                지금까지 온 의견 보기
+              </a>
             </p>
           )}
         </section>

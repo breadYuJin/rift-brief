@@ -132,6 +132,7 @@ pipeline/            멀티에이전트 파이프라인
   logos.py           팀 로고 주소
   ratings.py         세트별 선수 평점 (가중치는 ratings.config.json)
   feedback.py        평점에 대한 팬 의견 수집(GitHub 이슈)과 집계
+  awards.py          대회 종료 후 발표되는 상(awards.json)을 결승 경기에 잇기
   youtube.py         공식 채널 영상 목록과 방송 시각
   gamedata.py        세트 기록 모델 (밴픽 순서, 진영, 오브젝트, 선수 기록)
   draft_model.py     밴픽 예측과 시간순 검증

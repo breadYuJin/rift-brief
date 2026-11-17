@@ -78,3 +78,12 @@ export interface PatchMeta {
 }
 
 export const getPatches = () => read<PatchMeta[]>("patches.json", []);
+
+/** 대회가 끝난 뒤 따로 발표되는 상(파이널 MVP 등). 경기 ID 별. 보도로 확인한 것만 들어 있다. */
+export interface Award {
+  award: string;
+  player: string;
+  source: string;
+}
+
+export const getAwards = () => read<Record<string, Award>>("awards.json", {});

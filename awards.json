@@ -1,0 +1,37 @@
+{
+  "설명": "대회가 끝난 뒤 주최 측이 따로 발표하는 상(파이널 MVP 등)입니다. 경기마다 뽑는 POM·경기 MVP 와는 다른 상이라 경기 기록에서 가져오지 않고, 보도로 확인한 것만 여기에 손으로 적습니다. final_date 는 결승 시작일(UTC)입니다.",
+  "awards": [
+    {
+      "league": "LCK",
+      "final_date": "2026-09-13",
+      "award": "파이널 MVP",
+      "player": "Ruler",
+      "source": "https://supple.kr/news/cmtzpu5mk0000krmq2prtrxn2",
+      "checked": "2026-11-17"
+    },
+    {
+      "league": "퍼스트 스탠드",
+      "final_date": "2026-03-22",
+      "award": "파이널 MVP",
+      "player": "Bin",
+      "source": "https://blockport.io/latest-news/blg-tops-g2-in-sao-paulo-first-stand-2026-peaks-1-5m-viewers/",
+      "checked": "2026-11-17"
+    },
+    {
+      "league": "MSI",
+      "final_date": "2026-07-12",
+      "award": "대회 MVP",
+      "player": "Zeus",
+      "source": "https://osen.co.kr/article/G1112838730",
+      "checked": "2026-11-17"
+    },
+    {
+      "league": "월즈",
+      "final_date": "2026-11-14",
+      "award": "파이널 MVP",
+      "player": "Knight",
+      "source": "https://www.inven.co.kr/webzine/news/?news=323389",
+      "checked": "2026-11-17"
+    }
+  ]
+}

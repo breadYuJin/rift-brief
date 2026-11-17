@@ -37,7 +37,11 @@ export function Rating({
         {value.toFixed(1)}
         {best && <span className="rate__tag">최고</span>}
       </span>
-      {votes > 0 && <span className="rate__votes">의견 {votes}명</span>}
+      {votes > 0 && (
+        <span className="rate__votes">
+          의견 {votes}명{base != null && base !== value ? ` (계산 ${base.toFixed(1)})` : ""}
+        </span>
+      )}
       {official && <span className="rate__official">{official}</span>}
     </>
   );
@@ -63,7 +67,7 @@ function Line({
         <ChampIcon name={p.champion} size={26} />
         <strong>{p.player}</strong>
         <span>{p.champion}</span>
-        <Rating value={p.rating} best={best} votes={p.votes} base={p.rating_base} official={official ? "주최 측 MVP" : ""} />
+        <Rating value={p.rating} best={best} votes={p.votes} base={p.rating_base} official={official ? "세트 MVP" : ""} />
       </p>
       <p className="mu__stats">
         <Stat label="KDA" value={p.kda.join("/")} more={kda(p) > kda(other)} />

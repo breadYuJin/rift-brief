@@ -716,3 +716,41 @@ def test_analysis_blends_votes_and_reports_official_agreement(tmp_path):
     assert models["ratings"]["votes"] == 4 and models["ratings"]["voted_lines"] == 1
     assert models["ratings"]["official"]["matches"] == 1 and models["ratings"]["official"]["mean_rank"] >= 1
     assert models["ratings"]["feedback"]["max_share"] == 0.3
+
+
+def test_tournament_awards_are_kept_apart_from_match_picks(tmp_path):
+    from pipeline import awards
+    from pipeline.schemas import Match
+
+    def final(match_id, league, day, mvp=None, round_name="결승"):
+        return Match(id=match_id, league=league, stage="", round=round_name, best_of=5, status="finished",
+                     begin_at=f"{day}T19:00:00+00:00", team_a=T1, team_b=T2, score_a=3, winner_id=T1.id, mvp=mvp)
+
+    matches = [
+        final(1, "월즈", "2026-11-14", mvp="경기에서뽑힌선수"),
+        final(2, "월즈", "2026-11-08", round_name="4강"),
+        final(3, "LCK", "2026-03-01"),  # LCK컵 결승: 확인한 상이 없다
+        final(4, "LCK", "2026-09-13"),
+    ]
+    source = tmp_path / "awards.json"
+    source.write_text(json.dumps({"awards": [
+        {"league": "월즈", "final_date": "2026-11-14", "award": "파이널 MVP", "player": "Knight", "source": "https://example.com/a"},
+        {"league": "LCK", "final_date": "2026-09-13", "award": "파이널 MVP", "player": "Ruler", "source": "https://example.com/b"},
+        {"league": "MSI", "final_date": "2026-07-12", "award": "대회 MVP", "player": "Zeus", "source": "https://example.com/c"},
+        {"league": "LCK", "final_date": "2026-03-01", "award": "파이널 MVP", "player": "누군가", "source": ""},
+    ]}), encoding="utf-8")
+    loaded = awards.load(source)
+    assert len(loaded) == 3  # 출처가 없는 항목은 쓰지 않는다
+    resolved, missed = awards.resolve(loaded, matches)
+    # 상은 보도로 확인한 값 그대로다. 결승 경기 기록에 적힌 선수로 바꾸지 않는다.
+    assert resolved == {
+        "1": {"award": "파이널 MVP", "player": "Knight", "source": "https://example.com/a"},
+        "4": {"award": "파이널 MVP", "player": "Ruler", "source": "https://example.com/b"},
+    }
+    assert missed == ["MSI 2026-07-12 대회 MVP (결승 0경기)"]
+    out_dir = tmp_path / "data"
+    out_dir.mkdir()
+    assert awards.save(out_dir, matches, source) is True and awards.save(out_dir, matches, source) is False
+    assert "3" not in json.loads((out_dir / "awards.json").read_text(encoding="utf-8"))
+    # 저장소의 awards.json 은 모두 출처가 있어야 한다.
+    assert awards.load() and all(a["source"].startswith("https://") for a in awards.load())
