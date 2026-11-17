@@ -87,7 +87,14 @@ export function SetExplorer({ sets }: { sets: SetView[] }) {
         )}
 
         <section className="set__part set__part--wide">
-          <h3>선수 맞대결</h3>
+          <h3>
+            선수 맞대결과 평점
+            {set.best && (
+              <span className="set__sub">
+                세트 최고 평점 {set.best.player} {set.best.rating.toFixed(1)}
+              </span>
+            )}
+          </h3>
           <Matchups set={set} />
         </section>
 

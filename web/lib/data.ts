@@ -43,3 +43,38 @@ export interface CollectEntry {
 }
 
 export const getCollectStatus = () => read<Record<string, CollectEntry>>("collect.json", {});
+
+/** 팀 로고와 챔피언 아이콘 주소 묶음(레이아웃이 화면 전체에 내려 준다). */
+export function getAssets() {
+  const teams = read<Record<string, { logo?: string }>>("teams.json", {});
+  const table = read<(ChampionTable & { icon_base?: string }) | null>("champions.json", null);
+  const champs: Record<string, string> = {};
+  for (const c of Object.values(table?.champions ?? {})) {
+    champs[c.ko] = c.id;
+    champs[c.en] = c.id;
+  }
+  return {
+    logos: Object.fromEntries(Object.entries(teams).flatMap(([id, t]) => (t.logo ? [[id, t.logo]] : []))),
+    iconBase: table?.icon_base ?? "",
+    champs,
+  };
+}
+
+export interface PatchMeta {
+  patch: string;
+  sets: number;
+  from: string;
+  to: string;
+  leagues: string[];
+  champions: {
+    champion: string;
+    picks: number;
+    bans: number;
+    presence: number;
+    win_rate: number | null;
+    role: string;
+    change: number | null;
+  }[];
+}
+
+export const getPatches = () => read<PatchMeta[]>("patches.json", []);

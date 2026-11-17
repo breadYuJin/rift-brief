@@ -1,5 +1,6 @@
 import { winRate } from "@/lib/select";
 import type { Stage } from "@/lib/types";
+import { TeamLogo } from "./Assets";
 import { FormPips } from "./FormPips";
 
 const streakText = (n: number) => (n > 0 ? `${n}연승` : n < 0 ? `${-n}연패` : "-");
@@ -48,6 +49,7 @@ export function Standings({ stage, limit }: { stage: Stage; limit?: number }) {
               <tr key={r.team.id}>
                 <td className="num table__rank">{i + 1}</td>
                 <th scope="row" className="table__team">
+                  <TeamLogo id={r.team.id} size={22} />
                   <span className="table__acr">{r.team.acronym}</span>
                   {!compact && r.team.name !== r.team.acronym && <span className="table__name">{r.team.name}</span>}
                 </th>

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ChampIcon, TeamLogo } from "@/components/Assets";
+import { PatchMeta, type PatchView } from "@/components/PatchMeta";
 import { MockPlayer } from "@/components/sets/MockPlayer";
-import { championName, getDraftIndex, getMatchSets, getModels } from "@/lib/data";
+import { championName, getDraftIndex, getMatchSets, getModels, getPatches } from "@/lib/data";
 import { formatDay } from "@/lib/format";
 import { pct, toMockView } from "@/lib/sets";
 import type { ForecastRow, Team, TeamForecast } from "@/lib/types";
@@ -45,6 +47,7 @@ function Guess({ team, forecast }: { team: Team; forecast?: TeamForecast }) {
     <ol className="fc__chips">
       {rows.map((r) => (
         <li key={r.champion} className="fc__chip">
+          <ChampIcon name={r.champion} size={18} />
           {championName(r.champion)} <span className="fc__p">{pct(r.p)}</span>
         </li>
       ))}
@@ -79,6 +82,22 @@ export default function DraftPage() {
   const latestMock = latest && latestSets?.mock ? toMockView(latestSets.mock, latest.team_a, latest.team_b, championName) : null;
   const pickHits = holdout.pick_hits_10 ?? holdout.pick_recall_10 * 5;
   const banHits = holdout.ban_hits_10 ?? holdout.ban_recall_10 * 5;
+  const day = (iso: string) => `${Number(iso.slice(5, 7))}월 ${Number(iso.slice(8, 10))}일`;
+  const patches: PatchView[] = getPatches().map((p) => ({
+    patch: p.patch,
+    sets: p.sets,
+    period: `${day(p.from)}부터 ${day(p.to)}까지`,
+    leagues: p.leagues.join(", "),
+    champions: p.champions.slice(0, 12).map((c) => ({
+      name: championName(c.champion),
+      role: c.role,
+      picks: c.picks,
+      bans: c.bans,
+      presence: c.presence,
+      winRate: c.win_rate,
+      change: c.change,
+    })),
+  }));
   const winBars = [
     { label: "항상 블루 진영을 고르면", value: win.blue_rate.accuracy, key: "base" },
     { label: "밴픽 전 (전력과 진영)", value: win.before_draft.accuracy, key: "before" },
@@ -92,6 +111,17 @@ export default function DraftPage() {
         냅니다. 예상은 모두 그 시점 이전 기록만으로 만듭니다.
       </p>
 
+      {patches.length > 0 && (
+        <section className="score">
+          <h2 className="section-title">패치별 메타</h2>
+          <p className="score__basis score__basis--top">
+            패치가 바뀌면 자주 나오는 챔피언도 바뀝니다. 그래서 예상은 그 패치가 적용된 뒤의 공식 경기만 보고
+            냅니다. 지난 시즌 기록은 쓰지 않습니다.
+          </p>
+          <PatchMeta patches={patches} />
+        </section>
+      )}
+
       <section className="score">
         <h2 className="section-title">얼마나 맞았나</h2>
         <div className="score__grid">
@@ -102,7 +132,7 @@ export default function DraftPage() {
               <strong>평균 {pickHits.toFixed(1)}개</strong>
             </p>
             <p className="score__note">
-              팀 구분 없이 요즘 대회 흐름만 봐도 {(base.pick_recall_10 * 5).toFixed(1)}개입니다. 올해는 한 시리즈에서 쓴
+              팀 구분 없이 그 패치의 흐름만 봐도 {(base.pick_recall_10 * 5).toFixed(1)}개입니다. 올해는 한 시리즈에서 쓴
               챔피언을 다시 못 쓰는 규칙이라 픽은 맞히기 어렵습니다.
             </p>
           </div>
@@ -113,7 +143,7 @@ export default function DraftPage() {
               <strong>평균 {banHits.toFixed(1)}개</strong>
             </p>
             <p className="score__note">
-              대회 흐름만 볼 때는 {(base.ban_recall_10 * 5).toFixed(1)}개입니다. 시리즈 1세트는{" "}
+              패치 흐름만 볼 때는 {(base.ban_recall_10 * 5).toFixed(1)}개입니다. 시리즈 1세트는{" "}
               {(first.ban_recall_10 * 5).toFixed(1)}개, 앞 세트를 반영한 2세트부터는 {(later.ban_recall_10 * 5).toFixed(1)}
               개로 올라갑니다.
             </p>
@@ -199,11 +229,13 @@ export default function DraftPage() {
               <Link href={`/matches/${s.match_id}/#sets`} className="series__row">
                 <span className="series__date">{formatDay(s.date).replace(/ \S+요일$/, "")}</span>
                 <span className="series__teams">
+                  <TeamLogo id={s.team_a.id} size={18} />
                   <span className={s.score_a > s.score_b ? "is-more" : ""}>{s.team_a.acronym}</span>
                   <span className="series__score">
                     {s.score_a}:{s.score_b}
                   </span>
                   <span className={s.score_b > s.score_a ? "is-more" : ""}>{s.team_b.acronym}</span>
+                  <TeamLogo id={s.team_b.id} size={18} />
                 </span>
                 <span className="series__hit series__hit--pick">
                   <span className="series__k">픽</span>
@@ -229,9 +261,10 @@ export default function DraftPage() {
       <section className="score prose">
         <h2 className="section-title">어떻게 예상하나</h2>
         <p>
-          고를 챔피언은 그 팀이 최근에 자주 고른 것과 요즘 대회에 자주 나오는 것을 합쳐 순위를 매깁니다. 금지할
+          고를 챔피언은 그 팀이 자주 고른 것과 이번 패치 공식 경기에 자주 나온 것을 합쳐 순위를 매깁니다. 금지할
           챔피언은 상대가 자주 고르는 것, 그 팀이 원래 자주 금지하는 것, 같은 시리즈 앞 세트에서 이미 금지한 것을
-          봅니다. 같은 시리즈에서 이미 나온 챔피언은 뺍니다.
+          봅니다. 같은 시리즈에서 이미 나온 챔피언은 뺍니다. 새 패치 초반에는 경기 수가 적어 직전 패치의 흐름을
+          조금 섞고, 세트가 쌓일수록 그 비중을 줄입니다. 팀 기록도 지난 패치의 것일수록 가볍게 봅니다.
         </p>
         <p>
           경기 중에 밴픽이 한 수씩 진행될 때마다 남은 칸을 다시 예상하는 실시간 추적은 준비 중입니다. 계산 부분은

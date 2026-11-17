@@ -1,9 +1,11 @@
+import { ChampIcon, TeamLogo } from "@/components/Assets";
 import type { SetView, TeamSetView } from "@/lib/sets";
 
 function Column({ view, side }: { view: TeamSetView; side: "a" | "b" }) {
   return (
     <div className={`pb__team pb__team--${side}${view.won ? " is-winner" : ""}`}>
       <p className="pb__head">
+        <TeamLogo id={view.team.id} size={26} />
         <span className="pb__acr">{view.team.acronym}</span>
         <span className="pb__tags">
           {view.color === "blue" ? "블루 진영" : "레드 진영"}
@@ -15,14 +17,20 @@ function Column({ view, side }: { view: TeamSetView; side: "a" | "b" }) {
         {view.picks.map((p) => (
           <li key={p.champion} className="pb__pick">
             <span className="pb__role">{p.role}</span>
-            <span className="pb__champ">{p.champion}</span>
+            <span className="pb__champ">
+              <ChampIcon name={p.champion} size={30} />
+              {p.champion}
+            </span>
             <span className="pb__player">{p.player}</span>
           </li>
         ))}
       </ol>
       <ul className="pb__bans" aria-label={`${view.team.acronym} 금지`}>
         {view.bans.map((c) => (
-          <li key={c}>{c}</li>
+          <li key={c}>
+            <ChampIcon name={c} size={20} />
+            <span>{c}</span>
+          </li>
         ))}
       </ul>
     </div>

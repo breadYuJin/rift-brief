@@ -142,6 +142,22 @@ export interface PlayerSetLine {
   vision: number;
   cs_min: number | null;
   dpm: number | null;
+  /** 세트 기록으로 계산한 평점(10점 만점). 기록이 모자라면 없다. */
+  rating?: number | null;
+}
+
+export interface BestPlayer {
+  player: string;
+  team_id: number;
+  rating: number;
+}
+
+export interface SeriesRating {
+  player: string;
+  team_id: number;
+  role: string;
+  rating: number;
+  sets: number;
 }
 
 export interface Fight {
@@ -196,6 +212,7 @@ export interface SetDetail {
   draft: DraftStep[];
   stats: { blue: TeamStats; red: TeamStats };
   matchups: { role: string; blue: PlayerSetLine; red: PlayerSetLine }[];
+  best?: BestPlayer | null;
   summary: SetSummary;
   /** 블루 진영 기준 승률 */
   win: { before: number; after: number } | null;
@@ -222,6 +239,7 @@ export interface MatchSets {
   match_id: number;
   sets: SetDetail[];
   mock: MockDraft | null;
+  ratings?: SeriesRating[];
 }
 
 export interface DraftScores {
@@ -301,6 +319,7 @@ export interface PlayerAverage {
   dpm: number;
   gpm: number;
   vision_min: number;
+  rating?: number | null;
 }
 
 export interface ChampionTable {

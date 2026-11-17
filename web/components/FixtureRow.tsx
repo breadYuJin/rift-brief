@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatTime } from "@/lib/format";
 import type { Match } from "@/lib/types";
+import { TeamLogo } from "./Assets";
 
 /** 일정표 한 줄: 시각, 두 팀, 스코어 또는 상태. */
 export function FixtureRow({ match, href, showStage = true }: { match: Match; href?: string; showStage?: boolean }) {
@@ -23,9 +24,11 @@ export function FixtureRow({ match, href, showStage = true }: { match: Match; hr
     <>
       <abbr className={`fx__team fx__team--a${aLost ? " is-loser" : ""}`} title={a.name}>
         {a.acronym}
+        <TeamLogo id={a.id} size={20} />
       </abbr>
       {middle}
       <abbr className={`fx__team fx__team--b${bLost ? " is-loser" : ""}`} title={b.name}>
+        <TeamLogo id={b.id} size={20} />
         {b.acronym}
       </abbr>
     </>

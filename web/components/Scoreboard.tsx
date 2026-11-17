@@ -1,5 +1,6 @@
 import { formatTime } from "@/lib/format";
 import type { Match } from "@/lib/types";
+import { TeamLogo } from "./Assets";
 import { FormPips } from "./FormPips";
 
 interface Props {
@@ -17,12 +18,16 @@ export function Scoreboard({ match, recentA, recentB, size = "md" }: Props) {
   const aLost = finished && match.winner_id !== a.id;
   const bLost = finished && match.winner_id !== b.id;
   const winner = finished ? (aLost ? b : a) : null;
+  const logo = size === "lg" ? 56 : size === "sm" ? 18 : 30;
   return (
     <div className={`sb sb--${size}`}>
       <div className={`sb__team sb__team--a${aLost ? " is-loser" : ""}`}>
-        <abbr className="sb__acr" title={a.name}>
-          {a.acronym}
-        </abbr>
+        <span className="sb__id">
+          <TeamLogo id={a.id} size={logo} />
+          <abbr className="sb__acr" title={a.name}>
+            {a.acronym}
+          </abbr>
+        </span>
         {size !== "sm" && a.name !== a.acronym && <span className="sb__name">{a.name}</span>}
         {size !== "sm" && <FormPips recent={recentA} side="a" />}
       </div>
@@ -40,9 +45,12 @@ export function Scoreboard({ match, recentA, recentB, size = "md" }: Props) {
         {!finished && !running && size !== "sm" && <span className="sb__bo">{match.best_of}전제</span>}
       </div>
       <div className={`sb__team sb__team--b${bLost ? " is-loser" : ""}`}>
-        <abbr className="sb__acr" title={b.name}>
-          {b.acronym}
-        </abbr>
+        <span className="sb__id">
+          <TeamLogo id={b.id} size={logo} />
+          <abbr className="sb__acr" title={b.name}>
+            {b.acronym}
+          </abbr>
+        </span>
         {size !== "sm" && b.name !== b.acronym && <span className="sb__name">{b.name}</span>}
         {size !== "sm" && <FormPips recent={recentB} side="b" />}
       </div>

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Badges } from "@/components/MatchCard";
 import { Scoreboard } from "@/components/Scoreboard";
 import { SetStrip } from "@/components/SetStrip";
+import { TeamLogo } from "@/components/Assets";
+import { Rating } from "@/components/sets/Matchups";
 import { MockPlayer } from "@/components/sets/MockPlayer";
 import { SetExplorer } from "@/components/sets/SetExplorer";
 import { championName, getMatchSets, getPlayers, getResults } from "@/lib/data";
@@ -49,6 +51,14 @@ export default async function MatchPage({ params }: Props) {
   const seasonRows = (sets[0]?.matchups ?? [])
     .map((m) => ({ role: m.role, a: seasonA.get(m.a.player), b: seasonB.get(m.b.player) }))
     .filter((r): r is { role: string; a: PlayerAverage; b: PlayerAverage } => Boolean(r.a && r.b));
+  const ROLE_ORDER = ["탑", "정글", "미드", "원딜", "서포터"];
+  const ratings = data?.ratings ?? [];
+  // 경기 최고 평점은 이긴 팀에서 뽑는다(세트 절반 이상 뛴 선수, 평점 높은 순으로 정렬돼 있다).
+  const top = ratings.find((r) => r.team_id === match.winner_id) ?? null;
+  const ratingRows = (teamId: number) =>
+    ratings
+      .filter((r) => r.team_id === teamId)
+      .sort((x, y) => ROLE_ORDER.indexOf(x.role) - ROLE_ORDER.indexOf(y.role));
   return (
     <article className="detail">
       <div className="card card--lead">
@@ -71,6 +81,38 @@ export default async function MatchPage({ params }: Props) {
         </ul>
       </div>
 
+      {ratings.length > 0 && (
+        <section className="block">
+          <h2>선수 평점</h2>
+          <p className="block__hint">
+            세트 기록으로 계산한 10점 만점 점수이고, 이 경기 세트들의 평균입니다. 평균은 6점 안팎입니다. 팬 투표로
+            매기는 후푸 평점과는 계산 방식이 다릅니다.
+          </p>
+          <div className="rates">
+            {[match.team_a, match.team_b].map((team, i) => (
+              <div key={team.id} className={`rates__team rates__team--${i === 0 ? "a" : "b"}`}>
+                <p className="rates__head">
+                  <TeamLogo id={team.id} size={24} />
+                  {team.acronym}
+                </p>
+                <ul>
+                  {ratingRows(team.id).map((r) => (
+                    <li key={r.player} className="rates__row">
+                      <span className="rates__role">{r.role}</span>
+                      <span className="rates__name">{r.player}</span>
+                      <span className="rates__bar" aria-hidden="true">
+                        <span style={{ width: `${r.rating * 10}%` }} />
+                      </span>
+                      <Rating value={r.rating} best={top?.player === r.player && top.team_id === r.team_id} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {sets.length > 0 && (
         <section className="block" id="sets">
           <h2>세트별 기록</h2>
@@ -81,12 +123,13 @@ export default async function MatchPage({ params }: Props) {
       {seasonRows.length > 0 && (
         <section className="block">
           <h2>시즌 평균 맞대결</h2>
-          <p className="block__hint">이 경기에 나온 선수들의 2026 시즌 전체 평균입니다. 더 높은 쪽이 밝게 보입니다.</p>
+          <p className="block__hint">이 경기에 나온 선수들의 2026 시즌 전체 평균입니다. 평점은 세트별 평점의 평균입니다. 더 높은 쪽이 밝게 보입니다.</p>
           <div className="table-wrap">
             <table className="table season">
               <thead>
                 <tr>
                   <th scope="col">{match.team_a.acronym}</th>
+                  <th scope="col" className="num">평점</th>
                   <th scope="col" className="num">KDA</th>
                   <th scope="col" className="num">분당 CS</th>
                   <th scope="col" className="num">분당 피해</th>
@@ -94,6 +137,7 @@ export default async function MatchPage({ params }: Props) {
                   <th scope="col" className="num">분당 피해</th>
                   <th scope="col" className="num">분당 CS</th>
                   <th scope="col" className="num">KDA</th>
+                  <th scope="col" className="num">평점</th>
                   <th scope="col" className="season__b">{match.team_b.acronym}</th>
                 </tr>
               </thead>
@@ -105,6 +149,7 @@ export default async function MatchPage({ params }: Props) {
                   return (
                     <tr key={role}>
                       <th scope="row" className="season__a">{a.player}</th>
+                      {cell(a.rating ?? 0, b.rating ?? 0, a.rating?.toFixed(1) ?? "-")}
                       {cell(a.kda, b.kda, a.kda.toFixed(1))}
                       {cell(a.cs_min, b.cs_min, a.cs_min.toFixed(1))}
                       {cell(a.dpm, b.dpm, String(a.dpm))}
@@ -112,6 +157,7 @@ export default async function MatchPage({ params }: Props) {
                       {cell(b.dpm, a.dpm, String(b.dpm))}
                       {cell(b.cs_min, a.cs_min, b.cs_min.toFixed(1))}
                       {cell(b.kda, a.kda, b.kda.toFixed(1))}
+                      {cell(b.rating ?? 0, a.rating ?? 0, b.rating?.toFixed(1) ?? "-")}
                       <th scope="row" className="season__b">{b.player}</th>
                     </tr>
                   );

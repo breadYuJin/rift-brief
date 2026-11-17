@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import { SiteNav } from "@/components/SiteNav";
-import { getMeta } from "@/lib/data";
+import { AssetsProvider } from "@/components/Assets";
+import { getAssets, getMeta } from "@/lib/data";
 import { formatStamp } from "@/lib/format";
 import { REPO_URL, SITE_NAME, SITE_TAGLINE } from "@/lib/site";
 import "./globals.css";
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        <AssetsProvider value={getAssets()}>
         <a className="skip" href="#main">
           본문으로 건너뛰기
         </a>
@@ -47,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {meta.source === "archive" && (
           <p className="notice notice--quiet" role="note">
             <span className="wrap">
-              경기 기록은 하루 한 번 새벽에 자동으로 갱신됩니다 ({meta.source_note}).
+              경기 기록은 하루 몇 차례 자동으로 갱신됩니다 ({meta.source_note}).
             </span>
           </p>
         )}
@@ -68,7 +70,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </p>
             <p>
               요약과 예측은 자동으로 만들어져 틀릴 수 있습니다. 예측은 재미로 보는 참고용이며 베팅 용도가
-              아닙니다. 이 사이트는 팬이 만든 비공식 사이트이며 Riot Games와 관련이 없습니다.
+              아닙니다.
+            </p>
+            <p>
+              협곡 브리핑은 팬이 만든 비공식 사이트입니다. Riot Games가 보증하거나 후원하지 않으며, Riot Games나
+              리그 오브 레전드의 제작·운영에 공식적으로 관여하는 누구의 견해도 반영하지 않습니다. 리그 오브
+              레전드와 Riot Games는 Riot Games, Inc.의 상표 또는 등록 상표입니다. 챔피언 이미지는 Riot Games의
+              자산이고, 팀 로고는 각 팀의 자산입니다.
             </p>
             {REPO_URL && (
               <p>
@@ -77,6 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             )}
           </div>
         </footer>
+        </AssetsProvider>
       </body>
     </html>
   );

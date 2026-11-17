@@ -14,15 +14,15 @@ LoL e스포츠 경기 결과를 세 줄로 요약하고, 세트별 밴픽·교�
 | 팀 전적 | 스테이지별 승패, 세트 득실, 최근 5경기, 연승·연패 |
 | 대회 규칙 | 대회별 진행 순서와 진출 조건 (LCK, MSI, 월즈, 스위스 스테이지) |
 | 밴픽·용어 | 밴픽 순서와 피어리스·첫 번째 선택권, 용어 설명 |
-| 경기 상세 | 요약, 세트별 밴픽·승률·기록·골드 흐름·킬 위치·정글 동선·선수 맞대결, 밴픽 예상과 실제, 경기 전 AI 모의 밴픽 |
-| 밴픽 예측 | 예측 적중률, 다가오는 경기의 예상 밴픽, AI 모의 밴픽, 지난 시리즈별 적중 |
+| 경기 상세 | 요약, 세트별 밴픽·승률·기록·골드 흐름·킬 위치·정글 동선·선수 맞대결과 평점, 밴픽 예상과 실제, 경기 전 AI 모의 밴픽 |
+| 밴픽 예측 | 패치별 메타, 예측 적중률, 다가오는 경기의 예상 밴픽, AI 모의 밴픽, 지난 시리즈별 적중 |
 
 ## 구조
 
 ```
 GitHub Actions
-  ├─ archive (매일 03:23 KST)
-  │    └─ python -m pipeline.collect      자료 수집: 경기·밴픽·선수 기록·타임라인, 챔피언 이름표, (키가 있으면) 공식 채널 영상
+  ├─ archive (하루 네 번)
+  │    └─ python -m pipeline.collect      자료 수집: 경기·밴픽·선수 기록·타임라인, 챔피언 이름표·아이콘, 팀 로고, (키가 있으면) 공식 채널 영상
   └─ pipeline (매시 17분) / archive 뒤
        └─ python -m pipeline.run
             ├─ 리그 집계: 시즌 일정, 스테이지별 팀 전적, 대진표
@@ -30,7 +30,9 @@ GitHub Actions
             │                              ↑        └ 반려 → 재작성 (최대 2회, 넘으면 템플릿)
             ├─ 프리뷰 그래프: 수집 → (A측 패널 ∥ B측 패널) → 사회자 → 편집 → 저장
             └─ 분석(pipeline/analysis.py)
-                 ├─ 밴픽 예측: 세트 직전 기록으로 예상 → 실제와 비교 (세트마다 갱신)
+                 ├─ 밴픽 예측: 그 패치의 공식 경기 기록으로 예상 → 실제와 비교 (세트마다 갱신)
+                 ├─ 패치별 메타: 패치마다 많이 나온 챔피언, 직전 패치 대비 변화
+                 ├─ 선수 평점: 세트 기록으로 계산한 10점 만점 점수
                  ├─ 승률: 밴픽 전/후 (Elo + 진영 + 조합), 전진 검증
                  ├─ 경기 후 분석: 교전, 오브젝트, 골드 흐름, 정글 동선, 선수 맞대결
                  └─ 모의 밴픽 그래프: 팀 에이전트 ⇄ 팀 에이전트 (20수) → 해설
@@ -57,9 +59,9 @@ LLM이 쓴 문장은 코드가 먼저 걸러 냅니다. 데이터에 없는 숫�
 - 파이프라인: Python 3.12, LangGraph, LangChain(`init_chat_model`), Pydantic
 - 사이트: Next.js(App Router, 정적 export), TypeScript
 - 운영: GitHub Actions(예약 실행·배포), GitHub Pages
-- 모델: 감쇠 빈도 기반 밴픽 예측, Elo + 로지스틱 회귀 승률 (외부 ML 라이브러리 없이 직접 구현, 시간순 검증)
+- 모델: 패치 단위 빈도 기반 밴픽 예측, Elo + 로지스틱 회귀 승률 (외부 ML 라이브러리 없이 직접 구현, 시간순 검증)
 - LLM: `LLM_MODEL=제공사:모델` 하나로 Anthropic / Google / OpenAI / Ollama 전환
-- 데이터: Leaguepedia 공개 API(경기·밴픽·선수 기록·타임라인), Riot Data Dragon(챔피언 이름), PandaScore API(실시간 일정, 선택)
+- 데이터: Leaguepedia 공개 API(경기·밴픽·선수 기록·타임라인), Riot Data Dragon(챔피언 이름·아이콘), lolesports 공식 이미지 서버(팀 로고), PandaScore API(실시간 일정, 선택)
 
 ## 데이터 모드
 
@@ -68,10 +70,10 @@ LLM이 쓴 문장은 코드가 먼저 걸러 냅니다. 데이터에 없는 숫�
 | 모드 | 조건 | 데이터 |
 |---|---|---|
 | live | `PANDASCORE_TOKEN` 이 있음 | PandaScore API 로 매시 갱신 |
-| archive | 토큰이 없고 `data/archive/*.json` 이 있음 | Leaguepedia 시즌 기록, 매일 새벽 자동 갱신 |
+| archive | 토큰이 없고 `data/archive/*.json` 이 있음 | Leaguepedia 시즌 기록, 하루 네 번 자동 갱신 |
 | sample | 둘 다 없음 | 가상 팀 샘플 |
 
-시즌 기록은 `archive` 워크플로가 매일 Leaguepedia 공개 API 에서 받아 옵니다 (LCK, 퍼스트 스탠드, MSI, 월즈). 수동 실행도 됩니다. 수집원은 `pipeline/collect.py` 에 등록하고, 수집 결과는 `data/collect.json` 에 남습니다. 원본 행은 `data/raw/` 에 남기 때문에, 스테이지 이름 같은 정리 규칙을 고친 뒤에는 `python -m pipeline.leaguepedia --year 2026 --offline` 으로 네트워크 없이 다시 정리할 수 있습니다. Leaguepedia 의 내용은 CC BY-SA 이므로 사이트 꼬리말에 출처를 표기합니다.
+시즌 기록은 `archive` 워크플로가 하루 네 번 Leaguepedia 공개 API 에서 받아 옵니다 (LCK, 퍼스트 스탠드, MSI, 월즈). 수동 실행도 됩니다. 수집원은 `pipeline/collect.py` 에 등록하고, 수집 결과는 `data/collect.json` 에 남습니다. 원본 행은 `data/raw/` 에 남기 때문에, 스테이지 이름 같은 정리 규칙을 고친 뒤에는 `python -m pipeline.leaguepedia --year 2026 --offline` 으로 네트워크 없이 다시 정리할 수 있습니다. Leaguepedia 의 내용은 CC BY-SA 이므로 사이트 꼬리말에 출처를 표기합니다.
 
 ## 로컬에서 실행
 
@@ -126,7 +128,9 @@ pipeline/            멀티에이전트 파이프라인
   pandascore.py      API 클라이언트
   collect.py         자동 수집 진입점 (수집원 등록, 상태 기록)
   leaguepedia.py     시즌 기록·밴픽·선수 기록·타임라인 수집과 정리
-  champions.py       챔피언 한국어 이름표
+  champions.py       챔피언 한국어 이름표와 아이콘 주소
+  logos.py           팀 로고 주소
+  ratings.py         세트별 선수 평점
   youtube.py         공식 채널 영상 목록과 방송 시각
   gamedata.py        세트 기록 모델 (밴픽 순서, 진영, 오브젝트, 선수 기록)
   draft_model.py     밴픽 예측과 시간순 검증
@@ -155,4 +159,4 @@ web/                 Next.js 사이트
 - 대회 규칙과 밴픽·용어는 2026 시즌 기준으로 직접 정리한 요약입니다. 새 시즌 규정이 나오면 손으로 갱신해야 합니다.
 - 밴픽 예측과 승률은 재미로 보는 참고용입니다. 올해 기록으로 잰 적중률은 BACKLOG.md 에 있고, 픽 예측과 조합 효과는 약합니다.
 - 세트 상세·예측은 Leaguepedia 기록이 있는 archive 모드에서만 만들어집니다. live 모드(PandaScore 무료 플랜)에는 챔피언·킬·선수 기록이 없습니다.
-- PandaScore 약관과 Riot Games의 팬 콘텐츠 정책은 공개 운영 전에 직접 확인하세요. 팀 로고와 챔피언 이미지는 쓰지 않고 이름만 표시합니다. 베팅·배당 관련 내용은 다루지 않습니다.
+- PandaScore 약관과 Riot Games의 팬 콘텐츠 정책은 공개 운영 전에 직접 확인하세요. 팀 로고는 각 팀의, 챔피언 이미지는 Riot Games 의 자산이며 공식 이미지 서버의 그림을 불러와 표시합니다. 이 사이트는 Riot Games 가 보증하거나 후원하지 않는 팬 사이트입니다. 베팅·배당 관련 내용은 다루지 않습니다.

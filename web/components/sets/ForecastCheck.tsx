@@ -1,3 +1,4 @@
+import { ChampIcon } from "@/components/Assets";
 import { pct, type SetView, type TeamSetView } from "@/lib/sets";
 import type { ForecastRow } from "@/lib/types";
 
@@ -10,6 +11,7 @@ function Chips({ rows, side }: { rows: ForecastRow[]; side: "a" | "b" }) {
           className={`fc__chip fc__chip--${side}${r.hit ? " is-hit" : r.seen ? " is-seen" : ""}`}
           title={`이 순위 예상이 지난 검증에서 맞은 비율 ${pct(r.p)}`}
         >
+          <ChampIcon name={r.champion} size={18} />
           {r.champion}
           {r.hit && <span className="sr-only"> (적중)</span>}
           {!r.hit && r.seen && <span className="sr-only"> (다른 쪽에서 등장)</span>}

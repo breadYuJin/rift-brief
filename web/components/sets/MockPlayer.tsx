@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ChampIcon, TeamLogo } from "@/components/Assets";
 import type { MockView } from "@/lib/sets";
 
 /** AI 모의 밴픽을 한 수씩 넘겨 보는 판. 순서는 실제 밴픽 순서와 같다. */
@@ -15,6 +16,7 @@ export function MockPlayer({ mock }: { mock: MockView }) {
     return (
       <div className={`pb__team pb__team--${side}`}>
         <p className="pb__head">
+          <TeamLogo id={team.id} size={26} />
           <span className="pb__acr">{team.acronym}</span>
           <span className="pb__tags">{side === mock.firstSide ? "먼저 시작" : "나중 시작"}</span>
         </p>
@@ -24,7 +26,10 @@ export function MockPlayer({ mock }: { mock: MockView }) {
             .map((m) => (
               <li key={m.champion} className="pb__pick">
                 <span className="pb__role">{m.role}</span>
-                <span className="pb__champ">{m.champion}</span>
+                <span className="pb__champ">
+                  <ChampIcon name={m.champion} size={30} />
+                  {m.champion}
+                </span>
               </li>
             ))}
         </ol>
@@ -32,7 +37,10 @@ export function MockPlayer({ mock }: { mock: MockView }) {
           {mine
             .filter((m) => m.kind === "ban")
             .map((m) => (
-              <li key={m.champion}>{m.champion}</li>
+              <li key={m.champion}>
+                <ChampIcon name={m.champion} size={20} />
+                <span>{m.champion}</span>
+              </li>
             ))}
         </ul>
       </div>

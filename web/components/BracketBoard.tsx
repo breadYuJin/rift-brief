@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { Bracket, Match } from "@/lib/types";
+import { TeamLogo } from "./Assets";
 
 export interface BracketEntry {
   key: string;
@@ -14,10 +15,11 @@ export interface BracketEntry {
 
 const NOTE_CLASS: Record<string, string> = { 우승: "win", 준우승: "second", 진출: "pass", 탈락: "out" };
 
-function Row({ acr, name, score, won, lost, note }: { acr: string; name: string; score: number | null; won: boolean; lost: boolean; note: string }) {
+function Row({ id, acr, name, score, won, lost, note }: { id: number; acr: string; name: string; score: number | null; won: boolean; lost: boolean; note: string }) {
   return (
     <span className={`bk__row${won ? " is-won" : ""}${lost ? " is-lost" : ""}`}>
       <abbr className="bk__acr" title={name}>
+        <TeamLogo id={id} size={18} />
         {acr}
       </abbr>
       {note && <span className={`bk__note bk__note--${NOTE_CLASS[note] ?? "pass"}`}>{note}</span>}
@@ -31,6 +33,7 @@ function Slot({ match, noteA, noteB, linked }: { match: Match; noteA: string; no
   const rows = (
     <>
       <Row
+        id={match.team_a.id}
         acr={match.team_a.acronym}
         name={match.team_a.name}
         score={done ? match.score_a : null}
@@ -39,6 +42,7 @@ function Slot({ match, noteA, noteB, linked }: { match: Match; noteA: string; no
         note={noteA}
       />
       <Row
+        id={match.team_b.id}
         acr={match.team_b.acronym}
         name={match.team_b.name}
         score={done ? match.score_b : null}
