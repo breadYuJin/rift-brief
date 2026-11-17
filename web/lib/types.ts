@@ -29,6 +29,8 @@ export interface Match {
   score_b: number;
   winner_id: number | null;
   games: Game[];
+  /** 주최 측이 그 경기에서 뽑은 선수(LCK 의 POM, 국제 대회의 경기·결승 MVP) */
+  mvp?: string | null;
 }
 
 export interface TraceStep {
@@ -142,8 +144,12 @@ export interface PlayerSetLine {
   vision: number;
   cs_min: number | null;
   dpm: number | null;
-  /** 세트 기록으로 계산한 평점(10점 만점). 기록이 모자라면 없다. */
+  /** 최종 평점(10점 만점): 세트 기록으로 계산한 값에 팬 의견을 일부 섞은 것. 기록이 모자라면 없다. */
   rating?: number | null;
+  /** 팬 의견이 있을 때만: 의견을 섞기 전의 계산 평점, 의견 평균, 의견 수 */
+  rating_base?: number | null;
+  fan?: number;
+  votes?: number;
 }
 
 export interface BestPlayer {
@@ -213,6 +219,8 @@ export interface SetDetail {
   stats: { blue: TeamStats; red: TeamStats };
   matchups: { role: string; blue: PlayerSetLine; red: PlayerSetLine }[];
   best?: BestPlayer | null;
+  /** 주최 측이 세트마다 MVP 를 뽑는 대회에서의 세트 MVP */
+  official_mvp?: string | null;
   summary: SetSummary;
   /** 블루 진영 기준 승률 */
   win: { before: number; after: number } | null;
@@ -277,6 +285,13 @@ export interface Models {
   };
   counts: { sets: number; drafted: number; timelines: number; timelines_verified: number; series: number; clip_sets?: number };
   clips?: boolean;
+  ratings?: {
+    /** 주최 측 선정 선수가 이긴 팀 평점 순위에서 몇 번째였는지 */
+    official: { matches: number; top1: number | null; top2: number | null; mean_rank: number | null };
+    votes: number;
+    voted_lines: number;
+    feedback: { min_votes: number; max_share: number; prior_votes: number; max_shift: number };
+  };
   mock_by: "llm" | "policy";
 }
 

@@ -3359,3 +3359,74 @@ a.fx__teams:hover {
     display: none;
   }
 }
+
+/* ---- 주최 측 선정 선수, 평점 의견 ---- */
+
+.official {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.6rem;
+  margin-top: 0.8rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+}
+
+.official__label {
+  font-size: var(--step--1);
+  color: var(--muted);
+}
+
+.official strong {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--step-1);
+}
+
+.rate__official {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.5;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--text);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.rate__votes {
+  font-size: 0.6875rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* 막대 길이를 줄끼리 견줄 수 있게 칸 너비를 고정한다. */
+.rates__row {
+  grid-template-columns: 3.2rem 9.5rem minmax(0, 1fr) 5rem;
+}
+
+.rates__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.4rem;
+  min-width: 0;
+}
+
+.rates__score {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+@media (max-width: 480px) {
+  .rates__row {
+    grid-template-columns: 2.8rem minmax(0, 1fr) 4.2rem 4.6rem;
+    gap: 0.45rem;
+  }
+}
+
+.set__feedback {
+  margin-top: 0.9rem;
+}

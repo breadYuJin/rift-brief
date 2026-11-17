@@ -44,6 +44,8 @@ export interface SetView {
   /** a 팀 기준 승률. 시즌 초반처럼 계산하지 않은 세트는 null */
   win: { before: number; after: number } | null;
   matchups: { role: string; a: PlayerSetLine; b: PlayerSetLine }[];
+  /** 주최 측이 뽑은 세트 MVP (세트마다 뽑는 대회에서만) */
+  officialMvp: string | null;
   /** 이긴 팀에서 평점이 가장 높은 선수 */
   best: { player: string; side: Side; rating: number } | null;
   timeline: TimelineView | null;
@@ -132,6 +134,7 @@ export function toSetViews(data: MatchSets, match: Match, name: Name): SetView[]
         after: aColor === "blue" ? set.win.after : 1 - set.win.after,
       },
       matchups: set.matchups.map((m) => ({ role: m.role, a: line(m[aColor]), b: line(m[aColor === "blue" ? "red" : "blue"]) })),
+      officialMvp: set.official_mvp ?? null,
       best: set.best ? { player: set.best.player, side: set.best.team_id === a.id ? "a" : "b", rating: set.best.rating } : null,
       timeline,
     };

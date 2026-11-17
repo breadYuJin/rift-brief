@@ -23,6 +23,7 @@ export default function AboutPage() {
   const meta = getMeta();
   const models = getModels();
   const collect = Object.entries(getCollectStatus());
+  const ratingInfo = models?.ratings;
   const usesModel = meta.llm !== "template";
   return (
     <article className="prose">
@@ -116,9 +117,24 @@ export default function AboutPage() {
       <h2>선수 평점</h2>
       <p>
         세트가 끝나면 선수마다 10점 만점 평점을 매깁니다. KDA, 킬 관여율, 데스, 팀 내 피해 비중, 맞상대와의 골드
-        차, 시야 점수를 같은 포지션 선수들과 견줘 계산하고, 이긴 쪽에 조금 더합니다. 평균은 6점 안팎입니다. 팬
-        투표로 매기는 후푸 평점과 달리 기록만으로 계산한 값입니다.
+        차, 시야 점수를 같은 포지션 선수들과 견줘 계산하고, 이긴 쪽에 조금 더합니다. 평균은 6점 안팎입니다.
       </p>
+      <p>
+        평점이 다르다고 생각하면 경기 페이지의 "의견 보내기"로 점수를 보낼 수 있습니다. 한 선수·한 세트에{" "}
+        {ratingInfo?.feedback.min_votes ?? 3}명 이상 모이면 계산한 평점에 의견 평균을 일부 섞습니다. 의견이 아무리
+        많아도 {Math.round((ratingInfo?.feedback.max_share ?? 0.3) * 100)}%까지만 섞고, 평점은{" "}
+        {ratingInfo?.feedback.max_shift ?? 1}점 넘게 움직이지 않습니다. 한 계정의 의견은 한 번만 셉니다.
+        {ratingInfo && ratingInfo.votes > 0 && <> 지금까지 의견 {ratingInfo.votes}건이 반영됐습니다.</>}
+      </p>
+      {ratingInfo?.official.matches ? (
+        <p>
+          LCK의 POM이나 국제 대회의 경기 MVP처럼 주최 측이 뽑은 선수는 평점과 따로 표시합니다. 주최 측 선정 선수가
+          나온 {ratingInfo.official.matches}경기 가운데, 그 선수가 이긴 팀의 평점 1위였던 경기는{" "}
+          {Math.round((ratingInfo.official.top1 ?? 0) * 100)}%, 2위 안이었던 경기는{" "}
+          {Math.round((ratingInfo.official.top2 ?? 0) * 100)}%입니다. 다섯 명 중 아무나 골랐다면 1위와 겹칠 확률은
+          20%입니다.
+        </p>
+      ) : null}
 
       <h2>아직 없는 것</h2>
       <p>

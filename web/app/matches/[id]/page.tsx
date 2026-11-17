@@ -7,8 +7,9 @@ import { TeamLogo } from "@/components/Assets";
 import { Rating } from "@/components/sets/Matchups";
 import { MockPlayer } from "@/components/sets/MockPlayer";
 import { SetExplorer } from "@/components/sets/SetExplorer";
-import { championName, getMatchSets, getPlayers, getResults } from "@/lib/data";
+import { championName, getMatchSets, getModels, getPlayers, getResults } from "@/lib/data";
 import { toMockView, toSetViews } from "@/lib/sets";
+import { REPO_URL } from "@/lib/site";
 import type { PlayerAverage } from "@/lib/types";
 import { formatDay, formatTime } from "@/lib/format";
 import { stageLabel } from "@/lib/select";
@@ -51,6 +52,10 @@ export default async function MatchPage({ params }: Props) {
   const seasonRows = (sets[0]?.matchups ?? [])
     .map((m) => ({ role: m.role, a: seasonA.get(m.a.player), b: seasonB.get(m.b.player) }))
     .filter((r): r is { role: string; a: PlayerAverage; b: PlayerAverage } => Boolean(r.a && r.b));
+  const feedback = getModels()?.ratings?.feedback;
+  // 주최 측이 이 경기에서 뽑은 선수. LCK 는 POM(Player of the Match), 결승은 결승 MVP 라고 부른다.
+  const officialLabel = match.round === "결승" ? "결승 MVP" : match.league === "LCK" ? "POM" : "경기 MVP";
+  const isOfficial = (player: string) => !!match.mvp && match.mvp.toLowerCase() === player.toLowerCase();
   const ROLE_ORDER = ["탑", "정글", "미드", "원딜", "서포터"];
   const ratings = data?.ratings ?? [];
   // 경기 최고 평점은 이긴 팀에서 뽑는다(세트 절반 이상 뛴 선수, 평점 높은 순으로 정렬돼 있다).
@@ -74,6 +79,12 @@ export default async function MatchPage({ params }: Props) {
         <SetStrip match={match} detailed />
         <h1 className="card__headline">{brief.headline}</h1>
         <Badges reasons={brief.reasons} tags={brief.tags} />
+        {match.mvp && (
+          <p className="official">
+            <span className="official__label">주최 측 선정 {officialLabel}</span>
+            <strong>{match.mvp}</strong>
+          </p>
+        )}
         <ul className="summary">
           {brief.summary.map((line, i) => (
             <li key={i}>{line}</li>
@@ -85,8 +96,8 @@ export default async function MatchPage({ params }: Props) {
         <section className="block">
           <h2>선수 평점</h2>
           <p className="block__hint">
-            세트 기록으로 계산한 10점 만점 점수이고, 이 경기 세트들의 평균입니다. 평균은 6점 안팎입니다. 팬 투표로
-            매기는 후푸 평점과는 계산 방식이 다릅니다.
+            세트 기록으로 계산한 10점 만점 점수이고, 이 경기 세트들의 평균입니다. 평균은 6점 안팎입니다. 팬 의견이
+            모이면 일부만 반영합니다. {match.mvp && `"${officialLabel}" 표시는 주최 측이 뽑은 선수로, 이 평점과는 따로 정해집니다.`}
           </p>
           <div className="rates">
             {[match.team_a, match.team_b].map((team, i) => (
@@ -99,11 +110,16 @@ export default async function MatchPage({ params }: Props) {
                   {ratingRows(team.id).map((r) => (
                     <li key={r.player} className="rates__row">
                       <span className="rates__role">{r.role}</span>
-                      <span className="rates__name">{r.player}</span>
+                      <span className="rates__name">
+                        {r.player}
+                        {isOfficial(r.player) && <span className="rate__official">{officialLabel}</span>}
+                      </span>
                       <span className="rates__bar" aria-hidden="true">
                         <span style={{ width: `${r.rating * 10}%` }} />
                       </span>
-                      <Rating value={r.rating} best={top?.player === r.player && top.team_id === r.team_id} />
+                      <span className="rates__score">
+                        <Rating value={r.rating} best={top?.player === r.player && top.team_id === r.team_id} />
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -116,7 +132,7 @@ export default async function MatchPage({ params }: Props) {
       {sets.length > 0 && (
         <section className="block" id="sets">
           <h2>세트별 기록</h2>
-          <SetExplorer sets={sets} />
+          <SetExplorer sets={sets} matchId={match.id} repoUrl={REPO_URL} minVotes={feedback?.min_votes ?? 3} />
         </section>
       )}
 
