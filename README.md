@@ -95,6 +95,26 @@ npm install
 npm run dev                 # http://localhost:3000
 ```
 
+## 코드 규칙과 검사
+
+CI(`.github/workflows/ci.yml`)가 푸시마다 아래를 모두 돌립니다. 올리기 전에 같은 명령으로 확인합니다.
+
+| 대상 | 명령 | 내용 |
+|---|---|---|
+| 파이프라인 | `ruff check .` | 린트 (규칙은 `pyproject.toml`) |
+| | `ruff format .` | 포맷 (한 줄 120자) |
+| | `python -m pytest -q` | 테스트 (네트워크·API 키 없이 돈다) |
+| 사이트 | `npm run check` | 타입 검사, ESLint(Next.js 권장 규칙), Prettier 포맷 검사 |
+| | `npm run format` | Prettier 로 포맷 |
+| | `npm run build` | 정적 빌드 |
+
+작성 원칙
+
+- 데이터 형식은 파이프라인의 `pipeline/schemas.py`·`pipeline/analysis.py` 와 사이트의 `web/lib/types.ts` 가 짝을 이룹니다. 한쪽을 바꾸면 다른 쪽도 바꿉니다.
+- 평점 의견 이슈의 형식은 `web/lib/feedback.ts`(만드는 쪽)와 `pipeline/feedback.py`(읽는 쪽)가 짝입니다.
+- 사이트는 빌드 때 `data/` 를 읽는 정적 사이트입니다. 화면 컴포넌트는 데이터를 바로 쓰지 않고 `web/lib/sets.ts` 같은 변환을 거친 값을 받습니다(진영이 아니라 왼쪽·오른쪽 팀 기준).
+- 주석과 문서는 한국어로, 왜 그렇게 했는지를 적습니다.
+
 ## 배포 설정
 
 1. 저장소 **Settings → Pages → Source**를 **GitHub Actions**로 바꿉니다.
@@ -140,15 +160,23 @@ pipeline/            멀티에이전트 파이프라인
   insights.py        교전, 오브젝트, 골드 흐름, 정글 동선, 선수 맞대결
   highlights.py      킬 장면의 영상 위치 계산
   live.py            실시간 밴픽 추적 뼈대 (수동 피드, GRID 자리)
-  analysis.py        위 모듈을 묶어 사이트용 파일 생성
+  analysis.py        위 모듈을 묶어 사이트용 파일 생성 (입력 → 밴픽 예측 → 승률 → 평점 → 파일)
   archive.py         받아 둔 시즌 기록을 읽는 데이터 소스
   sample.py          키 없이 돌릴 때 쓰는 가상 팀 데이터
   store.py           data/*.json 저장
 tests/               네트워크·키 없이 도는 테스트
 data/                파이프라인 결과 (사이트가 빌드 때 읽음)
 web/                 Next.js 사이트
+  app/               페이지 (홈, 일정, 예정 경기, 팀 전적, 밴픽 예측, 규칙, 용어, 경기 상세)
+  components/        화면 조각. match/(경기 상세), sets/(세트별 기록), draft/(밴픽 예측 페이지)
+  lib/               data.ts(데이터 읽기), types.ts(데이터 형식), sets.ts(세트 화면 변환),
+                     official.ts(주최 측 선정 선수 표기), feedback.ts(평점 의견 주소), format.ts(날짜·비율)
   content/           대회 규칙(tournaments.ts)과 밴픽·용어(terms.ts). 시즌이 바뀌면 여기를 고친다
-.github/workflows/   pipeline(예약 실행), archive(시즌 기록 수집), deploy(Pages), ci(테스트)
+ratings.config.json  평점 가중치와 팬 의견 반영 정도
+awards.json          대회 종료 후 상(파이널 MVP 등). 보도로 확인한 것만 출처와 함께 적는다
+pyproject.toml       파이프라인 코드 규칙(ruff)
+.github/workflows/   pipeline(예약 실행), archive(자료 수집), deploy(Pages), ci(린트·테스트·빌드)
+.github/actions/     워크플로가 함께 쓰는 단계(바뀐 데이터 커밋)
 ```
 
 ## 알아 둘 제약
