@@ -2,54 +2,32 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { Bracket, Match } from "@/lib/types";
+import type { BracketEntry, Match, Team } from "@/lib/types";
 import { TeamLogo } from "./Assets";
-
-export interface BracketEntry {
-  key: string;
-  label: string;
-  bracket: Bracket;
-  matches: Record<number, Match>;
-  briefed: number[];
-}
 
 const NOTE_CLASS: Record<string, string> = { 우승: "win", 준우승: "second", 진출: "pass", 탈락: "out" };
 
-function Row({ id, acr, name, score, won, lost, note }: { id: number; acr: string; name: string; score: number | null; won: boolean; lost: boolean; note: string }) {
+/** 대진표 한 줄: 팀, 이 스테이지에서 정해진 결과(진출·탈락 등), 세트 점수. */
+function Row({ team, match, score, note }: { team: Team; match: Match; score: number; note: string }) {
+  const done = match.winner_id !== null;
+  const won = done && match.winner_id === team.id;
   return (
-    <span className={`bk__row${won ? " is-won" : ""}${lost ? " is-lost" : ""}`}>
-      <abbr className="bk__acr" title={name}>
-        <TeamLogo id={id} size={18} />
-        {acr}
+    <span className={`bk__row${won ? " is-won" : ""}${done && !won ? " is-lost" : ""}`}>
+      <abbr className="bk__acr" title={team.name}>
+        <TeamLogo id={team.id} size={18} />
+        {team.acronym}
       </abbr>
       {note && <span className={`bk__note bk__note--${NOTE_CLASS[note] ?? "pass"}`}>{note}</span>}
-      <span className="bk__score">{score ?? ""}</span>
+      <span className="bk__score">{done ? score : ""}</span>
     </span>
   );
 }
 
 function Slot({ match, noteA, noteB, linked }: { match: Match; noteA: string; noteB: string; linked: boolean }) {
-  const done = match.winner_id !== null;
   const rows = (
     <>
-      <Row
-        id={match.team_a.id}
-        acr={match.team_a.acronym}
-        name={match.team_a.name}
-        score={done ? match.score_a : null}
-        won={done && match.winner_id === match.team_a.id}
-        lost={done && match.winner_id !== match.team_a.id}
-        note={noteA}
-      />
-      <Row
-        id={match.team_b.id}
-        acr={match.team_b.acronym}
-        name={match.team_b.name}
-        score={done ? match.score_b : null}
-        won={done && match.winner_id === match.team_b.id}
-        lost={done && match.winner_id !== match.team_b.id}
-        note={noteB}
-      />
+      <Row team={match.team_a} match={match} score={match.score_a} note={noteA} />
+      <Row team={match.team_b} match={match} score={match.score_b} note={noteB} />
     </>
   );
   return linked ? (
@@ -68,13 +46,24 @@ export function BracketBoard({ entries }: { entries: BracketEntry[] }) {
   if (!current) return <p className="empty">아직 대진표가 있는 대회가 없습니다.</p>;
   const { bracket } = current;
   const briefed = new Set(current.briefed);
-  const teams = new Set(bracket.rounds[0]?.slots.flatMap((s) => [current.matches[s.match_id]?.team_a.id, current.matches[s.match_id]?.team_b.id]));
+  const teams = new Set(
+    bracket.rounds[0]?.slots.flatMap((s) => [
+      current.matches[s.match_id]?.team_a.id,
+      current.matches[s.match_id]?.team_b.id,
+    ]),
+  );
 
   return (
     <div className="bracket">
       <div className="filter" role="group" aria-label="대회 선택">
         {entries.map((e) => (
-          <button key={e.key} type="button" className="filter__chip" aria-pressed={e.key === current.key} onClick={() => setKey(e.key)}>
+          <button
+            key={e.key}
+            type="button"
+            className="filter__chip"
+            aria-pressed={e.key === current.key}
+            onClick={() => setKey(e.key)}
+          >
             {e.label}
           </button>
         ))}

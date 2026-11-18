@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { pct } from "@/lib/format";
 import { ChampIcon } from "./Assets";
 
 export interface PatchView {
@@ -18,8 +19,6 @@ export interface PatchView {
     change: number | null;
   }[];
 }
-
-const pct = (v: number) => `${Math.round(v * 100)}%`;
 
 /** 패치를 골라, 그 패치가 적용된 공식 경기에서 많이 나온 챔피언을 본다. 막대의 진한 부분이 픽, 연한 부분이 밴이다. */
 export function PatchMeta({ patches }: { patches: PatchView[] }) {
@@ -45,7 +44,13 @@ export function PatchMeta({ patches }: { patches: PatchView[] }) {
           </button>
         ))}
       </div>
-      <div className="meta__panel" role="tabpanel" id="meta-panel" aria-labelledby={`meta-tab-${index}`} key={patch.patch}>
+      <div
+        className="meta__panel"
+        role="tabpanel"
+        id="meta-panel"
+        aria-labelledby={`meta-tab-${index}`}
+        key={patch.patch}
+      >
         <p className="meta__basis">
           {patch.period}, 공식 경기 {patch.sets}세트 기준. 밴픽률은 그 챔피언이 선택되거나 금지된 세트의 비율입니다.
         </p>
@@ -81,7 +86,9 @@ export function PatchMeta({ patches }: { patches: PatchView[] }) {
                     <span>표본 적음</span>
                   )}
                 </span>
-                <span className={`meta__change${c.change === null ? "" : c.change >= 0.1 ? " is-up" : c.change <= -0.1 ? " is-down" : ""}`}>
+                <span
+                  className={`meta__change${c.change === null ? "" : c.change >= 0.1 ? " is-up" : c.change <= -0.1 ? " is-down" : ""}`}
+                >
                   {c.change === null ? "" : `${c.change > 0 ? "+" : ""}${Math.round(c.change * 100)}%p`}
                 </span>
               </li>

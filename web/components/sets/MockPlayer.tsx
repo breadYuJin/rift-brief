@@ -65,7 +65,8 @@ export function MockPlayer({ mock }: { mock: MockView }) {
       {last && (
         <p className="mock__last" aria-live="polite">
           <strong>
-            {(last.side === mock.firstSide ? mock.first : mock.second).acronym} {last.kind === "ban" ? "금지" : "선택"}: {last.champion}
+            {(last.side === mock.firstSide ? mock.first : mock.second).acronym} {last.kind === "ban" ? "금지" : "선택"}:{" "}
+            {last.champion}
           </strong>
           {last.reason && <span> ({last.reason})</span>}
         </p>

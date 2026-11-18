@@ -1,16 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode } from "react";
-
-/** 팀 로고와 챔피언 아이콘 주소. 빌드 때 data/ 에서 읽어 레이아웃이 한 번 내려 준다. */
-export interface Assets {
-  /** 팀 ID → 로고 주소 */
-  logos: Record<string, string>;
-  /** 챔피언 아이콘 주소 앞부분. 뒤에 `<id>.png` 를 붙인다. */
-  iconBase: string;
-  /** 챔피언 이름(한국어·영어) → 아이콘 파일 이름 */
-  champs: Record<string, string>;
-}
+import type { Assets } from "@/lib/types";
 
 const Ctx = createContext<Assets>({ logos: {}, iconBase: "", champs: {} });
 
@@ -46,5 +37,7 @@ export function TeamLogo({ id, size = 20, className = "" }: { id: number; size?:
 export function ChampIcon({ name, size = 24, className = "" }: { name: string; size?: number; className?: string }) {
   const { iconBase, champs } = useContext(Ctx);
   const file = champs[name];
-  return iconBase && file ? <Picture src={`${iconBase}${file}.png`} size={size} className={`champ ${className}`} /> : null;
+  return iconBase && file ? (
+    <Picture src={`${iconBase}${file}.png`} size={size} className={`champ ${className}`} />
+  ) : null;
 }

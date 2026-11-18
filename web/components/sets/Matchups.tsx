@@ -1,4 +1,5 @@
 import { ChampIcon } from "@/components/Assets";
+import { samePlayer } from "@/lib/format";
 import type { SetView } from "@/lib/sets";
 import type { PlayerSetLine } from "@/lib/types";
 
@@ -31,7 +32,9 @@ export function Rating({
     <>
       <span
         className={`rate rate--${tier}${best ? " rate--best" : ""}`}
-        title={votes > 0 && base != null ? `기록으로 계산한 점수 ${base.toFixed(1)}, 팬 의견 ${votes}명 반영` : undefined}
+        title={
+          votes > 0 && base != null ? `기록으로 계산한 점수 ${base.toFixed(1)}, 팬 의견 ${votes}명 반영` : undefined
+        }
       >
         <span className="sr-only">평점 </span>
         {value.toFixed(1)}
@@ -67,7 +70,13 @@ function Line({
         <ChampIcon name={p.champion} size={26} />
         <strong>{p.player}</strong>
         <span>{p.champion}</span>
-        <Rating value={p.rating} best={best} votes={p.votes} base={p.rating_base} official={official ? "세트 MVP" : ""} />
+        <Rating
+          value={p.rating}
+          best={best}
+          votes={p.votes}
+          base={p.rating_base}
+          official={official ? "세트 MVP" : ""}
+        />
       </p>
       <p className="mu__stats">
         <Stat label="KDA" value={p.kda.join("/")} more={kda(p) > kda(other)} />
@@ -77,8 +86,6 @@ function Line({
     </div>
   );
 }
-
-const same = (official: string | null, player: string) => !!official && official.toLowerCase() === player.toLowerCase();
 
 /** 같은 포지션 두 선수의 세트 기록을 마주 놓는다. 더 높은 쪽 숫자가 밝게 보인다. */
 export function Matchups({ set }: { set: SetView }) {
@@ -91,7 +98,7 @@ export function Matchups({ set }: { set: SetView }) {
             other={m.b}
             side="a"
             best={set.best?.side === "a" && set.best.player === m.a.player}
-            official={same(set.officialMvp, m.a.player)}
+            official={samePlayer(set.officialMvp, m.a.player)}
           />
           <span className="mu__role">{m.role}</span>
           <Line
@@ -99,7 +106,7 @@ export function Matchups({ set }: { set: SetView }) {
             other={m.a}
             side="b"
             best={set.best?.side === "b" && set.best.player === m.b.player}
-            official={same(set.officialMvp, m.b.player)}
+            official={samePlayer(set.officialMvp, m.b.player)}
           />
         </li>
       ))}

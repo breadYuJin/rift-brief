@@ -6,9 +6,7 @@ const hrefOf = (slug: string) => (slug === "lck" ? "/rules/" : `/rules/${slug}/`
 function SwissLadder() {
   return (
     <figure className="swiss">
-      <figcaption>
-        라운드마다 승패가 같은 팀끼리 맞붙습니다. 칸은 그 라운드를 시작할 때의 전적입니다.
-      </figcaption>
+      <figcaption>라운드마다 승패가 같은 팀끼리 맞붙습니다. 칸은 그 라운드를 시작할 때의 전적입니다.</figcaption>
       <ol className="swiss__rounds">
         {SWISS_ROUNDS.map((r) => (
           <li key={r.round} className="swiss__round">
@@ -48,7 +46,12 @@ export function TournamentView({ tournament: t }: { tournament: Tournament }) {
 
       <nav className="tabs" aria-label="대회 선택">
         {TOURNAMENTS.map((x) => (
-          <Link key={x.slug} href={hrefOf(x.slug)} className="tabs__tab" aria-current={x.slug === t.slug ? "page" : undefined}>
+          <Link
+            key={x.slug}
+            href={hrefOf(x.slug)}
+            className="tabs__tab"
+            aria-current={x.slug === t.slug ? "page" : undefined}
+          >
             {x.tab}
           </Link>
         ))}

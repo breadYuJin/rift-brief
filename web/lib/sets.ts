@@ -112,7 +112,12 @@ export function toSetViews(data: MatchSets, match: Match, name: Name): SetView[]
               b: aColor === "blue" ? s.fight_count.red : s.fight_count.blue,
             },
             objectives: (s.objectives ?? []).map((o) => ({ t: o.t, name: o.name, side: side(o.side) })),
-            kills: (s.kills ?? []).map(([t, blueScored, x, y]) => ({ t, side: side(blueScored ? "blue" : "red"), x, y })),
+            kills: (s.kills ?? []).map(([t, blueScored, x, y]) => ({
+              t,
+              side: side(blueScored ? "blue" : "red"),
+              x,
+              y,
+            })),
             jungle: {
               a: (aColor === "blue" ? s.jungle?.blue : s.jungle?.red) ?? [],
               b: (aColor === "blue" ? s.jungle?.red : s.jungle?.blue) ?? [],
@@ -133,9 +138,15 @@ export function toSetViews(data: MatchSets, match: Match, name: Name): SetView[]
         before: aColor === "blue" ? set.win.before : 1 - set.win.before,
         after: aColor === "blue" ? set.win.after : 1 - set.win.after,
       },
-      matchups: set.matchups.map((m) => ({ role: m.role, a: line(m[aColor]), b: line(m[aColor === "blue" ? "red" : "blue"]) })),
+      matchups: set.matchups.map((m) => ({
+        role: m.role,
+        a: line(m[aColor]),
+        b: line(m[aColor === "blue" ? "red" : "blue"]),
+      })),
       officialMvp: set.official_mvp ?? null,
-      best: set.best ? { player: set.best.player, side: set.best.team_id === a.id ? "a" : "b", rating: set.best.rating } : null,
+      best: set.best
+        ? { player: set.best.player, side: set.best.team_id === a.id ? "a" : "b", rating: set.best.rating }
+        : null,
       timeline,
     };
   });
@@ -159,6 +170,8 @@ export function toMockView(mock: MockDraft, a: Team, b: Team, name: Name): MockV
   };
 }
 
+/** 포지션 순서 */
+export const ROLES = ["탑", "정글", "미드", "원딜", "서포터"];
+
 /** 초를 "12:34" 로 */
 export const clock = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, "0")}`;
-export const pct = (p: number) => `${Math.round(p * 100)}%`;

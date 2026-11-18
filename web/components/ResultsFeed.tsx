@@ -1,29 +1,43 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import type { Brief } from "@/lib/types";
 import { ResultCard } from "./MatchCard";
 
 const STORAGE_KEY = "rift-brief:team";
+const CHANGE_EVENT = "rift-brief:team-change";
+
+// 고른 팀은 이 브라우저의 localStorage 에만 둔다. 막혀 있는 환경(사생활 보호 모드 등)에서는 기억하지 않는다.
+function readTeam(): string {
+  try {
+    return window.localStorage.getItem(STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+function writeTeam(team: string) {
+  try {
+    if (team) window.localStorage.setItem(STORAGE_KEY, team);
+    else window.localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // 저장하지 못해도 이번 화면에서는 고른 팀으로 보여 준다.
+  }
+  window.dispatchEvent(new Event(CHANGE_EVENT));
+}
+
+function subscribe(onChange: () => void) {
+  window.addEventListener("storage", onChange);
+  window.addEventListener(CHANGE_EVENT, onChange);
+  return () => {
+    window.removeEventListener("storage", onChange);
+    window.removeEventListener(CHANGE_EVENT, onChange);
+  };
+}
 
 /** 최근 결과 카드 목록과 팀 필터. 고른 팀은 이 브라우저에만 기억한다. */
 export function ResultsFeed({ briefs }: { briefs: Brief[] }) {
-  const [team, setTeam] = useState<string>("");
-
-  useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved) setTeam(saved);
-    } catch {}
-  }, []);
-
-  const choose = (next: string) => {
-    setTeam(next);
-    try {
-      if (next) window.localStorage.setItem(STORAGE_KEY, next);
-      else window.localStorage.removeItem(STORAGE_KEY);
-    } catch {}
-  };
+  const team = useSyncExternalStore(subscribe, readTeam, () => "");
 
   const teams = useMemo(() => {
     const count = new Map<string, number>();
@@ -45,11 +59,17 @@ export function ResultsFeed({ briefs }: { briefs: Brief[] }) {
   return (
     <>
       <div className="filter" role="group" aria-label="팀으로 걸러 보기">
-        <button type="button" className="filter__chip" aria-pressed={active === ""} onClick={() => choose("")}>
+        <button type="button" className="filter__chip" aria-pressed={active === ""} onClick={() => writeTeam("")}>
           전체
         </button>
         {teams.map((t) => (
-          <button key={t} type="button" className="filter__chip" aria-pressed={active === t} onClick={() => choose(t)}>
+          <button
+            key={t}
+            type="button"
+            className="filter__chip"
+            aria-pressed={active === t}
+            onClick={() => writeTeam(t)}
+          >
             {t}
           </button>
         ))}

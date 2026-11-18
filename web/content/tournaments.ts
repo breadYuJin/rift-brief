@@ -58,13 +58,15 @@ export const TOURNAMENTS: Tournament[] = [
         name: "정규 시즌 1~2라운드",
         teams: "10개 팀",
         format: "모든 팀이 서로 두 번씩 만나는 풀리그",
-        outcome: "상위 5개 팀은 레전드 그룹, 하위 5개 팀은 라이즈 그룹에 들어갑니다. 상위 6개 팀은 MSI 대표 선발전에 나갑니다.",
+        outcome:
+          "상위 5개 팀은 레전드 그룹, 하위 5개 팀은 라이즈 그룹에 들어갑니다. 상위 6개 팀은 MSI 대표 선발전에 나갑니다.",
       },
       {
         name: "정규 시즌 3~4라운드",
         teams: "레전드 그룹 5팀, 라이즈 그룹 5팀",
         format: "같은 그룹끼리만 맞붙는 풀리그",
-        outcome: "레전드 1~4위는 플레이오프 직행, 레전드 5위와 라이즈 1~3위는 플레이-인, 라이즈 4·5위는 시즌 종료입니다.",
+        outcome:
+          "레전드 1~4위는 플레이오프 직행, 레전드 5위와 라이즈 1~3위는 플레이-인, 라이즈 4·5위는 시즌 종료입니다.",
       },
       {
         name: "플레이-인",
@@ -99,9 +101,15 @@ export const TOURNAMENTS: Tournament[] = [
       },
     ],
     sources: [
-      { title: "LoL Esports, 2026 LCK 진행 방식 안내", url: "https://lolesports.com/ko-KR/news/2026-lck-format-explainer" },
+      {
+        title: "LoL Esports, 2026 LCK 진행 방식 안내",
+        url: "https://lolesports.com/ko-KR/news/2026-lck-format-explainer",
+      },
       { title: "한국경제, 2026년 LCK 운영 방안 공개", url: "https://www.hankyung.com/article/202511067533i" },
-      { title: "LoL Esports, 2025 LCK 규정집 개정 안내", url: "https://lolesports.com/ko-KR/news/2025-lck-rule-book-update" },
+      {
+        title: "LoL Esports, 2025 LCK 규정집 개정 안내",
+        url: "https://lolesports.com/ko-KR/news/2025-lck-rule-book-update",
+      },
     ],
   },
   {
@@ -146,8 +154,14 @@ export const TOURNAMENTS: Tournament[] = [
       },
     ],
     sources: [
-      { title: "LoL Esports, 2026 MSI 대회 개요", url: "https://lolesports.com/ko-KR/tournament/115570934354631452/overview" },
-      { title: "LoL Esports, MSI와 월드 챔피언십 진행 방식 안내", url: "https://lolesports.com/ko-KR/news/msi-and-worlds-updates" },
+      {
+        title: "LoL Esports, 2026 MSI 대회 개요",
+        url: "https://lolesports.com/ko-KR/tournament/115570934354631452/overview",
+      },
+      {
+        title: "LoL Esports, MSI와 월드 챔피언십 진행 방식 안내",
+        url: "https://lolesports.com/ko-KR/news/msi-and-worlds-updates",
+      },
     ],
   },
   {
@@ -194,8 +208,14 @@ export const TOURNAMENTS: Tournament[] = [
       },
     ],
     sources: [
-      { title: "LoL Esports, MSI와 월드 챔피언십 진행 방식 안내", url: "https://lolesports.com/ko-KR/news/msi-and-worlds-updates" },
-      { title: "한국경제, 2025 월드 챔피언십 스위스 스테이지 안내", url: "https://www.hankyung.com/article/202510176055i" },
+      {
+        title: "LoL Esports, MSI와 월드 챔피언십 진행 방식 안내",
+        url: "https://lolesports.com/ko-KR/news/msi-and-worlds-updates",
+      },
+      {
+        title: "한국경제, 2025 월드 챔피언십 스위스 스테이지 안내",
+        url: "https://www.hankyung.com/article/202510176055i",
+      },
     ],
   },
   {
@@ -230,7 +250,10 @@ export const TOURNAMENTS: Tournament[] = [
       },
     ],
     sources: [
-      { title: "한국경제, 2025 월드 챔피언십 스위스 스테이지 안내", url: "https://www.hankyung.com/article/202510148560i" },
+      {
+        title: "한국경제, 2025 월드 챔피언십 스위스 스테이지 안내",
+        url: "https://www.hankyung.com/article/202510148560i",
+      },
       { title: "엑스포츠뉴스, 스위스 스테이지 1라운드 대진", url: "https://www.xportsnews.com/article/2064863" },
       { title: "쿠키뉴스, 스위스 스테이지 진행 방식", url: "https://www.kukinews.com/article/view/kuk202410020129" },
     ],

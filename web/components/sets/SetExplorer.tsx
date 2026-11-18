@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ratingFeedbackListUrl, ratingFeedbackUrl } from "@/lib/feedback";
 import { clock, type SetView } from "@/lib/sets";
 import { DraftBoard } from "./DraftBoard";
 import { FightList } from "./FightList";
@@ -27,22 +28,7 @@ export function SetExplorer({
   const [index, setIndex] = useState(0);
   const set = sets[index];
   const t = set.timeline;
-  // 의견 보내기: 이 세트의 선수 이름이 미리 적힌 GitHub 이슈 작성 화면을 연다. 점수만 채워 제출하면 된다.
-  const names = set.matchups.flatMap((m) => [m.a.player, m.b.player]);
-  const body = [
-    `경기: ${matchId}`,
-    `세트: ${set.number}`,
-    "",
-    "의견이 있는 선수만 이름 옆에 1~10 사이 점수를 적어 주세요. 비워 둔 줄은 반영되지 않습니다.",
-    "",
-    ...names.map((n) => `${n}: `),
-  ].join("\n");
-  const feedbackUrl =
-    repoUrl && names.length > 0
-      ? `${repoUrl}/issues/new?title=${encodeURIComponent(
-          `[평점] ${set.a.team.acronym} 대 ${set.b.team.acronym} ${set.number}세트`,
-        )}&body=${encodeURIComponent(body)}`
-      : "";
+  const feedbackUrl = ratingFeedbackUrl(repoUrl, matchId, set);
   return (
     <div className="set">
       <div className="set__tabs" role="tablist" aria-label="세트 선택">
@@ -68,7 +54,13 @@ export function SetExplorer({
         })}
       </div>
 
-      <div className="set__panel" role="tabpanel" id="set-panel" aria-labelledby={`set-tab-${set.number}`} key={set.number}>
+      <div
+        className="set__panel"
+        role="tabpanel"
+        id="set-panel"
+        aria-labelledby={`set-tab-${set.number}`}
+        key={set.number}
+      >
         <section className="set__part set__part--wide">
           <h3>밴픽</h3>
           <DraftBoard set={set} />
@@ -110,7 +102,9 @@ export function SetExplorer({
             </section>
           </>
         ) : (
-          <p className="set__note set__part--wide">이 세트의 분 단위 기록(교전, 동선, 골드 흐름)은 아직 받지 못했습니다.</p>
+          <p className="set__note set__part--wide">
+            이 세트의 분 단위 기록(교전, 동선, 골드 흐름)은 아직 받지 못했습니다.
+          </p>
         )}
 
         <section className="set__part set__part--wide">
@@ -133,7 +127,7 @@ export function SetExplorer({
               </a>
               . 보는 것은 누구나 할 수 있고, 의견을 남길 때만 GitHub 로그인이 필요합니다. 한 선수에 {minVotes}명 이상
               모이면 평점에 일부 반영됩니다.{" "}
-              <a href={`${repoUrl}/issues?q=${encodeURIComponent("is:issue [평점] in:title")}`} target="_blank" rel="noopener noreferrer">
+              <a href={ratingFeedbackListUrl(repoUrl)} target="_blank" rel="noopener noreferrer">
                 지금까지 온 의견 보기
               </a>
             </p>

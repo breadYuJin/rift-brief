@@ -6,7 +6,7 @@ import { ResultsFeed } from "@/components/ResultsFeed";
 import { Scoreboard } from "@/components/Scoreboard";
 import { Standings } from "@/components/Standings";
 import { getLeagues, getPreviews, getResults } from "@/lib/data";
-import { formatDay, groupByDay } from "@/lib/format";
+import { groupByDay } from "@/lib/format";
 import { bracketEntries, liveMatches, nextMatches, pickFeatured, stageLabel } from "@/lib/select";
 import { SITE_TAGLINE } from "@/lib/site";
 import type { League } from "@/lib/types";

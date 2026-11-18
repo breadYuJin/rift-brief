@@ -1,4 +1,5 @@
-import { pct, type SetView } from "@/lib/sets";
+import { pct } from "@/lib/format";
+import { type SetView } from "@/lib/sets";
 
 function Row({ label, p }: { label: string; p: number }) {
   return (

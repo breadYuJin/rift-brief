@@ -14,8 +14,12 @@ function Ground() {
       <path d="M8,92 L91,92 L92,8" className="rift__lane" />
       <circle cx="8" cy="92" r="4" className="rift__base" />
       <circle cx="92" cy="8" r="4" className="rift__base" />
-      <text x="33" y="27" className="rift__label">바론</text>
-      <text x="66" y="78" className="rift__label">드래곤</text>
+      <text x="33" y="27" className="rift__label">
+        바론
+      </text>
+      <text x="66" y="78" className="rift__label">
+        드래곤
+      </text>
     </>
   );
 }
@@ -24,7 +28,11 @@ function Ground() {
 export function KillMap({ set, timeline }: { set: SetView; timeline: TimelineView }) {
   return (
     <figure className="rift">
-      <svg viewBox="0 0 100 100" role="img" aria-label={`킬 위치 지도. ${set.a.team.acronym} ${set.a.stats.kills}킬, ${set.b.team.acronym} ${set.b.stats.kills}킬.`}>
+      <svg
+        viewBox="0 0 100 100"
+        role="img"
+        aria-label={`킬 위치 지도. ${set.a.team.acronym} ${set.a.stats.kills}킬, ${set.b.team.acronym} ${set.b.stats.kills}킬.`}
+      >
         <Ground />
         {timeline.kills.map((k, i) => (
           <circle key={i} cx={px(k.x)} cy={py(k.y)} r="1.9" className={`rift__kill rift__kill--${k.side}`} />

@@ -1146,6 +1146,7 @@ a.fx__teams:hover {
 .fx__team--a {
   text-align: right;
   color: var(--side-a);
+  justify-content: flex-end;
 }
 
 .fx__team--b {
@@ -1393,10 +1394,6 @@ a.fx__teams:hover {
 }
 
 /* ---- 예정 경기 ---- */
-
-.day + .day {
-  margin-top: 2rem;
-}
 
 .previews {
   display: grid;
@@ -2079,6 +2076,10 @@ a.fx__teams:hover {
 
 .pb__champ {
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
 .pb__bans {
@@ -2095,8 +2096,9 @@ a.fx__teams:hover {
   padding: 0.05rem 0.45rem;
   border: 1px solid var(--line);
   border-radius: 999px;
-  text-decoration: line-through;
-  text-decoration-color: var(--live);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .pb--mock .pb__picks {
@@ -2466,7 +2468,7 @@ a.fx__teams:hover {
 .mu__who {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: 0 0.5rem;
 }
 
@@ -2539,6 +2541,9 @@ a.fx__teams:hover {
   border-radius: 999px;
   border: 1px solid var(--line);
   color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .fc__chip.is-seen {
@@ -2877,6 +2882,7 @@ a.fx__teams:hover {
   gap: 0.45rem;
   color: var(--muted);
   white-space: nowrap;
+  align-items: center;
 }
 
 .series__score {
@@ -3029,34 +3035,12 @@ a.fx__teams:hover {
   gap: 0.35rem;
 }
 
-.fx__team--a {
-  justify-content: flex-end;
-}
-
 .table__team .logo {
   margin-right: 0.45rem;
 }
 
-.series__teams {
-  align-items: center;
-}
-
 .pb__head .logo {
   align-self: center;
-}
-
-.pb__champ {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.pb__bans li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  text-decoration: none;
 }
 
 .pb__bans li span {
@@ -3074,22 +3058,12 @@ a.fx__teams:hover {
   padding-left: 0.15rem;
 }
 
-.fc__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
 .fc__chip .champ {
   border-radius: 50%;
 }
 
 .fc__chip:has(.champ) {
   padding-left: 0.2rem;
-}
-
-.mu__who {
-  align-items: center;
 }
 
 /* ---- 평점 ---- */
@@ -3147,7 +3121,7 @@ a.fx__teams:hover {
 
 .rates__row {
   display: grid;
-  grid-template-columns: 3.2rem minmax(4.5rem, auto) minmax(0, 1fr) auto;
+  grid-template-columns: 3.2rem 9.5rem minmax(0, 1fr) 5rem;
   align-items: center;
   gap: 0.6rem;
   padding: 0.3rem 0;
@@ -3161,6 +3135,11 @@ a.fx__teams:hover {
 
 .rates__name {
   font-weight: 600;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.4rem;
+  min-width: 0;
 }
 
 .rates__bar {
@@ -3416,17 +3395,6 @@ a.fx__teams:hover {
 }
 
 /* 막대 길이를 줄끼리 견줄 수 있게 칸 너비를 고정한다. */
-.rates__row {
-  grid-template-columns: 3.2rem 9.5rem minmax(0, 1fr) 5rem;
-}
-
-.rates__name {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.15rem 0.4rem;
-  min-width: 0;
-}
 
 .rates__score {
   display: flex;

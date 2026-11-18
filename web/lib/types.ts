@@ -89,6 +89,15 @@ export interface BracketSlot {
   note_b: string;
 }
 
+/** 홈 화면 대진표 한 칸: 대진표와 거기에 나오는 경기들. */
+export interface BracketEntry {
+  key: string;
+  label: string;
+  bracket: Bracket;
+  matches: Record<number, Match>;
+  briefed: number[];
+}
+
 export interface Bracket {
   stage: string;
   tree: boolean;
@@ -250,16 +259,21 @@ export interface MatchSets {
   ratings?: SeriesRating[];
 }
 
+/** 밴픽 예측 적중률. 실제 픽(밴) 가운데 예상 상위 5·10개 안에 있던 비율. */
 export interface DraftScores {
   sets: number;
-  pick_appear_5?: number;
-  ban_appear_5?: number;
-  pick_hits_10?: number;
-  ban_hits_10?: number;
   pick_recall_5: number;
   pick_recall_10: number;
   ban_recall_5: number;
   ban_recall_10: number;
+}
+
+/** 검증 구간의 적중률. 한 팀 기준 평균 적중 수와, 예상이 어느 쪽이든 밴픽에 등장한 비율이 더 있다. */
+export interface HoldoutScores extends DraftScores {
+  pick_appear_5: number;
+  ban_appear_5: number;
+  pick_hits_10: number;
+  ban_hits_10: number;
 }
 
 export interface WinScores {
@@ -272,9 +286,9 @@ export interface WinScores {
 export interface Models {
   draft: {
     train_share: number;
-    holdout: DraftScores;
-    holdout_set1: DraftScores;
-    holdout_later_sets: DraftScores;
+    holdout: HoldoutScores;
+    holdout_set1: HoldoutScores;
+    holdout_later_sets: HoldoutScores;
     baseline_meta_only: DraftScores;
     rank_hit: { ban: number[]; pick: number[] };
   };
@@ -283,7 +297,14 @@ export interface Models {
     coef: number[];
     features: string[];
   };
-  counts: { sets: number; drafted: number; timelines: number; timelines_verified: number; series: number; clip_sets?: number };
+  counts: {
+    sets: number;
+    drafted: number;
+    timelines: number;
+    timelines_verified: number;
+    series: number;
+    clip_sets?: number;
+  };
   clips?: boolean;
   ratings?: {
     /** 주최 측 선정 선수가 이긴 팀 평점 순위에서 몇 번째였는지 */
@@ -339,5 +360,50 @@ export interface PlayerAverage {
 
 export interface ChampionTable {
   version: string;
+  icon_base?: string;
   champions: Record<string, { id: string; en: string; ko: string }>;
+}
+
+// ---- 수집 현황, 패치별 메타, 대회 종료 후 상, 그림 주소 ----
+
+export interface CollectEntry {
+  what: string;
+  needs: string;
+  state: "수집됨" | "키 없음" | "준비 중" | "실패";
+  note: string;
+  at?: string;
+}
+
+export interface PatchMeta {
+  patch: string;
+  sets: number;
+  from: string;
+  to: string;
+  leagues: string[];
+  champions: {
+    champion: string;
+    picks: number;
+    bans: number;
+    presence: number;
+    win_rate: number | null;
+    role: string;
+    change: number | null;
+  }[];
+}
+
+/** 대회가 끝난 뒤 따로 발표되는 상(파이널 MVP 등). 보도로 확인한 것만 들어 있다. */
+export interface Award {
+  award: string;
+  player: string;
+  source: string;
+}
+
+/** 팀 로고와 챔피언 아이콘 주소. 빌드 때 data/ 에서 읽어 레이아웃이 한 번 내려 준다. */
+export interface Assets {
+  /** 팀 ID → 로고 주소 */
+  logos: Record<string, string>;
+  /** 챔피언 아이콘 주소 앞부분. 뒤에 `<id>.png` 를 붙인다. */
+  iconBase: string;
+  /** 챔피언 이름(한국어·영어) → 아이콘 파일 이름 */
+  champs: Record<string, string>;
 }

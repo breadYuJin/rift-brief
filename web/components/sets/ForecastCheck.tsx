@@ -1,5 +1,6 @@
 import { ChampIcon } from "@/components/Assets";
-import { pct, type SetView, type TeamSetView } from "@/lib/sets";
+import { pct } from "@/lib/format";
+import { type SetView, type TeamSetView } from "@/lib/sets";
 import type { ForecastRow } from "@/lib/types";
 
 function Chips({ rows, side }: { rows: ForecastRow[]; side: "a" | "b" }) {
@@ -35,11 +36,17 @@ function Team({ view, side }: { view: TeamSetView; side: "a" | "b" }) {
     <div className="fc__team">
       <p className="fc__name">{view.team.acronym}</p>
       <p className="fc__kind">
-        픽 예상 <strong>{view.picks.length}개 중 {f.pick_hits ?? 0}개 적중</strong>
+        픽 예상{" "}
+        <strong>
+          {view.picks.length}개 중 {f.pick_hits ?? 0}개 적중
+        </strong>
       </p>
       <Chips rows={f.picks} side={side} />
       <p className="fc__kind">
-        밴 예상 <strong>{view.bans.length}개 중 {f.ban_hits ?? 0}개 적중</strong>
+        밴 예상{" "}
+        <strong>
+          {view.bans.length}개 중 {f.ban_hits ?? 0}개 적중
+        </strong>
       </p>
       <Chips rows={f.bans} side={side} />
     </div>

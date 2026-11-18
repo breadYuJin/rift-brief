@@ -1,18 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { OfficialPicks } from "@/components/match/OfficialPicks";
+import { RatingBoard } from "@/components/match/RatingBoard";
+import { SeasonTable, type SeasonRow } from "@/components/match/SeasonTable";
 import { Badges } from "@/components/MatchCard";
 import { Scoreboard } from "@/components/Scoreboard";
 import { SetStrip } from "@/components/SetStrip";
-import { TeamLogo } from "@/components/Assets";
-import { Rating } from "@/components/sets/Matchups";
 import { MockPlayer } from "@/components/sets/MockPlayer";
 import { SetExplorer } from "@/components/sets/SetExplorer";
 import { championName, getAwards, getMatchSets, getModels, getPlayers, getResults } from "@/lib/data";
-import { toMockView, toSetViews } from "@/lib/sets";
-import { REPO_URL } from "@/lib/site";
-import type { PlayerAverage } from "@/lib/types";
 import { formatDay, formatTime } from "@/lib/format";
+import { officialPicks } from "@/lib/official";
 import { stageLabel } from "@/lib/select";
+import { toMockView, toSetViews, type SetView } from "@/lib/sets";
+import { REPO_URL } from "@/lib/site";
+import type { Team } from "@/lib/types";
 
 export const dynamicParams = false;
 
@@ -31,6 +33,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return brief ? { title: brief.headline, description: brief.summary.join(" ") } : { title: "경기를 찾을 수 없음" };
 }
 
+/** 이 경기에 실제로 나온 선수끼리(1세트 출전 기준) 시즌 평균을 맞세운다. 둘 다 시즌 기록이 있는 포지션만. */
+function seasonRows(teams: [Team, Team], firstSet: SetView | undefined): SeasonRow[] {
+  const players = getPlayers();
+  const byName = (team: Team) => new Map((players[String(team.id)] ?? []).map((p) => [p.player, p]));
+  const [seasonA, seasonB] = teams.map(byName);
+  return (firstSet?.matchups ?? []).flatMap((m) => {
+    const a = seasonA.get(m.a.player);
+    const b = seasonB.get(m.b.player);
+    return a && b ? [{ role: m.role, a, b }] : [];
+  });
+}
+
 export default async function MatchPage({ params }: Props) {
   const brief = find((await params).id);
   if (!brief) {
@@ -41,40 +55,15 @@ export default async function MatchPage({ params }: Props) {
     );
   }
   const { match } = brief;
+  const teams: [Team, Team] = [match.team_a, match.team_b];
   const data = getMatchSets(match.id);
   const sets = data ? toSetViews(data, match, championName) : [];
   const mock = data?.mock ? toMockView(data.mock, match.team_a, match.team_b, championName) : null;
-  const players = getPlayers();
-  const season = (teamId: number) => new Map((players[String(teamId)] ?? []).map((p) => [p.player, p]));
-  const seasonA = season(match.team_a.id);
-  const seasonB = season(match.team_b.id);
-  // 이 경기에 실제로 나온 선수끼리 시즌 평균을 맞세운다.
-  const seasonRows = (sets[0]?.matchups ?? [])
-    .map((m) => ({ role: m.role, a: seasonA.get(m.a.player), b: seasonB.get(m.b.player) }))
-    .filter((r): r is { role: string; a: PlayerAverage; b: PlayerAverage } => Boolean(r.a && r.b));
-  const feedback = getModels()?.ratings?.feedback;
-  // 주최 측이 이 경기에서 뽑은 선수(경기 기록). 이름이 확인된 경우에만 그 이름으로 부른다:
-  // LCK 정규 시즌은 POM, 국제 대회의 결승이 아닌 경기는 경기 MVP. 그 밖에는 "선정 선수"라고만 한다.
-  // 결승 뒤에 따로 발표되는 파이널 MVP 는 다른 상이므로 여기서 미루어 붙이지 않고 award 로 따로 받는다.
-  const isFinal = match.round === "결승";
-  const officialLabel =
-    match.league === "LCK" && match.tournament?.startsWith("정규 시즌")
-      ? "POM"
-      : match.league !== "LCK" && !isFinal
-        ? "경기 MVP"
-        : "선정 선수";
-  const officialTag = officialLabel === "선정 선수" ? "주최 측 선정" : officialLabel;
-  const award = getAwards()[String(match.id)] ?? null;
-  const same = (x: string | null | undefined, player: string) => !!x && x.toLowerCase() === player.toLowerCase();
-  const isOfficial = (player: string) => same(match.mvp, player);
-  const ROLE_ORDER = ["탑", "정글", "미드", "원딜", "서포터"];
   const ratings = data?.ratings ?? [];
-  // 경기 최고 평점은 이긴 팀에서 뽑는다(세트 절반 이상 뛴 선수, 평점 높은 순으로 정렬돼 있다).
-  const top = ratings.find((r) => r.team_id === match.winner_id) ?? null;
-  const ratingRows = (teamId: number) =>
-    ratings
-      .filter((r) => r.team_id === teamId)
-      .sort((x, y) => ROLE_ORDER.indexOf(x.role) - ROLE_ORDER.indexOf(y.role));
+  const season = seasonRows(teams, sets[0]);
+  const picks = officialPicks(match, getAwards()[String(match.id)] ?? null);
+  const minVotes = getModels()?.ratings?.feedback.min_votes ?? 3;
+
   return (
     <article className="detail">
       <div className="card card--lead">
@@ -90,35 +79,7 @@ export default async function MatchPage({ params }: Props) {
         <SetStrip match={match} detailed />
         <h1 className="card__headline">{brief.headline}</h1>
         <Badges reasons={brief.reasons} tags={brief.tags} />
-        {(match.mvp || award) && (
-          <dl className="official">
-            {award && (
-              <div>
-                <dt>대회 종료 후 선정된 {award.award}</dt>
-                <dd>
-                  <strong>{award.player}</strong>
-                  <a href={award.source} target="_blank" rel="noopener noreferrer">
-                    출처
-                  </a>
-                </dd>
-              </div>
-            )}
-            {match.mvp && (
-              <div>
-                <dt>
-                  {isFinal
-                    ? "이 경기 기록에 적힌 주최 측 선정 선수"
-                    : officialLabel === "선정 선수"
-                      ? "주최 측 선정 선수"
-                      : `주최 측 선정 ${officialLabel}`}
-                </dt>
-                <dd>
-                  <strong>{match.mvp}</strong>
-                </dd>
-              </div>
-            )}
-          </dl>
-        )}
+        <OfficialPicks picks={picks} />
         <ul className="summary">
           {brief.summary.map((line, i) => (
             <li key={i}>{line}</li>
@@ -131,93 +92,28 @@ export default async function MatchPage({ params }: Props) {
           <h2>선수 평점</h2>
           <p className="block__hint">
             세트 기록으로 계산한 10점 만점 점수이고, 이 경기 세트들의 평균입니다. 평균은 6점 안팎입니다. 팬 의견이
-            모이면 일부만 반영합니다. {(match.mvp || award) && "이름 옆 표시는 주최 측이 뽑은 선수이고, 이 평점과는 따로 정해집니다."}
+            모이면 일부만 반영합니다.{" "}
+            {(picks.pick || picks.award) && "이름 옆 표시는 주최 측이 뽑은 선수이고, 이 평점과는 따로 정해집니다."}
           </p>
-          <div className="rates">
-            {[match.team_a, match.team_b].map((team, i) => (
-              <div key={team.id} className={`rates__team rates__team--${i === 0 ? "a" : "b"}`}>
-                <p className="rates__head">
-                  <TeamLogo id={team.id} size={24} />
-                  {team.acronym}
-                </p>
-                <ul>
-                  {ratingRows(team.id).map((r) => (
-                    <li key={r.player} className="rates__row">
-                      <span className="rates__role">{r.role}</span>
-                      <span className="rates__name">
-                        {r.player}
-                        {award && same(award.player, r.player) && <span className="rate__official">{award.award}</span>}
-                        {isOfficial(r.player) && !(award && same(award.player, r.player)) && (
-                          <span className="rate__official">{officialTag}</span>
-                        )}
-                      </span>
-                      <span className="rates__bar" aria-hidden="true">
-                        <span style={{ width: `${r.rating * 10}%` }} />
-                      </span>
-                      <span className="rates__score">
-                        <Rating value={r.rating} best={top?.player === r.player && top.team_id === r.team_id} />
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+          <RatingBoard teams={teams} ratings={ratings} winnerId={match.winner_id} picks={picks} />
         </section>
       )}
 
       {sets.length > 0 && (
         <section className="block" id="sets">
           <h2>세트별 기록</h2>
-          <SetExplorer sets={sets} matchId={match.id} repoUrl={REPO_URL} minVotes={feedback?.min_votes ?? 3} />
+          <SetExplorer sets={sets} matchId={match.id} repoUrl={REPO_URL} minVotes={minVotes} />
         </section>
       )}
 
-      {seasonRows.length > 0 && (
+      {season.length > 0 && (
         <section className="block">
           <h2>시즌 평균 맞대결</h2>
-          <p className="block__hint">이 경기에 나온 선수들의 2026 시즌 전체 평균입니다. 평점은 세트별 평점의 평균입니다. 더 높은 쪽이 밝게 보입니다.</p>
-          <div className="table-wrap">
-            <table className="table season">
-              <thead>
-                <tr>
-                  <th scope="col">{match.team_a.acronym}</th>
-                  <th scope="col" className="num">평점</th>
-                  <th scope="col" className="num">KDA</th>
-                  <th scope="col" className="num">분당 CS</th>
-                  <th scope="col" className="num">분당 피해</th>
-                  <th scope="col" className="season__role">포지션</th>
-                  <th scope="col" className="num">분당 피해</th>
-                  <th scope="col" className="num">분당 CS</th>
-                  <th scope="col" className="num">KDA</th>
-                  <th scope="col" className="num">평점</th>
-                  <th scope="col" className="season__b">{match.team_b.acronym}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {seasonRows.map(({ role, a, b }) => {
-                  const cell = (mine: number, other: number, text: string) => (
-                    <td className={`num${mine > other ? " is-more" : ""}`}>{text}</td>
-                  );
-                  return (
-                    <tr key={role}>
-                      <th scope="row" className="season__a">{a.player}</th>
-                      {cell(a.rating ?? 0, b.rating ?? 0, a.rating?.toFixed(1) ?? "-")}
-                      {cell(a.kda, b.kda, a.kda.toFixed(1))}
-                      {cell(a.cs_min, b.cs_min, a.cs_min.toFixed(1))}
-                      {cell(a.dpm, b.dpm, String(a.dpm))}
-                      <td className="season__role">{role}</td>
-                      {cell(b.dpm, a.dpm, String(b.dpm))}
-                      {cell(b.cs_min, a.cs_min, b.cs_min.toFixed(1))}
-                      {cell(b.kda, a.kda, b.kda.toFixed(1))}
-                      {cell(b.rating ?? 0, a.rating ?? 0, b.rating?.toFixed(1) ?? "-")}
-                      <th scope="row" className="season__b">{b.player}</th>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <p className="block__hint">
+            이 경기에 나온 선수들의 2026 시즌 전체 평균입니다. 평점은 세트별 평점의 평균입니다. 더 높은 쪽이 밝게
+            보입니다.
+          </p>
+          <SeasonTable teams={teams} rows={season} />
         </section>
       )}
 

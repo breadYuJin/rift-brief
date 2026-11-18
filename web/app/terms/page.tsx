@@ -5,7 +5,8 @@ import { DRAFT_PHASES, DRAFT_RULES, GLOSSARY, TERM_SOURCES } from "@/content/ter
 export const metadata: Metadata = { title: "밴픽·용어" };
 
 function DraftOrder() {
-  let n = 0;
+  // 단계마다 첫 순번: 앞 단계들의 칸 수를 더한 값 + 1
+  const starts = DRAFT_PHASES.map((_, i) => 1 + DRAFT_PHASES.slice(0, i).reduce((sum, p) => sum + p.turns.length, 0));
   return (
     <figure className="draft">
       <figcaption>
@@ -13,14 +14,17 @@ function DraftOrder() {
         <span className="draft__key draft__key--second">나중 팀(후픽)</span>
       </figcaption>
       <div className="draft__phases">
-        {DRAFT_PHASES.map((p) => (
+        {DRAFT_PHASES.map((p, phase) => (
           <div key={p.label} className="draft__phase">
             <p className="draft__label">{p.label}</p>
-            <ol className="draft__turns" start={n + 1}>
-              {p.turns.map((who) => {
-                n += 1;
+            <ol className="draft__turns" start={starts[phase]}>
+              {p.turns.map((who, i) => {
+                const n = starts[phase] + i;
                 return (
-                  <li key={n} className={`draft__turn draft__turn--${who} draft__turn--${p.kind === "밴" ? "ban" : "pick"}`}>
+                  <li
+                    key={n}
+                    className={`draft__turn draft__turn--${who} draft__turn--${p.kind === "밴" ? "ban" : "pick"}`}
+                  >
                     <span className="sr-only">
                       {n}번째: {who === "first" ? "선픽 팀" : "후픽 팀"}
                     </span>
