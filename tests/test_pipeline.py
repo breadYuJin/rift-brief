@@ -1,13 +1,20 @@
 """네트워크·API 키 없이 도는 테스트. LLM 은 스텁으로 대체한다."""
+
 from __future__ import annotations
 
+import json
+
 from pipeline import facts as F
+from pipeline import leaguepedia as LP
 from pipeline.agents.brief import build_context
+from pipeline.archive import ArchiveSource
+from pipeline.config import Settings
 from pipeline.graphs import build_brief_graph, build_preview_graph
 from pipeline.leagues import build_league, importance, make_ranker
 from pipeline.pandascore import normalize_match, pick_current_serie
 from pipeline.sample import SampleSource
 from pipeline.schemas import Analysis, Case, Draft, Review, WatchPoints
+from pipeline.store import Store
 
 
 class StubLLM:
@@ -33,7 +40,11 @@ MATCH = SOURCE.past_matches()[0]  # STG 2-1 DDR, 1세트를 내주고 역전
 ANALYSIS = Analysis(angle="역전승", key_points=["1세트를 내주고 뒤집었다"])
 GOOD = Draft(
     headline="STG, DDR 상대로 2-1 역전승",
-    summary=["샘플 타이거즈, 데모 드래곤즈 상대로 2-1 승리.", "1세트를 내준 뒤 내리 두 세트를 가져왔다.", "풀세트 승부였다."],
+    summary=[
+        "샘플 타이거즈, 데모 드래곤즈 상대로 2-1 승리.",
+        "1세트를 내준 뒤 내리 두 세트를 가져왔다.",
+        "풀세트 승부였다.",
+    ],
 )
 BAD_NUMBER = Draft(headline="STG, DDR 상대로 2-1 승리", summary=["킬 스코어 17 대 9 로 압도했다.", "b", "c"])
 
@@ -194,13 +205,6 @@ def test_brief_graph_records_importance():
 
 # ---- 시즌 기록 수집(Leaguepedia)과 아카이브 모드 ----
 
-import json
-
-from pipeline import leaguepedia as LP
-from pipeline.archive import ArchiveSource
-from pipeline.config import Settings
-from pipeline.store import Store
-
 
 class FakeCargo:
     """Cargo API 응답 모양(별칭을 키로 쓰는 행 목록)을 흉내 낸다."""
@@ -214,13 +218,38 @@ class FakeCargo:
         if tables == "MatchSchedule":
             base = {"OverviewPage": "LCK/2026 Season/Rounds 1-2", "Tab": "Week 1", "BestOf": "3"}
             return [
-                {**base, "MatchId": "m1", "Team1": "T1", "Team2": "Gen.G", "Team1Score": "2", "Team2Score": "1",
-                 "Winner": "1", "Date": "2026-04-01 08:00:00"},
-                {**base, "MatchId": "m2", "Team1": "Gen.G", "Team2": "KT Rolster", "Team1Score": "2", "Team2Score": "0",
-                 "Winner": "1", "Date": "2026-04-02 08:00:00"},
-                {"OverviewPage": "LCK/2026 Season/Playoffs", "Tab": "Finals", "BestOf": "5", "MatchId": "m3",
-                 "Team1": "T1", "Team2": "Gen.G", "Team1Score": "", "Team2Score": "", "Winner": "",
-                 "Date": "2026-09-13 05:00:00"},
+                {
+                    **base,
+                    "MatchId": "m1",
+                    "Team1": "T1",
+                    "Team2": "Gen.G",
+                    "Team1Score": "2",
+                    "Team2Score": "1",
+                    "Winner": "1",
+                    "Date": "2026-04-01 08:00:00",
+                },
+                {
+                    **base,
+                    "MatchId": "m2",
+                    "Team1": "Gen.G",
+                    "Team2": "KT Rolster",
+                    "Team1Score": "2",
+                    "Team2Score": "0",
+                    "Winner": "1",
+                    "Date": "2026-04-02 08:00:00",
+                },
+                {
+                    "OverviewPage": "LCK/2026 Season/Playoffs",
+                    "Tab": "Finals",
+                    "BestOf": "5",
+                    "MatchId": "m3",
+                    "Team1": "T1",
+                    "Team2": "Gen.G",
+                    "Team1Score": "",
+                    "Team2Score": "",
+                    "Winner": "",
+                    "Date": "2026-09-13 05:00:00",
+                },
                 {**base, "MatchId": "m4", "Team1": "TBD", "Team2": "T1", "Winner": "", "Date": "2026-09-14 05:00:00"},
             ]
         if tables == "ScoreboardGames":
@@ -231,7 +260,11 @@ class FakeCargo:
                 {"MatchId": "m2", "N": "1", "WinTeam": "Gen.G", "Len": "25"},  # 한 세트만 있어 버려져야 한다
             ]
         if tables == "Teams":
-            return [{"Name": "T1", "Short": "T1"}, {"Name": "Gen.G", "Short": "GEN"}, {"Name": "KT Rolster", "Short": "KT"}]
+            return [
+                {"Name": "T1", "Short": "T1"},
+                {"Name": "Gen.G", "Short": "GEN"},
+                {"Name": "KT Rolster", "Short": "KT"},
+            ]
         return []
 
 
@@ -319,21 +352,42 @@ def test_renamed_teams_and_showmatches():
     assert LP.resolve_team("BRION", {}).acronym == "BRO"
     lyon = LP.resolve_team("LYON (2024 American Team)", {})
     assert (lyon.name, lyon.acronym) == ("LYON", "LYON")
-    row = {"OverviewPage": "LCK/2026 Season/Rounds 3-4/Classic Showmatch", "Tab": "Day 1", "Team1": "A", "Team2": "B",
-           "Winner": "1", "Team1Score": "3", "Team2Score": "0", "Date": "2026-08-01 08:00:00", "MatchId": "x"}
+    row = {
+        "OverviewPage": "LCK/2026 Season/Rounds 3-4/Classic Showmatch",
+        "Tab": "Day 1",
+        "Team1": "A",
+        "Team2": "B",
+        "Winner": "1",
+        "Team1Score": "3",
+        "Team2Score": "0",
+        "Date": "2026-08-01 08:00:00",
+        "MatchId": "x",
+    }
     assert LP.to_match(row, "LCK", 1, "LCK/2026", 2026, {}, []) is None
 
 
 def test_lck_groups_are_split_and_combined_tables_are_cumulative():
     def row(i, page, t1, t2, w):
-        return {"OverviewPage": f"LCK/2026 Season/{page}", "Tab": "Week 1", "BestOf": "3", "MatchId": f"g{i}",
-                "Team1": t1, "Team2": t2, "Team1Score": "2" if w == "1" else "0", "Team2Score": "0" if w == "1" else "2",
-                "Winner": w, "Date": f"2026-04-{10 + i:02d} 08:00:00" if page == "Rounds 1-2" else f"2026-07-20 {i:02d}:00:00"}
+        return {
+            "OverviewPage": f"LCK/2026 Season/{page}",
+            "Tab": "Week 1",
+            "BestOf": "3",
+            "MatchId": f"g{i}",
+            "Team1": t1,
+            "Team2": t2,
+            "Team1Score": "2" if w == "1" else "0",
+            "Team2Score": "0" if w == "1" else "2",
+            "Winner": w,
+            "Date": f"2026-04-{10 + i:02d} 08:00:00" if page == "Rounds 1-2" else f"2026-07-20 {i:02d}:00:00",
+        }
 
     rows = [
-        row(1, "Rounds 1-2", "AAA", "CCC", "1"), row(2, "Rounds 1-2", "BBB", "DDD", "1"),
-        row(3, "Rounds 1-2", "AAA", "DDD", "1"), row(4, "Rounds 1-2", "BBB", "CCC", "2"),
-        row(5, "Rounds 3-4", "AAA", "BBB", "2"), row(6, "Rounds 3-4", "CCC", "DDD", "1"),
+        row(1, "Rounds 1-2", "AAA", "CCC", "1"),
+        row(2, "Rounds 1-2", "BBB", "DDD", "1"),
+        row(3, "Rounds 1-2", "AAA", "DDD", "1"),
+        row(4, "Rounds 1-2", "BBB", "CCC", "2"),
+        row(5, "Rounds 3-4", "AAA", "BBB", "2"),
+        row(6, "Rounds 3-4", "CCC", "DDD", "1"),
     ]
     raw = {"year": 2026, "leagues": {"LCK": {"matches": rows, "games": [], "teams": []}}}
     archive = LP.build(raw)
@@ -351,8 +405,10 @@ def test_lck_groups_are_split_and_combined_tables_are_cumulative():
 
 
 def test_round_labels():
-    assert [LP.round_label(t) for t in ("Quarterfinals", "Semifinals", "Finals", "Bracket Round 3", "Play-In Day 2", "Week 10")] == [
-        "8강", "4강", "결승", "3라운드", "2일차", "10주차"]
+    assert [
+        LP.round_label(t)
+        for t in ("Quarterfinals", "Semifinals", "Finals", "Bracket Round 3", "Play-In Day 2", "Week 10")
+    ] == ["8강", "4강", "결승", "3라운드", "2일차", "10주차"]
 
 
 def _ko(i, rnd, a, b, winner, stage="토너먼트"):
@@ -360,18 +416,37 @@ def _ko(i, rnd, a, b, winner, stage="토너먼트"):
 
     ta, tb = Team(id=a, name=f"팀{a}", acronym=f"T{a}"), Team(id=b, name=f"팀{b}", acronym=f"T{b}")
     done = winner is not None
-    return Match(id=i, league="월즈", stage=f"2026 {stage}", tournament=stage, round=rnd, best_of=5,
-                 status="finished" if done else "not_started", begin_at=f"2026-11-{i:02d}T10:00:00+00:00",
-                 team_a=ta, team_b=tb, score_a=3 if winner == a else 0, score_b=3 if winner == b else 0, winner_id=winner)
+    return Match(
+        id=i,
+        league="월즈",
+        stage=f"2026 {stage}",
+        tournament=stage,
+        round=rnd,
+        best_of=5,
+        status="finished" if done else "not_started",
+        begin_at=f"2026-11-{i:02d}T10:00:00+00:00",
+        team_a=ta,
+        team_b=tb,
+        score_a=3 if winner == a else 0,
+        score_b=3 if winner == b else 0,
+        winner_id=winner,
+    )
 
 
 def test_single_elimination_bracket_is_ordered_as_a_tree():
     from pipeline.leagues import build_brackets
 
     # 8강 경기 순서를 일부러 섞어 둔다: 4강은 (1 vs 5), (3 vs 7), 결승은 1 vs 7
-    ms = [_ko(1, "8강", 1, 2, 1), _ko(2, "8강", 3, 4, 3), _ko(3, "8강", 5, 6, 5), _ko(4, "8강", 7, 8, 7),
-          _ko(5, "4강", 1, 5, 1), _ko(6, "4강", 7, 3, 7), _ko(7, "결승", 7, 1, 7),
-          _ko(8, "3라운드", 1, 2, 1, stage="스위스 스테이지")]
+    ms = [
+        _ko(1, "8강", 1, 2, 1),
+        _ko(2, "8강", 3, 4, 3),
+        _ko(3, "8강", 5, 6, 5),
+        _ko(4, "8강", 7, 8, 7),
+        _ko(5, "4강", 1, 5, 1),
+        _ko(6, "4강", 7, 3, 7),
+        _ko(7, "결승", 7, 1, 7),
+        _ko(8, "3라운드", 1, 2, 1, stage="스위스 스테이지"),
+    ]
     (b,) = build_brackets(ms)
     assert b.stage == "토너먼트" and b.tree and [r.name for r in b.rounds] == ["8강", "4강", "결승"]
     assert [s.match_id for s in b.rounds[1].slots] == [6, 5]  # 결승의 왼쪽 팀(7)이 올라온 4강이 위
@@ -386,9 +461,14 @@ def test_double_elimination_marks_only_the_last_loss():
     from pipeline.leagues import build_brackets
 
     # 팀 2 는 1라운드에서 지고도 패자조에서 살아남았다가 3라운드에서 탈락한다.
-    ms = [_ko(1, "1라운드", 1, 2, 1, "플레이오프"), _ko(2, "1라운드", 3, 4, 3, "플레이오프"),
-          _ko(3, "2라운드", 2, 4, 2, "플레이오프"), _ko(4, "2라운드", 1, 3, 1, "플레이오프"),
-          _ko(5, "3라운드", 3, 2, 3, "플레이오프"), _ko(6, "결승", 1, 3, None, "플레이오프")]
+    ms = [
+        _ko(1, "1라운드", 1, 2, 1, "플레이오프"),
+        _ko(2, "1라운드", 3, 4, 3, "플레이오프"),
+        _ko(3, "2라운드", 2, 4, 2, "플레이오프"),
+        _ko(4, "2라운드", 1, 3, 1, "플레이오프"),
+        _ko(5, "3라운드", 3, 2, 3, "플레이오프"),
+        _ko(6, "결승", 1, 3, None, "플레이오프"),
+    ]
     (b,) = build_brackets(ms)
     assert not b.tree and [len(r.slots) for r in b.rounds] == [2, 2, 1, 1]
     assert [r.name for r in b.rounds] == ["1라운드", "2라운드", "3라운드", "결승"]
@@ -400,7 +480,11 @@ def test_double_elimination_marks_only_the_last_loss():
 def test_play_in_winners_advance_without_a_champion():
     from pipeline.leagues import build_brackets
 
-    ms = [_ko(1, "1라운드", 1, 2, 1, "플레이-인"), _ko(2, "1라운드", 3, 4, 3, "플레이-인"), _ko(3, "2라운드", 2, 3, 2, "플레이-인")]
+    ms = [
+        _ko(1, "1라운드", 1, 2, 1, "플레이-인"),
+        _ko(2, "1라운드", 3, 4, 3, "플레이-인"),
+        _ko(3, "2라운드", 2, 3, 2, "플레이-인"),
+    ]
     (b,) = build_brackets(ms)
     notes = {s.match_id: (s.note_a, s.note_b) for r in b.rounds for s in r.slots}
     assert notes == {1: ("진출", ""), 2: ("", "탈락"), 3: ("진출", "탈락")}

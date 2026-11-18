@@ -1,8 +1,9 @@
 """사이트가 읽는 JSON 저장소. 내용이 바뀐 파일만 다시 써서 불필요한 커밋을 막는다."""
+
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -52,9 +53,9 @@ class Store:
         previews = sorted(previews, key=lambda p: p.match.begin_at or "")
         changed = _write_if_changed(self.dir / "results.json", [r.model_dump() for r in results])
         changed |= _write_if_changed(self.dir / "previews.json", [p.model_dump() for p in previews])
-        changed |= _write_if_changed(self.dir / "leagues.json", [l.model_dump() for l in leagues])
+        changed |= _write_if_changed(self.dir / "leagues.json", [league.model_dump() for league in leagues])
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         year, week, _ = now.isocalendar()
         meta = {
             "updated_at": now.isoformat(timespec="seconds") if changed else self.meta.get("updated_at"),

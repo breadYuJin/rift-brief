@@ -6,10 +6,12 @@
 
     둔다 ─(20수가 찰 때까지 반복)─→ 둔다 ... → 해설 → 끝
 """
+
 from __future__ import annotations
 
 import operator
-from typing import Annotated, Any, Callable, TypedDict
+from collections.abc import Callable
+from typing import Annotated, Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
@@ -73,6 +75,9 @@ def build_mock_draft_graph(
     series_bans = series_bans or {}
     teams = {"F": first, "S": second}
 
+    def team_name(team_id: int) -> str:
+        return first.name if team_id == first.id else second.name
+
     def turn(state: MockState) -> MockState:
         moves = state.get("moves", [])
         kind, who, _i = DRAFT_ORDER[len(moves)]
@@ -107,10 +112,13 @@ def build_mock_draft_graph(
         champion, role, reason = options[0]
         used_llm = False
         if llm:
-            board = "\n".join(
-                f"- {'금지' if m.kind == 'ban' else '선택'} {first.name if m.team_id == first.id else second.name}: {name(m.champion)}"
-                for m in moves
-            ) or "- 아직 없음"
+            board = (
+                "\n".join(
+                    f"- {'금지' if m.kind == 'ban' else '선택'} {team_name(m.team_id)}: {name(m.champion)}"
+                    for m in moves
+                )
+                or "- 아직 없음"
+            )
             listing = "\n".join(f"- {name(c)} ({r or '금지 후보'}): {why}" for c, r, why in options)
             user = (
                 f"맡은 팀: {team.name} / 상대: {opp.name}\n지금 차례: {'금지' if kind == 'ban' else '선택'}\n\n"

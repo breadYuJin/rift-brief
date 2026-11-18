@@ -1,4 +1,5 @@
 """경기 프리뷰 토론 에이전트: 수집 → (A측 패널 ∥ B측 패널) → 사회자 → 점검."""
+
 from __future__ import annotations
 
 import operator

@@ -4,6 +4,7 @@ LLM 에게는 여기서 만든 팩트 목록만 근거로 쓰게 하고, 검증 
 초안의 숫자·승패가 이 팩트와 맞는지 코드로 다시 확인한다.
 문장은 팀명 뒤 조사가 틀어지지 않도록 '키: 값' 형태로 쓴다.
 """
+
 from __future__ import annotations
 
 import re
@@ -90,9 +91,7 @@ def result_facts(match: Match, ctx: Context) -> tuple[list[str], list[str]]:
 
     facts += _context_facts(match, ctx, "경기 전")
 
-    w_form, l_form = (
-        (ctx.form_a, ctx.form_b) if winner.id == match.team_a.id else (ctx.form_b, ctx.form_a)
-    )
+    w_form, l_form = (ctx.form_a, ctx.form_b) if winner.id == match.team_a.id else (ctx.form_b, ctx.form_a)
     if l_form.streak >= 3:
         tags.append("연승 저지")
     if w_form.streak <= -2:
@@ -131,9 +130,7 @@ def check_text(lines: list[str], facts: list[str], match: Match) -> list[str]:
     extra = _numbers(text, names) - allowed
     if extra:
         issues.append(f"팩트에 없는 숫자 사용: {', '.join(sorted(extra))}")
-    for word in BANNED_WORDS:
-        if word in text:
-            issues.append(f"금지어 사용: {word}")
+    issues += [f"금지어 사용: {word}" for word in BANNED_WORDS if word in text]
     return issues
 
 

@@ -13,16 +13,17 @@
 
 새 수집원은 SOURCES 에 한 줄을 더하면 된다.
 """
+
 from __future__ import annotations
 
 import argparse
 import json
 import os
 import sys
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Callable
 
 from . import champions, feedback, leaguepedia, logos, youtube
 from .config import Settings
@@ -41,7 +42,7 @@ def _leaguepedia(data_dir: Path, year: int) -> str:
     if code != 0:
         raise RuntimeError("받은 경기가 없음")
     raw = json.loads((data_dir / "raw" / f"leaguepedia-{year}.json").read_text(encoding="utf-8"))
-    games = sum(len(l.get("games") or []) for l in raw["leagues"].values())
+    games = sum(len(league.get("games") or []) for league in raw["leagues"].values())
     tl_path = data_dir / "raw" / f"timelines-{year}.json"
     timelines = sum(1 for v in json.loads(tl_path.read_text(encoding="utf-8")).values() if v) if tl_path.exists() else 0
     return f"세트 {games}개, 타임라인 {timelines}개"
@@ -69,7 +70,9 @@ SOURCES = [
 ]
 
 
-def run(data_dir: Path, year: int, only: list[str] | None = None, sources: list[Source] = SOURCES) -> dict[str, dict[str, str]]:
+def run(
+    data_dir: Path, year: int, only: list[str] | None = None, sources: list[Source] = SOURCES
+) -> dict[str, dict[str, str]]:
     status_path = data_dir / "collect.json"
     try:
         status = json.loads(status_path.read_text(encoding="utf-8"))
@@ -84,7 +87,11 @@ def run(data_dir: Path, year: int, only: list[str] | None = None, sources: list[
             entry |= {"state": "키 없음", "note": f"{', '.join(missing)} 를 넣으면 켜집니다."}
         else:
             try:
-                entry |= {"state": "수집됨", "note": src.run(data_dir, year), "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+                entry |= {
+                    "state": "수집됨",
+                    "note": src.run(data_dir, year),
+                    "at": datetime.now(UTC).isoformat(timespec="seconds"),
+                }
             except NotImplementedError as exc:
                 entry |= {"state": "준비 중", "note": str(exc)}
             except Exception as exc:
@@ -99,7 +106,7 @@ def run(data_dir: Path, year: int, only: list[str] | None = None, sources: list[
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--year", type=int, default=datetime.now(timezone.utc).year)
+    parser.add_argument("--year", type=int, default=datetime.now(UTC).year)
     parser.add_argument("--only", default="", help="쉼표로 구분한 수집원 이름 (비우면 전부)")
     args = parser.parse_args()
     status = run(Settings().data_dir, args.year, [s.strip() for s in args.only.split(",") if s.strip()] or None)

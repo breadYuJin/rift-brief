@@ -1,8 +1,9 @@
 """밴픽 예측, 승률, 경기 후 분석, 모의 밴픽 그래프의 테스트. 네트워크를 쓰지 않는다."""
+
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from pipeline import analysis, insights
 from pipeline.agents.mock_draft import Choice, Commentary, run_mock_draft
@@ -22,7 +23,7 @@ POOL = {
     2: (["다리우스", "바이", "오리아나", "케이틀린", "룰루"], ["레넥톤", "그레이브즈", "르블랑", "이즈리얼", "라칸"]),
     3: (["잭스", "세주아니", "신드라", "애쉬", "브라움"], ["피오라", "엘리스", "빅토르", "자야", "알리스타"]),
 }
-START = datetime(2026, 1, 10, 8, 0, tzinfo=timezone.utc)
+START = datetime(2026, 1, 10, 8, 0, tzinfo=UTC)
 
 
 def make_set(i: int, blue: Team, red: Team, winner: Team, match_id: int = 0, number: int = 1, picks=None) -> SetRecord:
@@ -39,7 +40,19 @@ def make_set(i: int, blue: Team, red: Team, winner: Team, match_id: int = 0, num
         else:
             draft.append(DraftStep(kind="pick", team_id=team.id, champion=picks[team.id][k], role=ROLES[k]))
     players = [
-        PlayerLine(team_id=t.id, player=f"{t.acronym}{r}", champion=picks[t.id][j], role=r, kills=j, deaths=1, assists=2, cs=200, gold=10000, damage=15000, vision=30)
+        PlayerLine(
+            team_id=t.id,
+            player=f"{t.acronym}{r}",
+            champion=picks[t.id][j],
+            role=r,
+            kills=j,
+            deaths=1,
+            assists=2,
+            cs=200,
+            gold=10000,
+            damage=15000,
+            vision=30,
+        )
         for t in (blue, red)
         for j, r in enumerate(ROLES)
     ]
@@ -109,7 +122,7 @@ def test_replay_uses_only_earlier_sets_and_applies_fearless():
     alt = {1: ["오른", "녹턴", "아지르", "바루스", "카르마"], 2: ["크산테", "신짜오", "탈리야", "세나", "렐"]}
     second = make_set(30, T1, T2, T1, match_id=77, number=2, picks=alt)
     second = second.model_copy(update={"game_id": "g30b", "start": (START + timedelta(days=30, hours=1)).isoformat()})
-    forecasts, model = replay(sets + [first, second])
+    forecasts, model = replay([*sets, first, second])
     assert forecasts[0].picks == [] and forecasts[0].bans == []  # 첫 세트 앞에는 기록이 없다
     f2 = next(f for f in forecasts if f.game_id == "g30b" and f.team_id == T1.id)
     assert not set(first.picked) & {c for c, _ in f2.picks}
@@ -160,7 +173,11 @@ TIMELINE = {
         [900, 6, 1, [], 1500, 12000],
         [1500, 0, 9, [], 5000, 10400],
     ],
-    "monsters": [[400, "DRAGON", "FIRE_DRAGON", 100], [1300, "BARON_NASHOR", "", 200], [1800, "DRAGON", "ELDER_DRAGON", 100]],
+    "monsters": [
+        [400, "DRAGON", "FIRE_DRAGON", 100],
+        [1300, "BARON_NASHOR", "", 200],
+        [1800, "DRAGON", "ELDER_DRAGON", 100],
+    ],
     "buildings": [],
     "gold": [[2500, 2500], [3200, 3000], [4100, 4500]],
     "pos": [[[0, 0]] * 10] + [[[i * 100 + m, m] for i in range(10)] for m in range(1, 4)],
@@ -283,7 +300,7 @@ def test_track_updates_after_each_event():
     assert len(views) == 20 and views[0]["step"] == 1 and views[0]["kind"] == "ban"
     assert views[1]["after"]["champion"] == s.draft[0].champion
     seen: set[str] = set()
-    for view, step in zip(views[1:], s.draft):
+    for view, step in zip(views[1:], s.draft[:-1], strict=True):
         seen.add(step.champion)
         assert not seen & {c for c, _ in view["candidates"]}
     try:
@@ -303,9 +320,21 @@ def raw_fixture() -> dict:
     for s in season(30):
         blue, red = names[s.blue.id], names[s.red.id]
         row = {
-            "GameId": s.game_id, "MatchId": f"m{s.match_id}", "N": "1", "Team1": blue, "Team2": red,
-            "WinTeam": names[s.winner_id], "Len": "30.5", "Start": s.start[:19].replace("T", " "), "Patch": "26.1",
-            "Rpg": s.rpg, "VOD": "", "Team1Kills": "10", "Team2Kills": "7", "Team1Dragons": "3", "Team2Dragons": "1",
+            "GameId": s.game_id,
+            "MatchId": f"m{s.match_id}",
+            "N": "1",
+            "Team1": blue,
+            "Team2": red,
+            "WinTeam": names[s.winner_id],
+            "Len": "30.5",
+            "Start": s.start[:19].replace("T", " "),
+            "Patch": "26.1",
+            "Rpg": s.rpg,
+            "VOD": "",
+            "Team1Kills": "10",
+            "Team2Kills": "7",
+            "Team1Dragons": "3",
+            "Team2Dragons": "1",
         }
         games.append(row)
         d = {"GameId": s.game_id, "MatchId": row["MatchId"], "N": "1", "Team1": blue, "Team2": red}
@@ -316,15 +345,31 @@ def raw_fixture() -> dict:
                 d[f"{col}Pick{i}"] = c
                 d[f"{col}Role{i}"] = ["Top", "Jungle", "Mid", "Bot", "Support"][i - 1]
         drafts.append(d)
-        for p in s.players:
-            players.append({
-                "GameId": s.game_id, "Link": f"{p.player} (선수)", "Team": names[p.team_id], "Champion": p.champion,
-                "Role": ["Top", "Jungle", "Mid", "Bot", "Support"][ROLES.index(p.role)], "RoleN": str(ROLES.index(p.role) + 1),
-                "Side": "1" if p.team_id == s.blue.id else "2", "Kills": str(p.kills), "Deaths": "1", "Assists": "2",
-                "CS": "200", "Gold": "10000", "Dmg": "15000", "Vision": "30",
-            })
+        players.extend(
+            {
+                "GameId": s.game_id,
+                "Link": f"{p.player} (선수)",
+                "Team": names[p.team_id],
+                "Champion": p.champion,
+                "Role": ["Top", "Jungle", "Mid", "Bot", "Support"][ROLES.index(p.role)],
+                "RoleN": str(ROLES.index(p.role) + 1),
+                "Side": "1" if p.team_id == s.blue.id else "2",
+                "Kills": str(p.kills),
+                "Deaths": "1",
+                "Assists": "2",
+                "CS": "200",
+                "Gold": "10000",
+                "Dmg": "15000",
+                "Vision": "30",
+            }
+            for p in s.players
+        )
     teams = [{"Name": n, "Short": n[:3].upper()} for n in names.values()]
-    return {"leagues": {"LCK": {"matches": [], "games": games, "teams": teams, "drafts": drafts, "players": players, "vods": []}}}
+    return {
+        "leagues": {
+            "LCK": {"matches": [], "games": games, "teams": teams, "drafts": drafts, "players": players, "vods": []}
+        }
+    }
 
 
 def test_build_sets_from_raw():
@@ -342,13 +387,22 @@ def test_analysis_build_writes_files(tmp_path):
     (tmp_path / "raw").mkdir()
     (tmp_path / "raw" / "leaguepedia-2026.json").write_text(json.dumps(raw_fixture()), encoding="utf-8")
     sets = build_sets(raw_fixture())
-    (tmp_path / "raw" / "timelines-2026.json").write_text(json.dumps({sets[-1].rpg: TIMELINE, sets[0].rpg: None}), encoding="utf-8")
+    (tmp_path / "raw" / "timelines-2026.json").write_text(
+        json.dumps({sets[-1].rpg: TIMELINE, sets[0].rpg: None}), encoding="utf-8"
+    )
 
     assert analysis.build(tmp_path) is True
     assert analysis.build(tmp_path) is False  # 같은 입력이면 파일을 다시 쓰지 않는다
 
     models = json.loads((tmp_path / "models.json").read_text(encoding="utf-8"))
-    assert models["counts"] == {"sets": 30, "drafted": 30, "timelines": 1, "timelines_verified": 0, "series": 30, "clip_sets": 0}
+    assert models["counts"] == {
+        "sets": 30,
+        "drafted": 30,
+        "timelines": 1,
+        "timelines_verified": 0,
+        "series": 30,
+        "clip_sets": 0,
+    }
     assert models["draft"]["holdout"]["pick_recall_10"] > models["draft"]["baseline_meta_only"]["pick_recall_10"] - 1e-9
     assert len(models["draft"]["rank_hit"]["pick"]) == 10
 
@@ -377,7 +431,9 @@ def test_analysis_build_writes_files(tmp_path):
 def test_champion_table():
     from pipeline import champions
 
-    english = {"data": {"MonkeyKing": {"name": "Wukong"}, "KSante": {"name": "K'Sante"}, "Nunu": {"name": "Nunu & Willump"}}}
+    english = {
+        "data": {"MonkeyKing": {"name": "Wukong"}, "KSante": {"name": "K'Sante"}, "Nunu": {"name": "Nunu & Willump"}}
+    }
     korean = {"data": {"MonkeyKing": {"name": "오공"}, "KSante": {"name": "크산테"}, "Nunu": {"name": "누누와 윌럼프"}}}
     pages = {"versions.json": ["26.22.1", "26.21.1"], "en_US/champion.json": english, "ko_KR/champion.json": korean}
     table = champions.fetch(lambda url: next(v for k, v in pages.items() if url.endswith(k)))
@@ -400,9 +456,16 @@ def fake_youtube(path, params):
     assert path == "videos"
     items = []
     for v in params["id"].split(","):
-        item = {"id": v, "snippet": {"title": f"영상 {v}", "publishedAt": "2026-01-10T12:00:00Z", "description": ""}, "contentDetails": {"duration": "PT5H"}}
+        item = {
+            "id": v,
+            "snippet": {"title": f"영상 {v}", "publishedAt": "2026-01-10T12:00:00Z", "description": ""},
+            "contentDetails": {"duration": "PT5H"},
+        }
         if v == "v1":
-            item["liveStreamingDetails"] = {"actualStartTime": "2026-01-10T07:30:00Z", "actualEndTime": "2026-01-10T13:00:00Z"}
+            item["liveStreamingDetails"] = {
+                "actualStartTime": "2026-01-10T07:30:00Z",
+                "actualEndTime": "2026-01-10T13:00:00Z",
+            }
         items.append(item)
     return {"items": items}
 
@@ -418,12 +481,14 @@ def test_youtube_collect_and_clip_links(tmp_path, monkeypatch):
     videos = youtube.load_videos(tmp_path)
 
     # 경기는 방송 시작 45분 뒤(08:15 UTC)에 시작했고, 30분짜리였다.
-    start = int(datetime(2026, 1, 10, 8, 15, tzinfo=timezone.utc).timestamp())
+    start = int(datetime(2026, 1, 10, 8, 15, tzinfo=UTC).timestamp())
     timeline = {"anchors": [[0, start], [1800, start + 1800]]}
     fights = [{"t": 200}, {"t": 900}]
     links = highlights.clip_links(timeline, fights, videos, shift=0)
     assert links[0] == f"https://www.youtube.com/watch?v=v1&t={45 * 60 + 200 - highlights.LEAD_SEC}s"
-    assert highlights.clip_links(timeline, fights, videos, shift=30)[1].endswith(f"t={45 * 60 + 900 + 30 - highlights.LEAD_SEC}s")
+    assert highlights.clip_links(timeline, fights, videos, shift=30)[1].endswith(
+        f"t={45 * 60 + 900 + 30 - highlights.LEAD_SEC}s"
+    )
     # 일시정지로 실제 시각이 많이 밀렸으면 만들지 않는다. 기준점이 없어도 마찬가지다.
     paused = {"anchors": [[0, start], [1800, start + 2400]]}
     assert highlights.clip_links(paused, fights, videos, shift=0) == [None, None]
@@ -459,10 +524,17 @@ def test_collect_registry_records_each_source(tmp_path, monkeypatch):
 def test_timeline_keeps_real_time_anchors():
     from pipeline.leaguepedia import compact_timeline, fetch_timelines
 
-    doc = {"info": {"frames": [
-        {"events": [{"type": "PAUSE_END", "timestamp": 0, "realTimestamp": 1767000000000}], "participantFrames": {}},
-        {"events": [{"type": "GAME_END", "timestamp": 1800000, "realTimestamp": 1767001800000}]},
-    ]}}
+    doc = {
+        "info": {
+            "frames": [
+                {
+                    "events": [{"type": "PAUSE_END", "timestamp": 0, "realTimestamp": 1767000000000}],
+                    "participantFrames": {},
+                },
+                {"events": [{"type": "GAME_END", "timestamp": 1800000, "realTimestamp": 1767001800000}]},
+            ]
+        }
+    }
     assert compact_timeline(doc)["anchors"] == [[0, 1767000000], [1800, 1767001800]]
 
     class Pages:
@@ -473,7 +545,17 @@ def test_timeline_keeps_real_time_anchors():
             self.asked.append(title)
             return json.dumps(doc)
 
-    raw = {"leagues": {"LCK": {"games": [{"Rpg": "A", "Start": "2026-01-02"}, {"Rpg": "B", "Start": "2026-01-01"}, {"Rpg": "C", "Start": "2026-01-03"}]}}}
+    raw = {
+        "leagues": {
+            "LCK": {
+                "games": [
+                    {"Rpg": "A", "Start": "2026-01-02"},
+                    {"Rpg": "B", "Start": "2026-01-01"},
+                    {"Rpg": "C", "Start": "2026-01-03"},
+                ]
+            }
+        }
+    }
     pages = Pages()
     # A 는 예전 형식(기준점 없음), B 는 없음, C 는 이미 새 형식 → 없는 B 를 먼저, 그다음 A 를 다시 받는다.
     out = fetch_timelines(raw, {"A": {"kills": []}, "C": {"kills": [], "anchors": []}}, pages, limit=5)
@@ -488,29 +570,70 @@ def test_logo_matching_and_fallback(tmp_path):
     from pipeline import logos
     from pipeline.leaguepedia import resolve_team
 
-    raw = {"leagues": {"LCK": {
-        "teams": [{"Name": "Gen.G", "Short": "GEN"}, {"Name": "T1", "Short": "T1"}, {"Name": "DRX", "Short": "DRX"}, {"Name": "Nongshim RedForce", "Short": "NS"}],
-        "matches": [{"Team1": "Gen.G", "Team2": "T1"}, {"Team1": "DRX", "Team2": "Nongshim RedForce"}, {"Team1": "TBD", "Team2": "T1"}],
-    }}}
+    raw = {
+        "leagues": {
+            "LCK": {
+                "teams": [
+                    {"Name": "Gen.G", "Short": "GEN"},
+                    {"Name": "T1", "Short": "T1"},
+                    {"Name": "DRX", "Short": "DRX"},
+                    {"Name": "Nongshim RedForce", "Short": "NS"},
+                ],
+                "matches": [
+                    {"Team1": "Gen.G", "Team2": "T1"},
+                    {"Team1": "DRX", "Team2": "Nongshim RedForce"},
+                    {"Team1": "TBD", "Team2": "T1"},
+                ],
+            }
+        }
+    }
     (tmp_path / "raw").mkdir()
     (tmp_path / "raw" / "leaguepedia-2026.json").write_text(json.dumps(raw), encoding="utf-8")
     official = [
-        {"name": "Gen.G Esports", "code": "GEN", "image": "http://static.lolesports.com/teams/gen.png", "status": "active"},
-        {"name": "Gen.G Global Academy", "code": "GEN", "image": "http://static.lolesports.com/teams/gga.png", "status": "active"},
+        {
+            "name": "Gen.G Esports",
+            "code": "GEN",
+            "image": "http://static.lolesports.com/teams/gen.png",
+            "status": "active",
+        },
+        {
+            "name": "Gen.G Global Academy",
+            "code": "GEN",
+            "image": "http://static.lolesports.com/teams/gga.png",
+            "status": "active",
+        },
         {"name": "T1", "code": "T1", "image": "http://static.lolesports.com/teams/t1.png", "status": "active"},
         {"name": "T1 (old)", "code": "T1", "image": "http://static.lolesports.com/teams/old.png", "status": "archived"},
         {"name": "Kiwoom DRX", "code": "KRX", "image": "", "status": "active"},
-        {"name": "Beijing JDG Esports", "code": "JDG", "image": "http://static.lolesports.com/teams/jdg file.png", "status": "active"},
-        {"name": "Team Bliss", "code": "TB", "image": "http://static.lolesports.com/teams/bliss.png", "status": "active"},
+        {
+            "name": "Beijing JDG Esports",
+            "code": "JDG",
+            "image": "http://static.lolesports.com/teams/jdg file.png",
+            "status": "active",
+        },
+        {
+            "name": "Team Bliss",
+            "code": "TB",
+            "image": "http://static.lolesports.com/teams/bliss.png",
+            "status": "active",
+        },
         {"name": "Cloud9 Kia", "code": "C9", "image": "http://static.lolesports.com/teams/c9.png", "status": "active"},
-        {"name": "Cloud9 Challengers", "code": "C9", "image": "http://static.lolesports.com/teams/c9c.png", "status": "active"},
+        {
+            "name": "Cloud9 Challengers",
+            "code": "C9",
+            "image": "http://static.lolesports.com/teams/c9c.png",
+            "status": "active",
+        },
     ]
     more = {"JD Gaming": "JDG", "Team Baron (MSI 2026)": "TB", "Cloud9": "C9"}
     found = logos.match_lolesports(
         {i: {"acronym": short, "names": {name}} for i, (name, short) in enumerate(more.items())}, official
     )
     # 약칭이 이름 속 낱말인 팀, 후원사 이름이 붙은 팀은 찾고, 약칭만 우연히 같은 팀은 고르지 않는다.
-    assert found == {0: "https://static.lolesports.com/teams/jdg%20file.png", 2: "https://static.lolesports.com/teams/c9.png"}
+    assert found == {
+        0: "https://static.lolesports.com/teams/jdg%20file.png",
+        2: "https://static.lolesports.com/teams/c9.png",
+    }
 
     class Wiki:
         def query(self, **kw):
@@ -520,11 +643,18 @@ def test_logo_matching_and_fallback(tmp_path):
         def image_urls(self, files):
             return {"DRXlogo square.png": "https://static.wikia.nocookie.net/drx.png"}
 
-    ids = {n: resolve_team(n, {"Gen.G": "GEN", "T1": "T1", "DRX": "DRX", "Nongshim RedForce": "NS"}).id for n in ("Gen.G", "T1", "DRX", "Nongshim RedForce")}
+    ids = {
+        n: resolve_team(n, {"Gen.G": "GEN", "T1": "T1", "DRX": "DRX", "Nongshim RedForce": "NS"}).id
+        for n in ("Gen.G", "T1", "DRX", "Nongshim RedForce")
+    }
     summary = logos.collect(tmp_path, 2026, official=lambda: official, cargo=Wiki(), check=lambda url: True)
     saved = json.loads((tmp_path / "teams.json").read_text(encoding="utf-8"))
     # 이름이 같은 팀을 고르고(2군 제외), 주소는 https 로 바꾼다.
-    assert saved[str(ids["Gen.G"])] == {"acronym": "GEN", "logo": "https://static.lolesports.com/teams/gen.png", "source": "lolesports"}
+    assert saved[str(ids["Gen.G"])] == {
+        "acronym": "GEN",
+        "logo": "https://static.lolesports.com/teams/gen.png",
+        "source": "lolesports",
+    }
     assert saved[str(ids["T1"])]["logo"].endswith("/t1.png")
     assert saved[str(ids["DRX"])]["source"] == "leaguepedia"
     assert str(ids["Nongshim RedForce"]) not in saved
@@ -569,7 +699,15 @@ def test_meta_follows_the_patch_not_the_calendar():
     names = [r["champion"] for r in meta["champions"]]
     assert "탈리야" in names and "아리" not in names  # 직전 패치를 섞지 않은 실제 횟수만
     row = next(r for r in meta["champions"] if r["champion"] == "탈리야")
-    assert row == {"champion": "탈리야", "picks": 6, "bans": 0, "presence": 1.0, "win_rate": 1.0, "role": "미드", "change": 1.0}
+    assert row == {
+        "champion": "탈리야",
+        "picks": 6,
+        "bans": 0,
+        "presence": 1.0,
+        "win_rate": 1.0,
+        "role": "미드",
+        "change": 1.0,
+    }
     # 패치를 모르는 다가오는 경기는 가장 최근 패치로 본다.
     assert model.predict(T2.id, T3.id).picks == model.predict(T2.id, T3.id, "26.2").picks
 
@@ -616,11 +754,16 @@ def test_rating_config_overrides_and_bad_values(tmp_path):
 
     assert ratings.load_config(tmp_path / "none.json") == ratings.Config()
     path = tmp_path / "ratings.config.json"
-    path.write_text(json.dumps({
-        "win_bonus": 0.5,
-        "weights": {"미드": {"kda": 0.4, "없는지표": 9}, "없는포지션": {"kda": 1}},
-        "feedback": {"min_votes": 2, "max_share": 7, "prior_votes": "많이"},
-    }), encoding="utf-8")
+    path.write_text(
+        json.dumps(
+            {
+                "win_bonus": 0.5,
+                "weights": {"미드": {"kda": 0.4, "없는지표": 9}, "없는포지션": {"kda": 1}},
+                "feedback": {"min_votes": 2, "max_share": 7, "prior_votes": "많이"},
+            }
+        ),
+        encoding="utf-8",
+    )
     c = ratings.load_config(path)
     assert c.win_bonus == 0.5 and c.spread == 1.6
     assert c.weights["미드"]["kda"] == 0.4 and "없는지표" not in c.weights["미드"] and "없는포지션" not in c.weights
@@ -649,7 +792,14 @@ def test_blend_moves_rating_only_partly():
 
 
 def issue(number, login, body, title="[평점] ALP 대 BRV 1세트", **more):
-    return {"number": number, "title": title, "body": body, "user": {"login": login}, "created_at": f"2026-01-{number:02d}T00:00:00Z", **more}
+    return {
+        "number": number,
+        "title": title,
+        "body": body,
+        "user": {"login": login},
+        "created_at": f"2026-01-{number:02d}T00:00:00Z",
+        **more,
+    }
 
 
 def test_feedback_issues_are_parsed_and_aggregated(tmp_path, monkeypatch):
@@ -686,7 +836,6 @@ def test_feedback_issues_are_parsed_and_aggregated(tmp_path, monkeypatch):
 
 
 def test_analysis_blends_votes_and_reports_official_agreement(tmp_path):
-    from pipeline import feedback
     from pipeline.schemas import Match
 
     (tmp_path / "raw").mkdir()
@@ -695,22 +844,41 @@ def test_analysis_blends_votes_and_reports_official_agreement(tmp_path):
     target = sets[-1]
     mid = next(p.player for p in target.players if p.role == "미드" and p.team_id == target.winner_id)
     votes = [
-        {"issue": i, "voter": f"v{i}", "at": f"2026-02-0{i}", "match_id": target.match_id, "set": 1, "scores": {mid: 10}}
+        {
+            "issue": i,
+            "voter": f"v{i}",
+            "at": f"2026-02-0{i}",
+            "match_id": target.match_id,
+            "set": 1,
+            "scores": {mid: 10},
+        }
         for i in range(1, 5)
     ]
     (tmp_path / "raw" / "rating_votes.json").write_text(json.dumps(votes), encoding="utf-8")
     winner, loser = target.team(target.winner_id), target.other(target.winner_id)
     official = Match(
-        id=target.match_id, league="LCK", stage="", best_of=1, status="finished",
-        team_a=winner, team_b=loser, score_a=1, winner_id=winner.id, mvp=mid.upper(),
+        id=target.match_id,
+        league="LCK",
+        stage="",
+        best_of=1,
+        status="finished",
+        team_a=winner,
+        team_b=loser,
+        score_a=1,
+        winner_id=winner.id,
+        mvp=mid.upper(),
     )
     assert analysis.build(tmp_path, matches=[official]) is True
 
     data = json.loads((tmp_path / "sets" / f"{target.match_id}.json").read_text(encoding="utf-8"))
-    line = next(side for row in data["sets"][0]["matchups"] for side in (row["blue"], row["red"]) if side["player"] == mid)
+    line = next(
+        side for row in data["sets"][0]["matchups"] for side in (row["blue"], row["red"]) if side["player"] == mid
+    )
     assert line["votes"] == 4 and line["fan"] == 10.0
     assert line["rating"] > line["rating_base"] and line["rating"] - line["rating_base"] <= 1.0
-    untouched = next(side for row in data["sets"][0]["matchups"] for side in (row["blue"], row["red"]) if side["player"] != mid)
+    untouched = next(
+        side for row in data["sets"][0]["matchups"] for side in (row["blue"], row["red"]) if side["player"] != mid
+    )
     assert "votes" not in untouched
     models = json.loads((tmp_path / "models.json").read_text(encoding="utf-8"))
     assert models["ratings"]["votes"] == 4 and models["ratings"]["voted_lines"] == 1
@@ -723,8 +891,20 @@ def test_tournament_awards_are_kept_apart_from_match_picks(tmp_path):
     from pipeline.schemas import Match
 
     def final(match_id, league, day, mvp=None, round_name="결승"):
-        return Match(id=match_id, league=league, stage="", round=round_name, best_of=5, status="finished",
-                     begin_at=f"{day}T19:00:00+00:00", team_a=T1, team_b=T2, score_a=3, winner_id=T1.id, mvp=mvp)
+        return Match(
+            id=match_id,
+            league=league,
+            stage="",
+            round=round_name,
+            best_of=5,
+            status="finished",
+            begin_at=f"{day}T19:00:00+00:00",
+            team_a=T1,
+            team_b=T2,
+            score_a=3,
+            winner_id=T1.id,
+            mvp=mvp,
+        )
 
     matches = [
         final(1, "월즈", "2026-11-14", mvp="경기에서뽑힌선수"),
@@ -733,12 +913,43 @@ def test_tournament_awards_are_kept_apart_from_match_picks(tmp_path):
         final(4, "LCK", "2026-09-13"),
     ]
     source = tmp_path / "awards.json"
-    source.write_text(json.dumps({"awards": [
-        {"league": "월즈", "final_date": "2026-11-14", "award": "파이널 MVP", "player": "Knight", "source": "https://example.com/a"},
-        {"league": "LCK", "final_date": "2026-09-13", "award": "파이널 MVP", "player": "Ruler", "source": "https://example.com/b"},
-        {"league": "MSI", "final_date": "2026-07-12", "award": "대회 MVP", "player": "Zeus", "source": "https://example.com/c"},
-        {"league": "LCK", "final_date": "2026-03-01", "award": "파이널 MVP", "player": "누군가", "source": ""},
-    ]}), encoding="utf-8")
+    source.write_text(
+        json.dumps(
+            {
+                "awards": [
+                    {
+                        "league": "월즈",
+                        "final_date": "2026-11-14",
+                        "award": "파이널 MVP",
+                        "player": "Knight",
+                        "source": "https://example.com/a",
+                    },
+                    {
+                        "league": "LCK",
+                        "final_date": "2026-09-13",
+                        "award": "파이널 MVP",
+                        "player": "Ruler",
+                        "source": "https://example.com/b",
+                    },
+                    {
+                        "league": "MSI",
+                        "final_date": "2026-07-12",
+                        "award": "대회 MVP",
+                        "player": "Zeus",
+                        "source": "https://example.com/c",
+                    },
+                    {
+                        "league": "LCK",
+                        "final_date": "2026-03-01",
+                        "award": "파이널 MVP",
+                        "player": "누군가",
+                        "source": "",
+                    },
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
     loaded = awards.load(source)
     assert len(loaded) == 3  # 출처가 없는 항목은 쓰지 않는다
     resolved, missed = awards.resolve(loaded, matches)
@@ -754,3 +965,37 @@ def test_tournament_awards_are_kept_apart_from_match_picks(tmp_path):
     assert "3" not in json.loads((out_dir / "awards.json").read_text(encoding="utf-8"))
     # 저장소의 awards.json 은 모두 출처가 있어야 한다.
     assert awards.load() and all(a["source"].startswith("https://") for a in awards.load())
+
+
+def test_analysis_upcoming_matches_get_forecasts_and_mock_drafts(tmp_path):
+    """다가오는 경기가 있을 때 예상 밴픽과 모의 밴픽이 만들어진다(챔피언 이름표가 있어도 깨지지 않는다)."""
+    from pipeline.schemas import Match
+
+    (tmp_path / "raw").mkdir()
+    (tmp_path / "raw" / "leaguepedia-2026.json").write_text(json.dumps(raw_fixture()), encoding="utf-8")
+    (tmp_path / "champions.json").write_text(
+        json.dumps({"version": "1", "champions": {"ahri": {"id": "Ahri", "en": "Ahri", "ko": "아리"}}}),
+        encoding="utf-8",
+    )
+    sets = build_sets(raw_fixture())
+    a, b = sets[-1].blue, sets[-1].red
+    stranger = Team(id=999, name="처음 보는 팀", acronym="NEW")
+    upcoming = [
+        Match(
+            id=1,
+            league="LCK",
+            stage="",
+            best_of=3,
+            status="not_started",
+            begin_at="2026-03-01T08:00:00+00:00",
+            team_a=a,
+            team_b=b,
+        ),
+        Match(id=2, league="LCK", stage="", best_of=3, status="not_started", team_a=a, team_b=stranger),
+    ]
+    assert analysis.build(tmp_path, upcoming=upcoming) is True
+    listing = json.loads((tmp_path / "draft.json").read_text(encoding="utf-8"))
+    assert [u["match_id"] for u in listing["upcoming"]] == [1]  # 기록이 없는 팀이 낀 경기는 뺀다
+    one = listing["upcoming"][0]
+    assert set(one["forecast"]) == {str(a.id), str(b.id)} and len(one["mock"]["moves"]) == 20
+    assert 0.0 < one["win_before"] < 1.0

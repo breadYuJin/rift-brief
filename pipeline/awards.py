@@ -6,6 +6,7 @@
 
 결과는 data/awards.json 에 경기 ID 별로 저장한다.
 """
+
 from __future__ import annotations
 
 import json

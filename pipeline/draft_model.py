@@ -15,11 +15,12 @@
 피어리스 규칙에 따라 같은 시리즈에서 이미 나온 챔피언은 뺀다.
 확률은 "이 순위로 예상한 챔피언이 지난 검증에서 실제로 나온 비율"로 보정해 보여 준다.
 """
+
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
-from typing import Callable, Iterable
 
 from .gamedata import ROLES, SetRecord
 
@@ -264,7 +265,7 @@ class SetForecast:
 def replay(
     sets: list[SetRecord],
     weights: Weights | None = None,
-    before_set: Callable[["DraftModel", SetRecord], None] | None = None,
+    before_set: Callable[[DraftModel, SetRecord], None] | None = None,
 ) -> tuple[list[SetForecast], DraftModel]:
     """세트를 시간순으로 돌며, 그 시점까지의 기록만으로 예상을 내고 실제와 맞춰 본다.
 
@@ -322,7 +323,7 @@ def rank_hit_rates(forecasts: list[SetForecast], kind: str, top: int = TOP_N) ->
         for i, (champion, _) in enumerate((f.bans if kind == "ban" else f.picks)[:top]):
             seen[i] += 1
             hit[i] += champion in actual
-    return [round(h / n, 3) if n else 0.0 for h, n in zip(hit, seen)]
+    return [round(h / n, 3) if n else 0.0 for h, n in zip(hit, seen, strict=True)]
 
 
 def appear_rate(forecasts: list[SetForecast], kind: str, k: int, drafted: dict[str, set[str]]) -> float:
@@ -367,7 +368,9 @@ def tune(sets: list[SetRecord], train_share: float = 0.6) -> Weights:
         for team_keep in (0.5, 0.75, 1.0):
             for pick_meta in (0.5, 1.0, 2.0):
                 for ban_opponent in (0.5, 1.0, 2.0):
-                    w = Weights(meta_carry=meta_carry, team_keep=team_keep, pick_meta=pick_meta, ban_opponent=ban_opponent)
+                    w = Weights(
+                        meta_carry=meta_carry, team_keep=team_keep, pick_meta=pick_meta, ban_opponent=ban_opponent
+                    )
                     # 초반은 기록이 없어 점수가 흔들리므로 학습 구간의 뒤 절반으로 고른다.
                     m = evaluate(train, w, start_at=0.5)
                     score = m["pick_recall_10"] + m["ban_recall_10"]

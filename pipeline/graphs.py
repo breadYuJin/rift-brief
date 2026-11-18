@@ -14,6 +14,7 @@
     수집 ─┬→ A측 패널 ─┬→ 사회자 → 편집 → 끝
           └→ B측 패널 ─┘
 """
+
 from __future__ import annotations
 
 from langgraph.graph import END, START, StateGraph

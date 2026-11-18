@@ -3,6 +3,7 @@
 타임라인의 참가자 번호는 1~5 가 블루(탑·정글·미드·원딜·서포터 순), 6~10 이 레드다.
 이 순서 가정은 선수별 킬 수를 스코어보드와 대조해 세트마다 확인한다.
 """
+
 from __future__ import annotations
 
 from collections import defaultdict
@@ -55,7 +56,7 @@ def fights(timeline: dict[str, Any]) -> list[dict[str, Any]]:
     """30초 안에 이어진 킬을 한 교전으로 묶는다."""
     out: list[dict[str, Any]] = []
     last = -10_000
-    for t, killer, victim, _assists, x, y in sorted(timeline.get("kills") or [], key=lambda k: k[0]):
+    for t, _killer, victim, _assists, x, y in sorted(timeline.get("kills") or [], key=lambda k: k[0]):
         if t - last > FIGHT_GAP_SEC or not out:
             out.append({"t": t, "blue": 0, "red": 0, "xs": [], "ys": []})
         f = out[-1]
@@ -123,11 +124,17 @@ def set_summary(s: SetRecord, timeline: dict[str, Any] | None) -> dict[str, Any]
         return out
     fs = fights(timeline)
     out["fights"] = fs
-    out["fight_count"] = {"total": len(fs), "blue": sum(f["winner"] == "blue" for f in fs), "red": sum(f["winner"] == "red" for f in fs)}
+    out["fight_count"] = {
+        "total": len(fs),
+        "blue": sum(f["winner"] == "blue" for f in fs),
+        "red": sum(f["winner"] == "red" for f in fs),
+    }
     out["objectives"] = objectives(timeline)
     out["gold_diff"] = gold_diff(timeline)
     out["jungle"] = jungle_paths(timeline)
-    out["kills"] = [[t, side_of(victim) == "red", x, y] for t, _k, victim, _a, x, y in timeline.get("kills") or [] if x is not None]
+    out["kills"] = [
+        [t, side_of(victim) == "red", x, y] for t, _k, victim, _a, x, y in timeline.get("kills") or [] if x is not None
+    ]
     out["participants_ok"] = participants_match(s, timeline)
     first = min(timeline.get("kills") or [], key=lambda k: k[0], default=None)
     out["first_blood"] = (

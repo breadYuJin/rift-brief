@@ -3,10 +3,12 @@
 밴픽이 한 수 진행될 때마다 남은 칸의 예상을 다시 낸다. 지금은 입력을 직접 넣는 ManualFeed 만 있고,
 실시간 데이터(GRID 등)가 확보되면 같은 모양의 이벤트를 내는 피드를 하나 더 만들어 끼우면 된다.
 """
+
 from __future__ import annotations
 
 import os
-from typing import Any, Iterable, Iterator, Protocol
+from collections.abc import Iterable, Iterator
+from typing import Any, Protocol
 
 from pydantic import BaseModel
 
@@ -36,7 +38,7 @@ class ManualFeed:
         self._events = list(events)
 
     @classmethod
-    def from_set(cls, s: SetRecord) -> "ManualFeed":
+    def from_set(cls, s: SetRecord) -> ManualFeed:
         return cls(DraftEvent(kind=step.kind, team_id=step.team_id, champion=step.champion) for step in s.draft)
 
     def events(self) -> Iterator[DraftEvent]:

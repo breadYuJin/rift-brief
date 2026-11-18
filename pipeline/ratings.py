@@ -15,6 +15,7 @@
 표준화 기준(data/rating_scale.json)은 처음 한 번 만든 뒤 고정한다. 기준이 매일 바뀌면 지난 경기의
 평점도 매일 달라지기 때문이다. 시즌이 바뀌어 다시 만들고 싶으면 그 파일을 지우면 된다.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -34,11 +35,51 @@ CONFIG_PATH = Path(__file__).resolve().parents[1] / "ratings.config.json"
 METRICS = ("kda", "kp", "deaths", "dmg_share", "gold_diff", "cs_diff", "vision")
 # 포지션별 가중치. 데스는 적을수록 좋으므로 음수다. 절댓값의 합은 1.
 WEIGHTS: dict[str, dict[str, float]] = {
-    "탑": {"kda": 0.25, "kp": 0.10, "deaths": -0.15, "dmg_share": 0.20, "gold_diff": 0.15, "cs_diff": 0.10, "vision": 0.05},
-    "정글": {"kda": 0.25, "kp": 0.20, "deaths": -0.15, "dmg_share": 0.10, "gold_diff": 0.15, "cs_diff": 0.05, "vision": 0.10},
-    "미드": {"kda": 0.25, "kp": 0.15, "deaths": -0.15, "dmg_share": 0.20, "gold_diff": 0.15, "cs_diff": 0.05, "vision": 0.05},
-    "원딜": {"kda": 0.25, "kp": 0.15, "deaths": -0.15, "dmg_share": 0.25, "gold_diff": 0.10, "cs_diff": 0.05, "vision": 0.05},
-    "서포터": {"kda": 0.25, "kp": 0.25, "deaths": -0.20, "dmg_share": 0.05, "gold_diff": 0.05, "cs_diff": 0.0, "vision": 0.20},
+    "탑": {
+        "kda": 0.25,
+        "kp": 0.10,
+        "deaths": -0.15,
+        "dmg_share": 0.20,
+        "gold_diff": 0.15,
+        "cs_diff": 0.10,
+        "vision": 0.05,
+    },
+    "정글": {
+        "kda": 0.25,
+        "kp": 0.20,
+        "deaths": -0.15,
+        "dmg_share": 0.10,
+        "gold_diff": 0.15,
+        "cs_diff": 0.05,
+        "vision": 0.10,
+    },
+    "미드": {
+        "kda": 0.25,
+        "kp": 0.15,
+        "deaths": -0.15,
+        "dmg_share": 0.20,
+        "gold_diff": 0.15,
+        "cs_diff": 0.05,
+        "vision": 0.05,
+    },
+    "원딜": {
+        "kda": 0.25,
+        "kp": 0.15,
+        "deaths": -0.15,
+        "dmg_share": 0.25,
+        "gold_diff": 0.10,
+        "cs_diff": 0.05,
+        "vision": 0.05,
+    },
+    "서포터": {
+        "kda": 0.25,
+        "kp": 0.25,
+        "deaths": -0.20,
+        "dmg_share": 0.05,
+        "gold_diff": 0.05,
+        "cs_diff": 0.0,
+        "vision": 0.20,
+    },
 }
 
 
@@ -61,7 +102,9 @@ class Config:
 
     def digest(self) -> str:
         """설정이 바뀌었는지 알아보기 위한 짧은 지문."""
-        raw = json.dumps([self.spread, self.win_bonus, self.weights, self.feedback.__dict__], sort_keys=True, ensure_ascii=False)
+        raw = json.dumps(
+            [self.spread, self.win_bonus, self.weights, self.feedback.__dict__], sort_keys=True, ensure_ascii=False
+        )
         return hashlib.sha1(raw.encode()).hexdigest()[:8]
 
 
@@ -77,7 +120,11 @@ def load_config(path: Path | None = None) -> Config:
         return Config()
 
     def number(value: Any, default: float, low: float, high: float) -> float:
-        return min(high, max(low, float(value))) if isinstance(value, (int, float)) and not isinstance(value, bool) else default
+        return (
+            min(high, max(low, float(value)))
+            if isinstance(value, (int, float)) and not isinstance(value, bool)
+            else default
+        )
 
     weights = {r: dict(w) for r, w in WEIGHTS.items()}
     for role, row in (raw.get("weights") or {}).items():

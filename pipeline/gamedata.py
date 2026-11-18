@@ -2,6 +2,7 @@
 
 수집해 둔 원본(data/raw/)을 모델과 에이전트가 쓰는 형태로 정리한다. 네트워크를 쓰지 않는다.
 """
+
 from __future__ import annotations
 
 import json
@@ -22,7 +23,12 @@ DRAFT_ORDER: list[tuple[str, str, int]] = (
 )
 ROLES = ["탑", "정글", "미드", "원딜", "서포터"]
 _ROLE_ALIASES = {
-    "top": "탑", "jungle": "정글", "mid": "미드", "bot": "원딜", "adc": "원딜", "support": "서포터",
+    "top": "탑",
+    "jungle": "정글",
+    "mid": "미드",
+    "bot": "원딜",
+    "adc": "원딜",
+    "support": "서포터",
 }
 
 

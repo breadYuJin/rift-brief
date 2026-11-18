@@ -1,8 +1,10 @@
 """리그 단위 집계: 현재 시리즈의 일정, 스테이지별 팀 전적, 주요 경기 점수."""
+
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Callable
+from collections.abc import Callable
+from itertools import pairwise
 
 from .pandascore import pick_current_serie
 from .schemas import Bracket, BracketRound, BracketSlot, LeagueFeed, LeagueRecord, Match, StageRecord, Standing, Team
@@ -12,7 +14,16 @@ FINAL_WORDS = ("final", "결승")
 # "quarterfinal", "semifinal" 에도 final 이 들어 있어 결승보다 먼저 걸러 낸다.
 PRE_FINAL_WORDS = ("quarter", "semi", "8강", "4강", "준결승")
 KNOCKOUT_WORDS = (
-    "playoff", "play-off", "play-in", "knockout", "bracket", "플레이오프", "플레이-인", "토너먼트", "브래킷", "선발전",
+    "playoff",
+    "play-off",
+    "play-in",
+    "knockout",
+    "bracket",
+    "플레이오프",
+    "플레이-인",
+    "토너먼트",
+    "브래킷",
+    "선발전",
 )
 
 # (A팀 순위, B팀 순위, 전적표의 팀 수)
@@ -49,7 +60,15 @@ def _standings(matches: list[Match]) -> list[Standing]:
 
 
 BRACKET_STAGE_WORDS = (
-    "토너먼트", "플레이오프", "플레이-인", "브래킷", "선발전", "playoff", "knockout", "bracket", "play-in",
+    "토너먼트",
+    "플레이오프",
+    "플레이-인",
+    "브래킷",
+    "선발전",
+    "playoff",
+    "knockout",
+    "bracket",
+    "play-in",
 )
 FINAL_ROUND = "결승"
 
@@ -66,7 +85,7 @@ def _round_rank(name: str) -> tuple[int, int]:
 def _tree_order(rounds: list[list[Match]]) -> list[list[Match]] | None:
     """한 번 지면 탈락하는 토너먼트면, 다음 라운드 경기가 앞 라운드 두 경기 사이에 오도록 줄을 세운다."""
     sizes = [len(r) for r in rounds]
-    if sizes[-1] != 1 or any(a != 2 * b for a, b in zip(sizes, sizes[1:])):
+    if sizes[-1] != 1 or any(a != 2 * b for a, b in pairwise(sizes)):
         return None
     if any(m.winner_id is None for r in rounds for m in r):
         return None
@@ -104,7 +123,7 @@ def build_brackets(matches: list[Match]) -> list[Bracket]:
             if m.winner_id is not None:
                 last[m.team_a.id] = last[m.team_b.id] = m
 
-        def note(m: Match, team: Team) -> str:
+        def note(m: Match, team: Team, last: dict[int, Match] = last) -> str:
             if last.get(team.id) is not m:
                 return ""
             if m.winner_id == team.id:
@@ -119,7 +138,9 @@ def build_brackets(matches: list[Match]) -> list[Bracket]:
                 rounds=[
                     BracketRound(
                         name=line[0].round,
-                        slots=[BracketSlot(match_id=m.id, note_a=note(m, m.team_a), note_b=note(m, m.team_b)) for m in line],
+                        slots=[
+                            BracketSlot(match_id=m.id, note_a=note(m, m.team_a), note_b=note(m, m.team_b)) for m in line
+                        ],
                     )
                     for line in (ordered or rounds)
                 ],
@@ -159,8 +180,10 @@ def build_league(feed: LeagueFeed) -> LeagueRecord:
 
     has_finished = any(m.status == "finished" for m in current)
     has_pending = any(m.status in ("running", "not_started") for m in current)
-    status = "진행 중" if has_pending and (has_finished or any(m.status == "running" for m in current)) else (
-        "시작 전" if has_pending else "종료"
+    status = (
+        "진행 중"
+        if has_pending and (has_finished or any(m.status == "running" for m in current))
+        else ("시작 전" if has_pending else "종료")
     )
     serie_name = feed.serie or next((m.stage.removesuffix(m.tournament).strip() for m in current if m.stage), "")
     return LeagueRecord(
@@ -222,12 +245,3 @@ def importance(match: Match, tags: list[str], ranks: tuple[int | None, int | Non
             score += points
             reasons.append(tag)
     return score, reasons
-
-
-def team_of(leagues: list[LeagueRecord], team_id: int) -> Team | None:
-    for league in leagues:
-        for m in league.matches:
-            for t in (m.team_a, m.team_b):
-                if t.id == team_id:
-                    return t
-    return None

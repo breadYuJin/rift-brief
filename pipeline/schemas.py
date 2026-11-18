@@ -1,4 +1,5 @@
 """파이프라인 전체가 공유하는 데이터 모델."""
+
 from __future__ import annotations
 
 from typing import Literal

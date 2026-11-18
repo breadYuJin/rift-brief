@@ -8,6 +8,7 @@ PANDASCORE_TOKEN 이 없을 때 파이프라인이 archive 파일을 읽는다.
 Leaguepedia 의 내용은 CC BY-SA 라이선스이므로 사이트에 출처를 표기한다.
 요청은 한 번에 500행까지, 요청 사이에 몇 초씩 쉬어 서버에 부담을 주지 않는다.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -18,7 +19,7 @@ import sys
 import time
 import zlib
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import requests
@@ -65,7 +66,19 @@ GAME_FIELDS = (
     + ",".join(
         f"{t}{f}"
         for t in _SIDES
-        for f in ("Picks", "Bans", "Kills", "Gold", "Dragons", "Barons", "Towers", "RiftHeralds", "VoidGrubs", "Atakhans", "Inhibitors")
+        for f in (
+            "Picks",
+            "Bans",
+            "Kills",
+            "Gold",
+            "Dragons",
+            "Barons",
+            "Towers",
+            "RiftHeralds",
+            "VoidGrubs",
+            "Atakhans",
+            "Inhibitors",
+        )
     )
 )
 # PicksAndBansS7 의 Team1 은 먼저 밴픽하는 팀이다(진영과는 별개).
@@ -141,7 +154,7 @@ def _iso(value: str | None) -> str | None:
     if not value:
         return None
     try:
-        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc).isoformat()
+        return datetime.strptime(value, "%Y-%m-%d %H:%M:%S").replace(tzinfo=UTC).isoformat()
     except ValueError:
         return None
 
@@ -158,7 +171,9 @@ def resolve_team(name: str, shorts: dict[str, str]) -> Team:
     clean = re.sub(r"\s*\([^)]*\)\s*$", "", name).strip() or name
     short = SHORT_OVERRIDES.get(clean) or shorts.get(name) or shorts.get(clean)
     if not short:
-        short = clean.upper() if " " not in clean and len(clean) <= 5 else "".join(w[0] for w in clean.split()[:3]).upper()
+        short = (
+            clean.upper() if " " not in clean and len(clean) <= 5 else "".join(w[0] for w in clean.split()[:3]).upper()
+        )
     return Team(id=stable_id(short), name=KOREAN_NAMES.get(short, clean), acronym=short)
 
 
@@ -302,8 +317,15 @@ class Cargo:
     def page_content(self, title: str) -> str | None:
         """위키 문서의 본문. 문서가 없으면 None."""
         data = self._request(
-            {"action": "query", "format": "json", "formatversion": 2, "prop": "revisions",
-             "titles": title, "rvprop": "content", "rvslots": "main"}
+            {
+                "action": "query",
+                "format": "json",
+                "formatversion": 2,
+                "prop": "revisions",
+                "titles": title,
+                "rvprop": "content",
+                "rvslots": "main",
+            }
         )
         time.sleep(self._pause)
         pages = (data.get("query") or {}).get("pages") or []
@@ -317,8 +339,15 @@ class Cargo:
         for start in range(0, len(files), 40):
             batch = files[start : start + 40]
             data = self._request(
-                {"action": "query", "format": "json", "formatversion": 2, "prop": "imageinfo",
-                 "iiprop": "url", "iiurlwidth": width, "titles": "|".join(f"File:{f}" for f in batch)}
+                {
+                    "action": "query",
+                    "format": "json",
+                    "formatversion": 2,
+                    "prop": "imageinfo",
+                    "iiprop": "url",
+                    "iiurlwidth": width,
+                    "titles": "|".join(f"File:{f}" for f in batch),
+                }
             )
             time.sleep(self._pause)
             query = data.get("query") or {}
@@ -396,7 +425,7 @@ def fetch_raw(year: int, cargo: Any) -> dict[str, Any]:
     return {
         "year": year,
         "source": "Leaguepedia",
-        "fetched_on": datetime.now(timezone.utc).date().isoformat(),
+        "fetched_on": datetime.now(UTC).date().isoformat(),
         "leagues": leagues,
         "notes": notes,
         "requests": getattr(cargo, "requests_made", 0),
@@ -424,24 +453,47 @@ def compact_timeline(timeline: dict[str, Any]) -> dict[str, Any]:
                 anchors.append([t, int(e["realTimestamp"]) // 1000])
             if kind == "CHAMPION_KILL":
                 pos = e.get("position") or {}
-                kills.append([t, e.get("killerId") or 0, e.get("victimId") or 0, e.get("assistingParticipantIds") or [], pos.get("x"), pos.get("y")])
+                kills.append(
+                    [
+                        t,
+                        e.get("killerId") or 0,
+                        e.get("victimId") or 0,
+                        e.get("assistingParticipantIds") or [],
+                        pos.get("x"),
+                        pos.get("y"),
+                    ]
+                )
             elif kind == "ELITE_MONSTER_KILL":
                 team = e.get("killerTeamId") or (100 if 1 <= (e.get("killerId") or 0) <= 5 else 200)
                 monsters.append([t, e.get("monsterType") or "", e.get("monsterSubType") or "", team])
             elif kind == "BUILDING_KILL":
                 # teamId 는 건물을 잃은 쪽이다.
-                buildings.append([t, e.get("buildingType") or "", e.get("towerType") or "", e.get("laneType") or "", e.get("teamId")])
-        pf = frame.get("participantFrames") or {}
-        if pf:
-            def total(ids: range) -> int:
-                return sum(int((pf.get(str(i)) or {}).get("totalGold") or 0) for i in ids)
-
-            gold.append([total(range(1, 6)), total(range(6, 11))])
-            positions.append([
-                [int(((pf.get(str(i)) or {}).get("position") or {}).get("x") or 0), int(((pf.get(str(i)) or {}).get("position") or {}).get("y") or 0)]
-                for i in range(1, 11)
-            ])
-    return {"kills": kills, "monsters": monsters, "buildings": buildings, "gold": gold, "pos": positions, "anchors": anchors}
+                buildings.append(
+                    [t, e.get("buildingType") or "", e.get("towerType") or "", e.get("laneType") or "", e.get("teamId")]
+                )
+        players = frame.get("participantFrames") or {}
+        if players:
+            each = [players.get(str(i)) or {} for i in range(1, 11)]
+            gold.append(
+                [
+                    sum(int(p.get("totalGold") or 0) for p in each[:5]),
+                    sum(int(p.get("totalGold") or 0) for p in each[5:]),
+                ]
+            )
+            positions.append(
+                [
+                    [int((p.get("position") or {}).get("x") or 0), int((p.get("position") or {}).get("y") or 0)]
+                    for p in each
+                ]
+            )
+    return {
+        "kills": kills,
+        "monsters": monsters,
+        "buildings": buildings,
+        "gold": gold,
+        "pos": positions,
+        "anchors": anchors,
+    }
 
 
 def fetch_timelines(raw: dict[str, Any], existing: dict[str, Any], cargo: Any, limit: int) -> dict[str, Any]:
@@ -491,9 +543,7 @@ def build(raw: dict[str, Any]) -> dict[str, Any]:
         games: dict[str, list[dict[str, Any]]] = {}
         for g in data.get("games") or []:
             games.setdefault(g.get("MatchId") or "", []).append(g)
-        shorts = {
-            (t.get("Name") or "").strip(): t["Short"].strip() for t in data.get("teams") or [] if t.get("Short")
-        }
+        shorts = {(t.get("Name") or "").strip(): t["Short"].strip() for t in data.get("teams") or [] if t.get("Short")}
 
         matches: list[Match] = []
         for r in rows:
@@ -526,10 +576,14 @@ def collect(year: int, cargo: Any) -> dict[str, Any]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--year", type=int, default=datetime.now(timezone.utc).year)
+    parser.add_argument("--year", type=int, default=datetime.now(UTC).year)
     parser.add_argument("--offline", action="store_true", help="받아 둔 원본으로 다시 정리만 한다")
-    parser.add_argument("--timeline-limit", type=int, default=int(os.getenv("TIMELINE_LIMIT", "300")),
-                        help="한 번에 받을 타임라인 수 (0 이면 받지 않는다)")
+    parser.add_argument(
+        "--timeline-limit",
+        type=int,
+        default=int(os.getenv("TIMELINE_LIMIT", "300")),
+        help="한 번에 받을 타임라인 수 (0 이면 받지 않는다)",
+    )
     args = parser.parse_args(argv)
 
     raw_path = ROOT / "data" / "raw" / f"leaguepedia-{args.year}.json"
@@ -538,7 +592,7 @@ def main(argv: list[str] | None = None) -> int:
     else:
         cargo = Cargo()
         raw = fetch_raw(args.year, cargo)
-        if not any(l["matches"] for l in raw["leagues"].values()):
+        if not any(league["matches"] for league in raw["leagues"].values()):
             print("[leaguepedia] 받은 경기가 없어 저장하지 않습니다.")
             return 1
         raw_path.parent.mkdir(parents=True, exist_ok=True)
@@ -547,10 +601,12 @@ def main(argv: list[str] | None = None) -> int:
             tl_path = raw_path.with_name(f"timelines-{args.year}.json")
             existing = json.loads(tl_path.read_text(encoding="utf-8")) if tl_path.exists() else {}
             timelines = fetch_timelines(raw, existing, cargo, args.timeline_limit)
-            tl_path.write_text(json.dumps(timelines, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+            tl_path.write_text(
+                json.dumps(timelines, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8"
+            )
 
     archive = build(raw)
-    total = sum(len(l["matches"]) for l in archive["leagues"])
+    total = sum(len(league["matches"]) for league in archive["leagues"])
     for key, count in archive["diagnostics"]["stages"].items():
         print(f"[스테이지] {count:4d}  {key}")
     for note in archive["diagnostics"]["notes"]:

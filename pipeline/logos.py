@@ -7,14 +7,16 @@ Leaguepedia 에 올라와 있는 팀 로고 파일 주소를 쓴다. 둘 다 못
 
 결과는 data/teams.json 에 팀 ID 별로 저장한다. 한 번 찾은 로고는 다음에 못 찾아도 지우지 않는다.
 """
+
 from __future__ import annotations
 
 import json
 import os
 import re
 from collections import defaultdict
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 from urllib.parse import quote
 
 import requests
@@ -63,7 +65,10 @@ def _lolesports_get() -> list[dict[str, Any]]:
 
 
 def match_lolesports(teams: dict[int, dict[str, Any]], official: list[dict[str, Any]]) -> dict[int, str]:
-    """공식 팀 목록에서 우리 팀을 찾는다. 이름이 같은 팀이 가장 확실하고, 그다음은 약칭이 같으면서 이름이 비슷한 팀이다."""
+    """공식 팀 목록에서 우리 팀을 찾는다.
+
+    이름이 같은 팀이 가장 확실하고, 그다음은 약칭이 같으면서 이름이 비슷한 팀이다.
+    """
     usable = [t for t in official if t.get("image") and t.get("name")]
     by_name: dict[str, list[dict[str, Any]]] = defaultdict(list)
     by_code: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -74,7 +79,9 @@ def match_lolesports(teams: dict[int, dict[str, Any]], official: list[dict[str, 
     def active_first(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """현역 1군을 앞에 둔다. 2군·아카데미는 뒤로, 그다음은 이름이 짧은 쪽을 앞으로."""
         second = re.compile(r"challengers|academy|youth|rookies", re.I)
-        return sorted(items, key=lambda t: (t.get("status") != "active", bool(second.search(t["name"])), len(t["name"])))
+        return sorted(
+            items, key=lambda t: (t.get("status") != "active", bool(second.search(t["name"])), len(t["name"]))
+        )
 
     out: dict[int, str] = {}
     for team_id, team in teams.items():
@@ -82,28 +89,22 @@ def match_lolesports(teams: dict[int, dict[str, Any]], official: list[dict[str, 
         named = [t for k in keys for t in by_name.get(k, [])]
         coded = by_code.get(team["acronym"].upper(), [])
         both = [t for t in named if t in coded]
-        # 후원사 이름이 붙어 표기가 다른 경우(Cloud9 ↔ Cloud9 Kia): 약칭이 같고 이름이 서로의 앞부분이면 같은 팀으로 본다.
+        # 후원사 이름이 붙어 표기가 다른 경우(Cloud9 ↔ Cloud9 Kia):
+        # 약칭이 같고 이름이 서로의 앞부분이면 같은 팀으로 본다.
         close = [
-            t for t in coded
+            t
+            for t in coded
             if any(len(k) >= 2 and (norm(t["name"]).startswith(k) or k.startswith(norm(t["name"]))) for k in keys)
         ]
         # 이름이 전혀 다른데 약칭만 같은 경우(JD Gaming ↔ Beijing JDG Esports)는, 공식 이름에 그 약칭이
         # 낱말로 들어 있고 그런 현역 팀이 하나뿐일 때만 믿는다. 약칭만 우연히 같은 다른 팀을 피하기 위해서다.
         code = team["acronym"].upper()
         worded = [
-            t for t in coded
-            if t.get("status") == "active" and code in re.split(r"[^A-Z0-9]+", t["name"].upper())
+            t for t in coded if t.get("status") == "active" and code in re.split(r"[^A-Z0-9]+", t["name"].upper())
         ]
-        pick = (
-            active_first(both) or active_first(named) or active_first(close)
-            or (worded if len(worded) == 1 else [])
-        )
+        pick = active_first(both) or active_first(named) or active_first(close) or (worded if len(worded) == 1 else [])
         if pick:
             out[team_id] = https(pick[0]["image"])
-        if os.getenv("LOGO_DEBUG"):
-            print(f"[로고] {team['acronym']} {sorted(team['names'])} → {pick[0]['name'] if pick else '못 찾음'}")
-            for t in coded[:8]:
-                print(f"         약칭 후보: {t['name']} / {t.get('status')} / {(t.get('homeLeague') or {}).get('name')} / {t['image']}")
     return out
 
 
@@ -133,15 +134,10 @@ def is_image(url: str) -> bool:
         head = next(r.iter_content(16), b"") if r.status_code == 200 else b""
         kind = r.headers.get("content-type", "")
         r.close()
-    except requests.RequestException as exc:
-        if os.getenv("LOGO_DEBUG"):
-            print(f"[로고] 열기 실패 {url}: {exc}")
+    except requests.RequestException:
         return False
-    magic = head.startswith((b"\x89PNG", b"\xff\xd8", b"GIF8", b"RIFF")) or b"<svg" in head or head.startswith(b"<?xml")
-    ok = r.status_code == 200 and (kind.startswith("image/") or magic)
-    if not ok and os.getenv("LOGO_DEBUG"):
-        print(f"[로고] 그림 아님 {url}: HTTP {r.status_code}, {kind!r}, {head[:8]!r}")
-    return ok
+    magic = head.startswith((b"\x89PNG", b"\xff\xd8", b"GIF8", b"RIFF", b"<?xml")) or b"<svg" in head
+    return r.status_code == 200 and (kind.startswith("image/") or magic)
 
 
 def collect(
@@ -186,7 +182,9 @@ def collect(
     for i in have:
         by_source[saved[str(i)]["source"]] += 1
     without = sorted(teams[i]["acronym"] for i in teams if str(i) not in saved)
-    summary = f"{len(teams)}팀 중 {len(have)}팀 (공식 {by_source['lolesports']}, Leaguepedia {by_source['leaguepedia']})"
+    summary = (
+        f"{len(teams)}팀 중 {len(have)}팀 (공식 {by_source['lolesports']}, Leaguepedia {by_source['leaguepedia']})"
+    )
     if without:
         summary += f", 없음: {', '.join(without)}"
     if broken:

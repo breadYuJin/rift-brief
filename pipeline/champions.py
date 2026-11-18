@@ -4,13 +4,15 @@ Riot 의 공개 정적 데이터(Data Dragon)에서 최신 패치의 챔피언 �
 수집한 경기 기록은 챔피언을 영어 이름으로 적으므로, 사이트는 이 표로 한국어 이름을 찾는다.
 받지 못하면 기존 파일을 그대로 둔다(사이트는 영어 이름을 보여 준다).
 """
+
 from __future__ import annotations
 
 import json
 import re
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import requests
 

@@ -1,4 +1,5 @@
 """경기 결과 브리핑 에이전트: 수집 → 분석 → 작성 → 검증."""
+
 from __future__ import annotations
 
 import operator
@@ -64,17 +65,17 @@ def build_context(match: Match, source: Source) -> Context:
 
 
 def template_draft(match: Match, facts: list[str], tags: list[str]) -> Draft:
-    w, l = match.winner, match.loser
-    assert w and l
+    winner, loser = match.winner, match.loser
+    assert winner and loser
     ws, ls = max(match.score_a, match.score_b), min(match.score_a, match.score_b)
     if "역스윕" in tags:
-        headline = f"{w.acronym}, {l.acronym} 상대로 역스윕"
+        headline = f"{winner.acronym}, {loser.acronym} 상대로 역스윕"
     elif "셧아웃" in tags:
-        headline = f"{w.acronym}, {l.acronym} 상대로 {ws}-{ls} 완승"
+        headline = f"{winner.acronym}, {loser.acronym} 상대로 {ws}-{ls} 완승"
     elif "풀세트" in tags:
-        headline = f"{w.acronym}, 풀세트 끝에 {l.acronym} 제압"
+        headline = f"{winner.acronym}, 풀세트 끝에 {loser.acronym} 제압"
     else:
-        headline = f"{w.acronym}, {l.acronym} 상대로 {ws}-{ls} 승리"
+        headline = f"{winner.acronym}, {loser.acronym} 상대로 {ws}-{ls} 승리"
 
     def pick(*keys: str) -> str | None:
         return next((f for f in facts if any(k in f for k in keys)), None)
@@ -84,7 +85,7 @@ def template_draft(match: Match, facts: list[str], tags: list[str]) -> Draft:
     return Draft(
         headline=headline,
         summary=[
-            f"{w.name}, {l.name} 상대로 세트 스코어 {ws}-{ls} 승리.",
+            f"{winner.name}, {loser.name} 상대로 세트 스코어 {ws}-{ls} 승리.",
             f"{flow.replace(': ', ' ')}.",
             f"{context.replace(': ', ' ')}.",
         ],
@@ -141,8 +142,7 @@ def make_nodes(
                 prev = state["draft"]
                 user += (
                     "\n\n이전 초안이 반려됐다. 아래 문제를 고쳐 다시 쓴다.\n"
-                    f"이전 헤드라인: {prev.headline}\n"
-                    + "\n".join(f"- {i}" for i in review.issues)
+                    f"이전 헤드라인: {prev.headline}\n" + "\n".join(f"- {i}" for i in review.issues)
                 )
             try:
                 draft = llm.structured(prompts.WRITER, user, Draft)
@@ -167,9 +167,8 @@ def make_nodes(
         issues = F.check_draft(draft, facts, match)
         if not issues and llm and state.get("generated_by") == "llm":
             try:
-                user = (
-                    f"{_facts_block(facts)}\n\n초안:\n헤드라인: {draft.headline}\n"
-                    + "\n".join(f"{i}. {s}" for i, s in enumerate(draft.summary, 1))
+                user = f"{_facts_block(facts)}\n\n초안:\n헤드라인: {draft.headline}\n" + "\n".join(
+                    f"{i}. {s}" for i, s in enumerate(draft.summary, 1)
                 )
                 critic = llm.structured(prompts.VERIFIER, user, Review)
                 if not critic.ok:

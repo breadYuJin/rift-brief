@@ -1,7 +1,7 @@
 """평점에 대한 팬 의견 받기.
 
-사이트의 "평점 의견 보내기"를 누르면 이 저장소의 GitHub 이슈 작성 화면이 열린다. 제목은 "[평점]"
-으로 시작하고 본문은 아래 모양이다. 수집 때 이런 이슈를 읽어 선수·세트별로 의견을 모은다.
+사이트의 "의견 보내기"를 누르면 이 저장소의 GitHub 이슈 작성 화면이 열린다(주소는 web/lib/feedback.ts 가
+만든다). 제목은 "[평점]" 으로 시작하고 본문은 아래 모양이다. 수집 때 이런 이슈를 읽어 선수·세트별로 의견을 모은다.
 
     경기: 2856364077
     세트: 2
@@ -17,6 +17,7 @@
 
 GITHUB_TOKEN 과 GITHUB_REPOSITORY 가 있어야 돈다(GitHub Actions 에서는 자동으로 주어진다).
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -24,8 +25,9 @@ import json
 import os
 import re
 from collections import defaultdict
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import requests
 
@@ -83,7 +85,10 @@ def parse_issue(issue: dict[str, Any]) -> dict[str, Any] | None:
 def fetch_votes(repo: str, get: Get = _http_get) -> list[dict[str, Any]]:
     votes = []
     for page in range(1, MAX_PAGES + 1):
-        issues = get(f"/repos/{repo}/issues", {"state": "all", "per_page": 100, "page": page, "sort": "created", "direction": "asc"})
+        issues = get(
+            f"/repos/{repo}/issues",
+            {"state": "all", "per_page": 100, "page": page, "sort": "created", "direction": "asc"},
+        )
         votes += [v for v in map(parse_issue, issues) if v]
         if len(issues) < 100:
             break
@@ -108,7 +113,9 @@ def load_votes(data_dir: Path) -> list[dict[str, Any]]:
         return []
 
 
-def aggregate(votes: list[dict[str, Any]], sets: list[SetRecord]) -> dict[str, dict[tuple[int, str], tuple[float, int]]]:
+def aggregate(
+    votes: list[dict[str, Any]], sets: list[SetRecord]
+) -> dict[str, dict[tuple[int, str], tuple[float, int]]]:
     """세트 ID → (팀 ID, 선수) → (의견 평균, 의견 수). 그 세트에 뛴 선수에 대한 의견만 센다."""
     by_key = {(s.match_id, s.number): s for s in sets}
     latest: dict[tuple[str, str, int, str], float] = {}

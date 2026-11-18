@@ -2,9 +2,10 @@
 
 실제 팀의 가짜 결과가 사이트에 올라가지 않도록 전부 가상의 팀이다.
 """
+
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 from .schemas import Game, LeagueFeed, Match, Team
 
@@ -39,9 +40,13 @@ _UPCOMING = [
 
 
 class SampleSource:
+    """가상의 팀으로 만든 시즌. 키도 기록도 없을 때 화면을 채운다."""
+
+    note = ""
+
     def __init__(self, now: datetime | None = None):
         # 날짜 단위로 고정해 같은 날 여러 번 돌려도 결과가 같게 한다.
-        self._now = (now or datetime.now(timezone.utc)).replace(hour=9, minute=0, second=0, microsecond=0)
+        self._now = (now or datetime.now(UTC)).replace(hour=9, minute=0, second=0, microsecond=0)
         self._past = [self._finished(i, *row) for i, row in enumerate(_PAST)]
 
     def _match(self, **kw) -> Match:
@@ -71,7 +76,10 @@ class SampleSource:
             score_a=score_a,
             score_b=score_b,
             winner_id=a if score_a > score_b else b,
-            games=[Game(position=i + 1, winner_id=w, length_min=l) for i, (w, l) in enumerate(zip(winners, lengths))],
+            games=[
+                Game(position=i + 1, winner_id=w, length_min=minutes)
+                for i, (w, minutes) in enumerate(zip(winners, lengths, strict=True))
+            ],
         )
 
     def past_matches(self) -> list[Match]:

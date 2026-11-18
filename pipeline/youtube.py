@@ -5,12 +5,14 @@ YouTube Data API 로 채널에 올라온 영상의 제목·설명·길이와, �
 
 YOUTUBE_API_KEY 가 없으면 아무것도 하지 않는다. 받은 목록은 data/raw/videos-<연도>.json 에 쌓인다.
 """
+
 from __future__ import annotations
 
 import json
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import requests
 

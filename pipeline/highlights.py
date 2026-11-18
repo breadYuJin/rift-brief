@@ -9,6 +9,7 @@
 경기 도중 일시정지가 길면 경기 내 시각과 실제 시각이 어긋나므로, 그런 세트는 링크를 만들지 않는다.
 검증 전에는 사이트에 내보내지 않는다(HIGHLIGHT_LINKS=1 일 때만 내보낸다).
 """
+
 from __future__ import annotations
 
 import os
@@ -56,7 +57,9 @@ def find_video(start: int, videos: dict[str, Any]) -> tuple[str, int] | None:
     return best
 
 
-def clip_links(timeline: dict[str, Any], fights: list[dict[str, Any]], videos: dict[str, Any], shift: int | None = None) -> list[str | None]:
+def clip_links(
+    timeline: dict[str, Any], fights: list[dict[str, Any]], videos: dict[str, Any], shift: int | None = None
+) -> list[str | None]:
     """교전마다 영상 바로가기 주소. 만들 수 없으면 None."""
     start = game_start(timeline)
     found = find_video(start, videos) if start is not None else None

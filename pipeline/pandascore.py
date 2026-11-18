@@ -1,4 +1,5 @@
 """PandaScore REST 클라이언트 (무료 Fixtures 플랜 범위: 일정·결과·팀)."""
+
 from __future__ import annotations
 
 import time
@@ -17,8 +18,7 @@ def normalize_match(raw: dict[str, Any]) -> Match | None:
     if len(opponents) != 2 or not all(o.get("id") for o in opponents):
         return None
     a, b = (
-        Team(id=o["id"], name=o.get("name") or "?", acronym=o.get("acronym") or o.get("name") or "?")
-        for o in opponents
+        Team(id=o["id"], name=o.get("name") or "?", acronym=o.get("acronym") or o.get("name") or "?") for o in opponents
     )
     scores = {r.get("team_id"): r.get("score") or 0 for r in raw.get("results") or []}
     games = []
@@ -110,7 +110,7 @@ class PandaScoreClient:
         ids: list[tuple[int, str]] = []
         for name in names:
             found = self._get("/lol/leagues", {"search[name]": name, "page[size]": 20})
-            exact = [l for l in found if (l.get("name") or "").lower() == name.lower()]
+            exact = [lg for lg in found if (lg.get("name") or "").lower() == name.lower()]
             pick = (exact or found or [None])[0]
             if pick:
                 ids.append((pick["id"], pick.get("name") or name))

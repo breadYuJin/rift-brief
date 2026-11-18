@@ -1,4 +1,5 @@
 """data/archive/*.json (수집해 둔 시즌 기록)을 읽는 데이터 소스."""
+
 from __future__ import annotations
 
 import json

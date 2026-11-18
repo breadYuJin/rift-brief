@@ -9,6 +9,7 @@
 방식(전진 검증)으로 한다. 한 시즌이 수백 세트뿐이라 조합 효과는 거의 잡히지 않는다. 그래서 밴픽 후
 승률은 밴픽 전 승률에서 조금만 움직인다.
 """
+
 from __future__ import annotations
 
 import math
@@ -28,14 +29,16 @@ def sigmoid(z: float) -> float:
     return 1.0 / (1.0 + math.exp(-max(-30.0, min(30.0, z))))
 
 
-def fit_logistic(rows: list[list[float]], labels: list[int], l2: float = 1.0, steps: int = 400, lr: float = 0.3) -> list[float]:
+def fit_logistic(
+    rows: list[list[float]], labels: list[int], l2: float = 1.0, steps: int = 400, lr: float = 0.3
+) -> list[float]:
     """경사 하강으로 푸는 로지스틱 회귀. 첫 계수는 절편이다."""
     n, d = len(rows), len(rows[0]) if rows else 0
     coef = [0.0] * (d + 1)
     for _ in range(steps):
         grad = [0.0] * (d + 1)
-        for x, y in zip(rows, labels):
-            err = sigmoid(coef[0] + sum(c * v for c, v in zip(coef[1:], x))) - y
+        for x, y in zip(rows, labels, strict=True):
+            err = sigmoid(coef[0] + sum(c * v for c, v in zip(coef[1:], x, strict=True))) - y
             grad[0] += err
             for j, v in enumerate(x):
                 grad[j + 1] += err * v
@@ -48,12 +51,12 @@ def fit_logistic(rows: list[list[float]], labels: list[int], l2: float = 1.0, st
 def fit_full(rows: list[list[float]], labels: list[int]) -> list[float]:
     """전력 차는 그대로, 조합·숙련 항은 DRAFT_L2 만큼 더 눌러서 맞춘다."""
     scale = [1.0] + [1.0 / math.sqrt(DRAFT_L2)] * (len(rows[0]) - 1)
-    coef = fit_logistic([[v * k for v, k in zip(r, scale)] for r in rows], labels)
-    return [coef[0]] + [c * k for c, k in zip(coef[1:], scale)]
+    coef = fit_logistic([[v * k for v, k in zip(r, scale, strict=True)] for r in rows], labels)
+    return [coef[0]] + [c * k for c, k in zip(coef[1:], scale, strict=True)]
 
 
 def predict(coef: list[float], x: list[float]) -> float:
-    return sigmoid(coef[0] + sum(c * v for c, v in zip(coef[1:], x)))
+    return sigmoid(coef[0] + sum(c * v for c, v in zip(coef[1:], x, strict=True)))
 
 
 class WinState:
@@ -69,7 +72,9 @@ class WinState:
     def _strength(self, picks: list[str]) -> float:
         if not picks:
             return 0.5
-        return sum((self.champ_wins[c] + self.prior / 2) / (self.champ_games[c] + self.prior) for c in picks) / len(picks)
+        return sum((self.champ_wins[c] + self.prior / 2) / (self.champ_games[c] + self.prior) for c in picks) / len(
+            picks
+        )
 
     def _comfort(self, team_id: int, picks: list[str]) -> float:
         if not picks:
@@ -112,7 +117,9 @@ class WinModel:
     coef_base: list[float]
     coef_full: list[float]
 
-    def probability(self, blue_id: int, red_id: int, blue_picks: list[str], red_picks: list[str]) -> tuple[float, float]:
+    def probability(
+        self, blue_id: int, red_id: int, blue_picks: list[str], red_picks: list[str]
+    ) -> tuple[float, float]:
         """(밴픽 전, 밴픽 후) 블루 진영 승률."""
         x = self.state.features(blue_id, red_id, blue_picks, red_picks)
         return predict(self.coef_base, x[:1]), predict(self.coef_full, x)
@@ -153,9 +160,11 @@ def score(probabilities: list[float], outcomes: list[bool]) -> dict[str, float]:
     eps = 1e-9
     return {
         "sets": n,
-        "accuracy": round(sum((p >= 0.5) == o for p, o in zip(probabilities, outcomes)) / n, 3),
-        "brier": round(sum((p - o) ** 2 for p, o in zip(probabilities, outcomes)) / n, 4),
-        "log_loss": round(-sum(math.log(max(eps, p if o else 1 - p)) for p, o in zip(probabilities, outcomes)) / n, 4),
+        "accuracy": round(sum((p >= 0.5) == o for p, o in zip(probabilities, outcomes, strict=True)) / n, 3),
+        "brier": round(sum((p - o) ** 2 for p, o in zip(probabilities, outcomes, strict=True)) / n, 4),
+        "log_loss": round(
+            -sum(math.log(max(eps, p if o else 1 - p)) for p, o in zip(probabilities, outcomes, strict=True)) / n, 4
+        ),
     }
 
 

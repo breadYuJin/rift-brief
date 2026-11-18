@@ -1,4 +1,5 @@
 """환경변수 기반 설정. 키가 없으면 샘플/템플릿 모드로 내려간다."""
+
 from __future__ import annotations
 
 import os
@@ -42,7 +43,3 @@ class Settings:
         if self.archive_dir.is_dir() and any(self.archive_dir.glob("*.json")):
             return "archive"
         return "sample"
-
-    @property
-    def sample_mode(self) -> bool:
-        return self.mode == "sample"
